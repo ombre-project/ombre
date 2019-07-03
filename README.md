@@ -5,7 +5,7 @@
 - Web: [www.ombre.ir](https://www.ombre.ir/)
 - Mail: [contact@ombre.ir](mailto:contact@ombre.ir)
 
-Please note that code is developed on the [dev branch](https://github.com/sumoprojects/sumokoin/tree/dev), if you want to check out the latest updates, before they are merged on main branch, please refer there. Master branch will always point to a version that we consider stable, so you can download the code by simply typing `git clone https://github.com/sumoprojects/sumokoin.git`
+Please note that code is developed on the [dev branch](https://github.com/ombre-project/ombre/tree/dev), if you want to check out the latest updates, before they are merged on main branch, please refer there. Master branch will always point to a version that we consider stable, so you can download the code by simply typing `git clone https://github.com/ombre-project/ombre.git`
 
 ## Introduction
 
@@ -26,11 +26,11 @@ About 10% (~8.8 million) was premined to reserve for future development, i.e. **
 - **Emission scheme**: Sumokoin's block reward changes _every 6-months_ as the following "Camel" distribution* (inspired by _real-world mining production_ like of crude oil, coal etc. that is often slow at first, 
 accelerated in the next few years before declined and depleted). However, the emission path of Sumokoin is generally not far apart from what of Bitcoin (view charts below).
 
-![](http://images.sumokoin.org/block_reward_by_calendar_year.png)
+![](http://images.ombre.ir/block_reward_by_calendar_year.png)
 
-![](http://images.sumokoin.org/block_reward_by_calendar_month.png)
+![](http://images.ombre.ir/block_reward_by_calendar_month.png)
 
-![](http://images.sumokoin.org/emission_speed_sumo_vs_btc.png)
+![](http://images.ombre.ir/emission_speed_sumo_vs_btc.png)
 
 \* The emulated algorithm of Sumokoin block-reward emission can be found in Python and C++ scripts at [scripts](scripts) directory.
 
@@ -100,7 +100,7 @@ FreeBSD one liner for required to build dependencies
 
 Clone recursively to pull-in needed submodule(s):
 
-`$ git clone --recursive https://github.com/sumoprojects/sumokoin`
+`$ git clone --recursive https://github.com/ombre-project/ombre`
 
 If you already have a repo cloned, initialize and update:
 
@@ -193,7 +193,7 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 
 * Clone sumokoin and checkout most recent release version:
 ```
-        git clone https://github.com/sumoprojects/sumokoin.git
+        git clone https://github.com/ombre-project/ombre.git
 	cd sumokoin
 	git checkout tags/v0.5.1.0
 ```
@@ -299,7 +299,7 @@ application.
 * To git clone, run:
 
     ```bash
-    git clone --recursive https://github.com/sumoprojects/sumokoin.git
+    git clone --recursive https://github.com/ombre-project/ombre.git
     ```
 
 **Building**
@@ -623,8 +623,8 @@ The output of `mdb_dump -s blocks <path to blockchain dir>` and `mdb_dump -s blo
 
 These records are dumped as hex data, where the first line is the key and the second line is the data.
 
-
 ## Copyright
+
 Copyright (c) 2018-2019, Ombre Project
 
 Copyright (c) 2017-2019, Sumokoin Project
@@ -632,3 +632,4 @@ Copyright (c) 2017-2019, Sumokoin Project
 Copyright (c) 2014-2017, The Monero Project
 
 Portions Copyright (c) 2012-2013, The Cryptonote developers
+
