@@ -32,8 +32,8 @@ As with many development projects, the repository on Github is considered to be 
 
 ## Development Resources
 
-- Web: [www.ombre.ir](https://www.ombre.ir/)
-- Mail: [contact@ombre.ir](mailto:contact@ombre.ir)
+- Web: [www.ombre.io](https://www.ombre.io/)
+- Mail: [contact@ombre.io](mailto:contact@ombre.io)
 
 Please note that code is developed on the [dev branch](https://github.com/ombre-project/ombre/tree/dev), if you want to check out the latest updates, before they are merged on main branch, please refer there. Master branch will always point to a version that we consider stable, so you can download the code by simply typing `git clone https://github.com/ombre-project/ombre.git`
 
