@@ -1,10 +1,4 @@
-# Sumokoin
-
-Copyright (c) 2017-2019, Sumokoin Project
-
-Copyright (c) 2014-2017, The Monero Project
-
-Portions Copyright (c) 2012-2013, The Cryptonote developers
+# Ombre
 
 ## Development Resources
 
@@ -628,3 +622,13 @@ The output of `mdb_stat -ea <path to blockchain dir>` will indicate inconsistenc
 The output of `mdb_dump -s blocks <path to blockchain dir>` and `mdb_dump -s block_info <path to blockchain dir>` is useful for indicating whether blocks and block_info contain the same keys.
 
 These records are dumped as hex data, where the first line is the key and the second line is the data.
+
+
+## Copyright
+Copyright (c) 2018-2019, Ombre Project
+
+Copyright (c) 2017-2019, Sumokoin Project
+
+Copyright (c) 2014-2017, The Monero Project
+
+Portions Copyright (c) 2012-2013, The Cryptonote developers
