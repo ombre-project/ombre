@@ -1,3 +1,4 @@
+// Copyright (c) 2018-2019, OMBRE
 // Copyright (c) 2017, SUMOKOIN
 //
 // All rights reserved.
