@@ -9,9 +9,9 @@ Please note that code is developed on the [dev branch](https://github.com/ombre-
 
 ## Introduction
 
-Sumokoin (スモコイン in Japanese) is a fork from Monero, one of the most respectable cryptocurrency well-known for **security, privacy, untraceability** and **active development**. Starting as an educational project, we found that it would be great to create a new coin with high level of privacy by (1) moving forward right away to **Ring Confidential Transactions (RingCT)**, (2) setting **minimum transaction _mixin_ to 12** that would greatly reduce chance of being attacked, traced or identified by (blockchain) statistical analysis.
+Ombre (スモコイン in Japanese) is a fork from Monero, one of the most respectable cryptocurrency well-known for **security, privacy, untraceability** and **active development**. Starting as an educational project, we found that it would be great to create a new coin with high level of privacy by (1) moving forward right away to **Ring Confidential Transactions (RingCT)**, (2) setting **minimum transaction _mixin_ to 12** that would greatly reduce chance of being attacked, traced or identified by (blockchain) statistical analysis.
 
-Sumokoin, therefore, is a new Monero without its legacy, a _truely fungible_ cryptocurrency among just a few ones in the market.
+Ombre, therefore, is a new Monero without its legacy, a _truely fungible_ cryptocurrency among just a few ones in the market.
 
 ## Coin Supply & Emission
 
@@ -23,8 +23,8 @@ About 10% (~8.8 million) was premined to reserve for future development, i.e. **
   + 1 Sumokun = 0.000001 **SUMO** (10<sup>-6</sup>)
   + 1 Sumosan = 0.001 **SUMO** (10<sup>-3</sup>)
 - **Hash algorithm**: CryptoNight (Proof-Of-Work)
-- **Emission scheme**: Sumokoin's block reward changes _every 6-months_ as the following "Camel" distribution* (inspired by _real-world mining production_ like of crude oil, coal etc. that is often slow at first, 
-accelerated in the next few years before declined and depleted). However, the emission path of Sumokoin is generally not far apart from what of Bitcoin (view charts below).
+- **Emission scheme**: Ombre's block reward changes _every 6-months_ as the following "Camel" distribution* (inspired by _real-world mining production_ like of crude oil, coal etc. that is often slow at first, 
+accelerated in the next few years before declined and depleted). However, the emission path of Ombre is generally not far apart from what of Bitcoin (view charts below).
 
 ![](http://images.ombre.ir/block_reward_by_calendar_year.png)
 
@@ -32,15 +32,15 @@ accelerated in the next few years before declined and depleted). However, the em
 
 ![](http://images.ombre.ir/emission_speed_sumo_vs_btc.png)
 
-\* The emulated algorithm of Sumokoin block-reward emission can be found in Python and C++ scripts at [scripts](scripts) directory.
+\* The emulated algorithm of Ombre block-reward emission can be found in Python and C++ scripts at [scripts](scripts) directory.
 
 ## About this Project
 
-This is the core implementation of Sumokoin. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Sumokoin that uses the protocol and network in a compatible manner.
+This is the core implementation of Ombre. It is open source and completely free to use without restrictions, except for those specified in the license agreement below. There are no restrictions on anyone creating an alternative implementation of Ombre that uses the protocol and network in a compatible manner.
 
 As with many development projects, the repository on Github is considered to be the "staging" area for the latest changes. Before changes are merged into that branch on the main repository, they are tested by individual developers in their own branches, submitted as a pull request, and then subsequently tested by contributors who focus on testing and code reviews. That having been said, the repository should be carefully considered before using it in a production environment, unless there is a patch in the repository for a particular show-stopping issue you are experiencing. It is generally a better idea to use a tagged release for stability.
 
-**Anyone is welcome to contribute to Sumokoin's codebase!** If you have a fix or code change, feel free to submit is as a pull request directly to the "master" branch. In cases where the change is relatively small or does not affect other parts of the codebase it may be merged in immediately by any one of the collaborators. On the other hand, if the change is particularly large or complex, it is expected that it will be discussed at length either well in advance of the pull request being submitted, or even directly on the pull request.
+**Anyone is welcome to contribute to Ombre's codebase!** If you have a fix or code change, feel free to submit is as a pull request directly to the "master" branch. In cases where the change is relatively small or does not affect other parts of the codebase it may be merged in immediately by any one of the collaborators. On the other hand, if the change is particularly large or complex, it is expected that it will be discussed at length either well in advance of the pull request being submitted, or even directly on the pull request.
 
 ## License
 
@@ -48,7 +48,7 @@ Please view [LICENSE](LICENSE)
 
 [![License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
-## Compiling Sumokoin from Source
+## Compiling Ombre from Source
 
 ### Dependencies
 
@@ -104,11 +104,11 @@ Clone recursively to pull-in needed submodule(s):
 
 If you already have a repo cloned, initialize and update:
 
-`$ cd sumokoin && git submodule init && git submodule update`
+`$ cd ombre && git submodule init && git submodule update`
 
 ### Build instructions
 
-Sumokoin uses the CMake build system and a top-level [Makefile](Makefile) that
+Ombre uses the CMake build system and a top-level [Makefile](Makefile) that
 invokes cmake commands as needed.
 
 #### On Linux and OS X
@@ -121,7 +121,7 @@ invokes cmake commands as needed.
     
 * Change to the root of the source code directory and build:
 
-        cd sumokoin
+        cd ombre
         make
 
     *Optional*: If your machine has several cores and enough memory, enable
@@ -133,16 +133,16 @@ invokes cmake commands as needed.
     https://github.com/zeromq/cppzmq to `/usr/local/include` should fix that error.
 
     *Note*: The instructions above will compile the most stable release of the
-    Sumokoin software. If you would like to use and test the most recent software,
+    Ombre software. If you would like to use and test the most recent software,
     use ```git checkout master```. The master branch may contain updates that are
     both unstable and incompatible with release software, though testing is always
     encouraged.
 
 * The resulting executables can be found in `build/release/bin`
 
-* Add `PATH="$PATH:$HOME/sumokoin/build/release/bin"` to `.profile`
+* Add `PATH="$PATH:$HOME/ombre/build/release/bin"` to `.profile`
 
-* Run Sumokoin with `sumokoind --detach`
+* Run Ombre with `ombred --detach`
 
 * **Optional**: build and run the test suite to verify the binaries:
 
@@ -178,7 +178,7 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 
 * `apt-get update && apt-get upgrade` to install all of the latest software
 
-* Install the dependencies for Sumokoin from the 'Debian' column in the table above.
+* Install the dependencies for Ombre from the 'Debian' column in the table above.
 
 * Increase the system swap size:
 
@@ -191,10 +191,10 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 
 * If using an external hard disk without an external power supply, ensure it gets enough power to avoid hardware issues when syncing, by adding the line "max_usb_current=1" to /boot/config.txt
 
-* Clone sumokoin and checkout most recent release version:
+* Clone ombre and checkout most recent release version:
 ```
         git clone https://github.com/ombre-project/ombre.git
-	cd sumokoin
+	cd ombre
 	git checkout tags/v0.5.1.0
 ```
 * Build:
@@ -207,15 +207,15 @@ Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (
 
 * The resulting executables can be found in `build/release/bin`
 
-* Add `PATH="$PATH:$HOME/sumokoin/build/release/bin"` to `.profile`
+* Add `PATH="$PATH:$HOME/ombre/build/release/bin"` to `.profile`
 
-* Run Sumokoin with `sumokoind --detach`
+* Run Ombre with `ombred --detach`
 
 * You may wish to reduce the size of the swap file after the build has finished, and delete the boost directory from your home directory
 
 #### *Note for Raspbian Jessie users:*
 
-If you are using the older Raspbian Jessie image, compiling Sumokoin is a bit more complicated. The version of Boost available in the Debian Jessie repositories is too old to use with Sumokoin, and thus you must compile a newer version yourself. The following explains the extra steps, and has been tested on a Raspberry Pi 2 with a clean install of minimal Raspbian Jessie.
+If you are using the older Raspbian Jessie image, compiling Ombre is a bit more complicated. The version of Boost available in the Debian Jessie repositories is too old to use with Ombre, and thus you must compile a newer version yourself. The following explains the extra steps, and has been tested on a Raspberry Pi 2 with a clean install of minimal Raspbian Jessie.
 
 * As before, `apt-get update && apt-get upgrade` to install all of the latest software, and increase the system swap size
 
@@ -226,7 +226,7 @@ If you are using the older Raspbian Jessie image, compiling Sumokoin is a bit mo
     sudo /etc/init.d/dphys-swapfile start
     ```
 
-* Then, install the dependencies for Sumokoin except `libunwind` and `libboost-all-dev`
+* Then, install the dependencies for Ombre except `libunwind` and `libboost-all-dev`
 
 * Install the latest version of boost (this may first require invoking `apt-get remove --purge libboost*` to remove a previous version if you're not using a clean install):
 
@@ -247,7 +247,7 @@ If you are using the older Raspbian Jessie image, compiling Sumokoin is a bit mo
 
 * Wait ~4 hours
 
-* From here, follow the [general Raspberry Pi instructions](#on-the-raspberry-pi) from the "Clone sumokoin and checkout most recent release version" step.
+* From here, follow the [general Raspberry Pi instructions](#on-the-raspberry-pi) from the "Clone ombre and checkout most recent release version" step.
 
 #### On Windows:
 
@@ -307,7 +307,7 @@ application.
 * Change to the cloned directory, run:
 
     ```bash
-    cd sumokoin
+    cd ombre
     ```
 
 * If you are on a 64-bit system, run:
@@ -340,9 +340,9 @@ application.
 
 ### On FreeBSD:
 
-The project can be built from scratch by following instructions for Linux above(but use `gmake` instead of `make`). If you are running Sumokoin in a jail you need to add the flag: `allow.sysvipc=1` to your jail configuration, otherwise lmdb will throw the error message: `Failed to open lmdb environment: Function not implemented`.
+The project can be built from scratch by following instructions for Linux above(but use `gmake` instead of `make`). If you are running Ombre in a jail you need to add the flag: `allow.sysvipc=1` to your jail configuration, otherwise lmdb will throw the error message: `Failed to open lmdb environment: Function not implemented`.
 
-We expect to add Sumokoin into the ports tree in the near future, which will aid in managing installations using ports or packages.
+We expect to add Ombre into the ports tree in the near future, which will aid in managing installations using ports or packages.
 
 ### On OpenBSD:
 
@@ -357,7 +357,7 @@ The doxygen and graphviz packages are optional and require the xbase set.
 The Boost package has a bug that will prevent librpc.a from building correctly. In order to fix this, you will have to Build boost yourself from scratch. Follow the directions here (under "Building Boost"):
 https://github.com/bitcoin/bitcoin/blob/master/doc/build-openbsd.md
 
-You will have to add the serialization, date_time, and regex modules to Boost when building as they are needed by Sumokoin.
+You will have to add the serialization, date_time, and regex modules to Boost when building as they are needed by Ombre.
 
 To build: `env CC=egcc CXX=eg++ CPP=ecpp DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/path/to/the/boost/you/built make release-static-64`
 
@@ -430,7 +430,7 @@ cmake ..
 doas make install
 ```
 
-Build Sumokoin:
+Build Ombre:
 ```bash
 env DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/usr/local make release-static
 ```
@@ -441,9 +441,9 @@ You will need to add a few packages to your system. `pkg_add cmake gmake zeromq 
 
 The doxygen and graphviz packages are optional and require the xbase set.
 
-Build sumokoin: `env DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/usr/local gmake release-static`
+Build ombre: `env DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/usr/local gmake release-static`
 
-Note: you may encounter the following error, when compiling the latest version of Sumokoin as a normal user:
+Note: you may encounter the following error, when compiling the latest version of Ombre as a normal user:
 
 ```
 LLVM ERROR: out of memory
@@ -465,17 +465,17 @@ cd ../..
 
 Then you can run make as usual.
 
-## Running sumokoind
+## Running ombred
 
 The build places the binary in `bin/` sub-directory within the build directory
 from which cmake was invoked (repository root by default). To run in
 foreground:
 
 ```bash
-./bin/sumokoind
+./bin/ombred
 ```
 
-To list all available options, run `./bin/sumokoind --help`.  Options can be
+To list all available options, run `./bin/ombred --help`.  Options can be
 specified either on the command line or in a configuration file passed by the
 `--config-file` argument.  To specify an option in the configuration file, add
 a line with the syntax `argumentname=value`, where `argumentname` is the name
@@ -484,18 +484,18 @@ of the argument without the leading dashes, for example `log-level=1`.
 To run in background:
 
 ```bash
-    ./bin/sumokoind --log-file sumokoind.log --detach
+    ./bin/ombred --log-file ombred.log --detach
 ```
 
 To run as a systemd service, copy
-[sumokoind.service](utils/systemd/sumokoind.service) to `/etc/systemd/system/` and
-[sumokoind.conf](utils/conf/sumokoind.conf) to `/etc/`. The [example
-service](utils/systemd/sumokoind.service) assumes that the user `sumokoin` exists
+[ombred.service](utils/systemd/ombred.service) to `/etc/systemd/system/` and
+[ombred.conf](utils/conf/ombred.conf) to `/etc/`. The [example
+service](utils/systemd/ombred.service) assumes that the user `ombre` exists
 and its home is the data directory specified in the [example
-config](utils/conf/sumokoind.conf).
+config](utils/conf/ombred.conf).
 
 If you're on Mac, you may need to add the `--max-concurrency 1` option to
-sumo-wallet-cli, and possibly sumokoind, if you get crashes refreshing.
+sumo-wallet-cli, and possibly ombred, if you get crashes refreshing.
 
 ## Using Tor
 
@@ -505,31 +505,31 @@ sumo-wallet-cli, and possibly sumokoind, if you get crashes refreshing.
 > used solely for relaying transactions received over local RPC. This provides
 > privacy and better protection against surrounding node (sybil) attacks.
 
-While Sumokoin isn't made to integrate with Tor, it can be used wrapped with torsocks, by
+While Ombre isn't made to integrate with Tor, it can be used wrapped with torsocks, by
 setting the following configuration parameters and environment variables:
 
 * `--p2p-bind-ip 127.0.0.1` on the command line or `p2p-bind-ip=127.0.0.1` in
-  sumokoind.conf to disable listening for connections on external interfaces.
-* `--no-igd` on the command line or `no-igd=1` in sumokoind.conf to disable IGD
+  ombred.conf to disable listening for connections on external interfaces.
+* `--no-igd` on the command line or `no-igd=1` in ombred.conf to disable IGD
   (UPnP port forwarding negotiation), which is pointless with Tor.
 * `DNS_PUBLIC=tcp` or `DNS_PUBLIC=tcp://x.x.x.x` where x.x.x.x is the IP of the
   desired DNS server, for DNS requests to go over TCP, so that they are routed
-  through Tor. When IP is not specified, sumokoind uses the default list of
+  through Tor. When IP is not specified, ombred uses the default list of
   servers defined in [src/common/dns_utils.cpp](src/common/dns_utils.cpp).
-* `TORSOCKS_ALLOW_INBOUND=1` to tell torsocks to allow sumokoind to bind to interfaces
+* `TORSOCKS_ALLOW_INBOUND=1` to tell torsocks to allow ombred to bind to interfaces
    to accept connections from the wallet. On some Linux systems, torsocks
    allows binding to localhost by default, so setting this variable is only
    necessary to allow binding to local LAN/VPN interfaces to allow wallets to
    connect from remote hosts. On other systems, it may be needed for local wallets
    as well.
 * Do NOT pass `--detach` when running through torsocks with systemd, (see
-  [utils/systemd/sumokoind.service](utils/systemd/sumokoind.service) for details).
+  [utils/systemd/ombred.service](utils/systemd/ombred.service) for details).
 * If you use the wallet with a Tor daemon via the loopback IP (eg, 127.0.0.1:9050),
   then use `--untrusted-daemon` unless it is your own hidden service.
 
-Example command line to start sumokoind through Tor:
+Example command line to start ombred through Tor:
 
-    DNS_PUBLIC=tcp torsocks sumokoind --p2p-bind-ip 127.0.0.1 --no-igd
+    DNS_PUBLIC=tcp torsocks ombred --p2p-bind-ip 127.0.0.1 --no-igd
 
 ### Using Tor on Tails
 
@@ -539,13 +539,13 @@ allow inbound connections. Full example:
 
 ```bash
     sudo iptables -I OUTPUT 2 -p tcp -d 127.0.0.1 -m tcp --dport 19733 -j ACCEPT
-    DNS_PUBLIC=tcp torsocks ./sumokoind --p2p-bind-ip 127.0.0.1 --no-igd --rpc-bind-ip 127.0.0.1 \
+    DNS_PUBLIC=tcp torsocks ./ombred --p2p-bind-ip 127.0.0.1 --no-igd --rpc-bind-ip 127.0.0.1 \
         --data-dir /home/amnesia/Persistent/your/directory/to/the/blockchain
 ```
 
 # Debugging
 
-This section contains general instructions for debugging failed installs or problems encountered with Sumokoin. First ensure you are running the latest version built from the Github repo.
+This section contains general instructions for debugging failed installs or problems encountered with Ombre. First ensure you are running the latest version built from the Github repo.
 
 ### Obtaining stack traces and core dumps on Unix systems
 
@@ -558,7 +558,7 @@ Run the build.
 Once it stalls, enter the following command:
 
 ```bash
-gdb /path/to/sumokoind `pidof sumokoind` 
+gdb /path/to/ombred `pidof ombred` 
 ```
 
 Type `thread apply all bt` within gdb in order to obtain the stack trace
@@ -571,23 +571,23 @@ Enter `echo core | sudo tee /proc/sys/kernel/core_pattern` to stop cores from be
 
 Run the build.
 
-When it terminates with an output along the lines of "Segmentation fault (core dumped)", there should be a core dump file in the same directory as sumokoind. It may be named just `core`, or `core.xxxx` with numbers appended.
+When it terminates with an output along the lines of "Segmentation fault (core dumped)", there should be a core dump file in the same directory as ombred. It may be named just `core`, or `core.xxxx` with numbers appended.
 
 You can now analyse this core dump with `gdb` as follows:
 
 ```bash
-gdb /path/to/sumokoind /path/to/dumpfile
+gdb /path/to/ombred /path/to/dumpfile
 ```
 
 Print the stack trace with `bt`
 
-#### To run sumokoin within gdb:
+#### To run ombre within gdb:
 
-Type `gdb /path/to/sumokoind`
+Type `gdb /path/to/ombred`
 
 Pass command-line options with `--args` followed by the relevant arguments
 
-Type `run` to run sumokoind
+Type `run` to run ombred
 
 ### Analysing memory corruption
 
@@ -595,17 +595,17 @@ There are two tools available:
 
 #### ASAN
 
-Configure Sumokoin with the -D SANITIZE=ON cmake flag, eg:
+Configure Ombre with the -D SANITIZE=ON cmake flag, eg:
 
 ```bash
 cd build/debug && cmake -D SANITIZE=ON -D CMAKE_BUILD_TYPE=Debug ../..
 ```
 
-You can then run the Sumokoin tools normally. Performance will typically halve.
+You can then run the Ombre tools normally. Performance will typically halve.
 
 #### valgrind
 
-Install valgrind and run as `valgrind /path/to/sumokoind`. It will be very slow.
+Install valgrind and run as `valgrind /path/to/ombred`. It will be very slow.
 
 ### LMDB
 
@@ -614,7 +614,7 @@ Instructions for debugging suspected blockchain corruption as per @HYC
 There is an `mdb_stat` command in the LMDB source that can print statistics about the database but it's not routinely built. This can be built with the following command:
 
 ```bash
-cd ~/sumokoin/external/db_drivers/liblmdb && make
+cd ~/ombre/external/db_drivers/liblmdb && make
 ```
 
 The output of `mdb_stat -ea <path to blockchain dir>` will indicate inconsistencies in the blocks, block_heights and block_info table.
@@ -627,7 +627,7 @@ These records are dumped as hex data, where the first line is the key and the se
 
 Copyright (c) 2018-2019, Ombre Project
 
-Copyright (c) 2017-2019, Sumokoin Project
+Copyright (c) 2017-2019, Ombre Project
 
 Copyright (c) 2014-2017, The Monero Project
 
