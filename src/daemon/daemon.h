@@ -1,21 +1,11 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -29,33 +19,35 @@
 #pragma once
 #include <boost/program_options.hpp>
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "daemon"
+//#undef RYO_DEFAULT_LOG_CATEGORY
+//#define RYO_DEFAULT_LOG_CATEGORY "daemon"
 
-namespace daemonize {
+namespace daemonize
+{
 
 struct t_internals;
 
-class t_daemon final {
-public:
-  static void init_options(boost::program_options::options_description & option_spec);
-private:
-  void stop_p2p();
-private:
-  std::unique_ptr<t_internals> mp_internals;
-  uint16_t public_rpc_port;
-  std::string zmq_rpc_bind_address;
-  std::string zmq_rpc_bind_port;
-public:
-  t_daemon(
-      boost::program_options::variables_map const & vm,
-      uint16_t public_rpc_port = 0
-    );
-  t_daemon(t_daemon && other);
-  t_daemon & operator=(t_daemon && other);
-  ~t_daemon();
+class t_daemon final
+{
+  public:
+	static void init_options(boost::program_options::options_description &option_spec);
 
-  bool run(bool interactive = false);
-  void stop();
+  private:
+	void stop_p2p();
+
+  private:
+	std::unique_ptr<t_internals> mp_internals;
+	std::string zmq_rpc_bind_address;
+	std::string zmq_rpc_bind_port;
+
+  public:
+	t_daemon(
+		boost::program_options::variables_map const &vm);
+	t_daemon(t_daemon &&other);
+	t_daemon &operator=(t_daemon &&other);
+	~t_daemon();
+
+	bool run(bool interactive = false);
+	void stop();
 };
 }

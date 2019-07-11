@@ -1,23 +1,11 @@
-// Copyright (c) 2018-2019, Ombre Project
-// Copyright (c) 2017-2019, Sumokoin Project
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -27,103 +15,143 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
 
-#include "cryptonote_basic.h"
 #include "crypto/crypto.h"
 #include "crypto/hash.h"
+#include "cryptonote_basic.h"
 
-
-namespace cryptonote {
-  /************************************************************************/
-  /*                                                                      */
-  /************************************************************************/
-  template<class t_array>
-  struct array_hasher: std::unary_function<t_array&, std::size_t>
-  {
-    std::size_t operator()(const t_array& val) const
-    {
-      return boost::hash_range(&val.data[0], &val.data[sizeof(val.data)]);
-    }
-  };
-
+namespace cryptonote
+{
+/************************************************************************/
+/*                                                                      */
+/************************************************************************/
+template <class t_array>
+struct array_hasher : std::unary_function<t_array &, std::size_t>
+{
+	std::size_t operator()(const t_array &val) const
+	{
+		return boost::hash_range(&val.data[0], &val.data[sizeof(val.data)]);
+	}
+};
 
 #pragma pack(push, 1)
-  struct public_address_outer_blob
-  {
-    uint8_t m_ver;
-    account_public_address m_address;
-    uint8_t check_sum;
-  };
-  struct public_integrated_address_outer_blob
-  {
-    uint8_t m_ver;
-    account_public_address m_address;
-    crypto::hash8 payment_id;
-    uint8_t check_sum;
-  };
-#pragma pack (pop)
+struct public_address_outer_blob
+{
+	uint8_t m_ver;
+	account_public_address m_address;
+	uint8_t check_sum;
+};
+struct public_integrated_address_outer_blob
+{
+	uint8_t m_ver;
+	account_public_address m_address;
+	crypto::hash8 payment_id;
+	uint8_t check_sum;
+};
+#pragma pack(pop)
 
-  namespace
-  {
-    inline std::string return_first_address(const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)
-    {
-      if (addresses.empty())
-        return {};
-      return addresses[0];
-    }
-  }
-
-  struct address_parse_info
-  {
-    account_public_address address;
-    bool is_subaddress;
-    bool has_payment_id;
-    crypto::hash8 payment_id;
-  };
-
-  /************************************************************************/
-  /* Cryptonote helper functions                                          */
-  /************************************************************************/
-  size_t get_min_block_weight(uint8_t version);
-  size_t get_max_tx_size();
-  bool get_block_reward(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, uint64_t &reward, uint64_t height);
-  uint8_t get_account_address_checksum(const public_address_outer_blob& bl);
-  uint8_t get_account_integrated_address_checksum(const public_integrated_address_outer_blob& bl);
-
-  std::string get_account_address_as_str(
-      network_type nettype
-    , bool subaddress
-    , const account_public_address& adr
-    );
-
-  std::string get_account_integrated_address_as_str(
-      network_type nettype
-    , const account_public_address& adr
-    , const crypto::hash8& payment_id
-    );
-
-  bool get_account_address_from_str(
-      address_parse_info& info
-    , network_type nettype
-    , const std::string& str
-    );
-
-  bool get_account_address_from_str_or_url(
-      address_parse_info& info
-    , network_type nettype
-    , const std::string& str_or_url
-    , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm = return_first_address
-    );
-
-  bool is_coinbase(const transaction& tx);
-
-  bool operator ==(const cryptonote::transaction& a, const cryptonote::transaction& b);
-  bool operator ==(const cryptonote::block& a, const cryptonote::block& b);
+namespace
+{
+inline std::string return_first_address(const std::string &url, const std::vector<std::string> &addresses, bool dnssec_valid)
+{
+	if(addresses.empty())
+		return {};
+	return addresses[0];
+}
 }
 
-bool parse_hash256(const std::string &str_hash, crypto::hash& hash);
+struct address_parse_info
+{
+	account_public_address address;
+	bool is_subaddress;
+	bool has_payment_id;
+	bool is_kurz;
+	crypto::hash8 payment_id;
+};
 
+/************************************************************************/
+/* Cryptonote helper functions                                          */
+/************************************************************************/
+size_t get_min_block_size();
+size_t get_max_tx_size();
+
+uint64_t get_dev_fund_amount_v0(uint64_t tx_total, uint64_t already_generated_coins);
+uint64_t get_dev_fund_amount_v1(uint64_t tx_total, uint64_t already_generated_coins);
+
+bool get_block_reward(network_type nettype, size_t median_size, size_t current_block_size, uint64_t already_generated_coins, uint64_t &reward, uint64_t height);
+uint8_t get_account_address_checksum(const public_address_outer_blob &bl);
+uint8_t get_account_integrated_address_checksum(const public_integrated_address_outer_blob &bl);
+
+template <network_type NETTYPE>
+std::string get_public_address_as_str(bool subaddress, const account_public_address &adr);
+
+extern template std::string get_public_address_as_str<MAINNET>(bool subaddress, const account_public_address &adr);
+extern template std::string get_public_address_as_str<TESTNET>(bool subaddress, const account_public_address &adr);
+extern template std::string get_public_address_as_str<STAGENET>(bool subaddress, const account_public_address &adr);
+
+inline std::string get_public_address_as_str(network_type nettype, bool subaddress, const account_public_address &adr)
+{
+	switch(nettype)
+	{
+	case MAINNET:
+		return get_public_address_as_str<MAINNET>(subaddress, adr);
+	case TESTNET:
+		return get_public_address_as_str<TESTNET>(subaddress, adr);
+	case STAGENET:
+		return get_public_address_as_str<STAGENET>(subaddress, adr);
+	default:
+		return "";
+	}
+}
+
+template <network_type NETTYPE>
+std::string get_account_integrated_address_as_str(const account_public_address &adr, const crypto::hash8 &payment_id);
+
+extern template std::string get_account_integrated_address_as_str<MAINNET>(account_public_address const &adr, crypto::hash8 const &payment_id);
+extern template std::string get_account_integrated_address_as_str<TESTNET>(account_public_address const &adr, crypto::hash8 const &payment_id);
+extern template std::string get_account_integrated_address_as_str<STAGENET>(account_public_address const &adr, crypto::hash8 const &payment_id);
+
+inline std::string get_account_integrated_address_as_str(network_type nettype, const account_public_address &adr, const crypto::hash8 &payment_id)
+{
+	switch(nettype)
+	{
+	case MAINNET:
+		return get_account_integrated_address_as_str<MAINNET>(adr, payment_id);
+	case TESTNET:
+		return get_account_integrated_address_as_str<TESTNET>(adr, payment_id);
+	case STAGENET:
+		return get_account_integrated_address_as_str<STAGENET>(adr, payment_id);
+	default:
+		return "";
+	}
+}
+
+template <network_type NETTYPE>
+bool get_account_address_from_str(address_parse_info &info, const std::string &str, const bool silent = false);
+
+inline bool get_account_address_from_str(network_type nettype, address_parse_info &info, const std::string &str, const bool silent = false)
+{
+	switch(nettype)
+	{
+	case MAINNET:
+		return get_account_address_from_str<MAINNET>(info, str, silent);
+	case TESTNET:
+		return get_account_address_from_str<TESTNET>(info, str, silent);
+	case STAGENET:
+		return get_account_address_from_str<STAGENET>(info, str, silent);
+	default:
+		return false;
+	}
+}
+
+bool is_coinbase(const transaction &tx);
+
+bool operator==(const cryptonote::transaction &a, const cryptonote::transaction &b);
+bool operator==(const cryptonote::block &a, const cryptonote::block &b);
+}
+
+bool parse_hash256(const std::string str_hash, crypto::hash &hash);

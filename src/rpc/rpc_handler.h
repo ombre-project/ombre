@@ -1,21 +1,11 @@
-// Copyright (c) 2016-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -28,39 +18,24 @@
 
 #pragma once
 
-#include <boost/optional/optional.hpp>
-#include <cstdint>
 #include <string>
-#include <vector>
-#include "crypto/hash.h"
 
 namespace cryptonote
 {
-class core;
 
 namespace rpc
 {
 
-struct output_distribution_data
-{
-  std::vector<std::uint64_t> distribution;
-  std::uint64_t start_height;
-  std::uint64_t base;
-};
-
 class RpcHandler
 {
   public:
-    RpcHandler() { }
-    virtual ~RpcHandler() { }
+	virtual std::string handle(const std::string &request) = 0;
 
-    virtual std::string handle(const std::string& request) = 0;
+	RpcHandler() {}
 
-    static boost::optional<output_distribution_data>
-      get_output_distribution(const std::function<bool(uint64_t, uint64_t, uint64_t, uint64_t&, std::vector<uint64_t>&, uint64_t&)> &f, uint64_t amount, uint64_t from_height, uint64_t to_height, const std::function<crypto::hash(uint64_t)> &get_hash, bool cumulative, uint64_t blockchain_height);
+	virtual ~RpcHandler() {}
 };
 
+} // rpc
 
-}  // rpc
-
-}  // cryptonote
+} // cryptonote

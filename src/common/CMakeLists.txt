@@ -1,21 +1,37 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2018, Ryo Currency Project
+# Portions copyright (c) 2014-2018, The Monero Project
 #
+# Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 # All rights reserved.
+# 
+# Authors and copyright holders give permission for following:
 #
-# Redistribution and use in source and binary forms, with or without modification, are
-# permitted provided that the following conditions are met:
+# 1. Redistribution and use in source and binary forms WITHOUT modification.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# 2. Modification of the source form for your own personal use. 
+# 
+# As long as the following conditions are met:
+# 
+# 3. You must not distribute modified copies of the work to third parties. This includes 
+#    posting the work online, or hosting copies of the modified work for download.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other
-#    materials provided with the distribution.
+# 4. Any derivative version of this work is also covered by this license, including point 8.
 #
-# 3. Neither the name of the copyright holder nor the names of its contributors may be
+# 5. Neither the name of the copyright holders nor the names of the authors may be
 #    used to endorse or promote products derived from this software without specific
 #    prior written permission.
 #
+# 6. You agree that this licence is governed by and shall be construed in accordance 
+#    with the laws of England and Wales.
+#
+# 7. You agree to submit all disputes arising out of or in connection with this licence 
+#    to the exclusive jurisdiction of the Courts of England and Wales.
+#
+# Authors and copyright holders agree that:
+#
+# 8. This licence expires and the work covered by it is released into the 
+#    public domain on 1st of February 2019
+# 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -33,27 +49,16 @@ set(common_sources
   command_line.cpp
   dns_utils.cpp
   download.cpp
-  error.cpp
-  expect.cpp
   util.cpp
   i18n.cpp
-  notify.cpp
   password.cpp
   perf_timer.cpp
-  pruning.cpp
-  spawn.cpp
   threadpool.cpp
   updates.cpp
-  aligned.c
-  timings.cc
-  combinator.cpp)
+  boost_locale.cpp)
 
 if (STACK_TRACE)
   list(APPEND common_sources stack_trace.cpp)
-endif()
-
-if (BACKCOMPAT)
-  list(APPEND common_sources compat/glibc_compat.cpp)
 endif()
 
 set(common_headers)
@@ -66,12 +71,8 @@ set(common_private_headers
   common_fwd.h
   dns_utils.h
   download.h
-  error.h
-  expect.h
   http_connection.h
-  notify.h
-  pod-class.h
-  pruning.h
+  int-util.h
   rpc_client.h
   scoped_message_writer.h
   unordered_containers_boost_serialization.h
@@ -80,23 +81,21 @@ set(common_private_headers
   i18n.h
   password.h
   perf_timer.h
-  spawn.h
   stack_trace.h
   threadpool.h
   updates.h
-  aligned.h
-  timings.h
-  combinator.h)
+  boost_locale.hpp)
 
-monero_private_headers(common
+ryo_private_headers(common
   ${common_private_headers})
-monero_add_library(common
+ryo_add_library(common
   ${common_sources}
   ${common_headers}
   ${common_private_headers}
   DEPENDS generate_translations_header)
 target_link_libraries(common
   PUBLIC
+    epee
     cncrypto
     ${UNBOUND_LIBRARY}
     ${LIBUNWIND_LIBRARIES}
@@ -107,7 +106,9 @@ target_link_libraries(common
     ${Boost_REGEX_LIBRARY}
     ${Boost_CHRONO_LIBRARY}
   PRIVATE
+    ${Boost_LOCALE_LIBRARY}
     ${OPENSSL_LIBRARIES}
+    ${ICU_LIBRARIES}
     ${EXTRA_LIBRARIES})
 
 #monero_install_headers(common

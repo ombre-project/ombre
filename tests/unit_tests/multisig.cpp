@@ -1,21 +1,21 @@
-// Copyright (c) 2017-2019, The Monero Project
-// 
+// Copyright (c) 2017-2018, The Monero Project
+//
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without modification, are
 // permitted provided that the following conditions are met:
-// 
+//
 // 1. Redistributions of source code must retain the above copyright notice, this list of
 //    conditions and the following disclaimer.
-// 
+//
 // 2. Redistributions in binary form must reproduce the above copyright notice, this list
 //    of conditions and the following disclaimer in the documentation and/or other
 //    materials provided with the distribution.
-// 
+//
 // 3. Neither the name of the copyright holder nor the names of its contributors may be
 //    used to endorse or promote products derived from this software without specific
 //    prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -34,139 +34,149 @@
 
 static const struct
 {
-  const char *address;
-  const char *spendkey;
+	const char *address;
+	const char *spendkey;
 } test_addresses[] =
-{
-  {
-    "9uvjbU54ZJb8j7Dcq1h3F1DnBRkxXdYUX4pbJ7mE3ghM8uF3fKzqRKRNAKYZXcNLqMg7MxjVVD2wKC2PALUwEveGSC3YSWD",
-    "2dd6e34a234c3e8b5d29a371789e4601e96dee4ea6f7ef79224d1a2d91164c01"
-  },
-  {
-    "9ywDBAyDbb6QKFiZxDJ4hHZqZEQXXCR5EaYNcndUpqPDeE7rEgs6neQdZnhcDrWbURYK8xUjhuG2mVjJdmknrZbcG7NnbaB",
-    "fac47aecc948ce9d3531aa042abb18235b1df632087c55a361b632ffdd6ede0c"
-  },
-  {
-    "9t6Hn946u3eah5cuncH1hB5hGzsTUoevtf4SY7MHN5NgJZh2SFWsyVt3vUhuHyRKyrCQvr71Lfc1AevG3BXE11PQFoXDtD8",
-    "bbd3175ef9fd9f5eefdc43035f882f74ad14c4cf1799d8b6f9001bc197175d02"
-  },
-  {
-    "9zmAWoNyNPbgnYSm3nJNpAKHm6fCcs3MR94gBWxp9MCDUiMUhyYFfyQETUDLPF7DP6ZsmNo6LRxwPP9VmhHNxKrER9oGigT",
-    "f2efae45bef1917a7430cda8fcffc4ee010e3178761aa41d4628e23b1fe2d501"
-  },
-  {
-    "9ue8NJMg3WzKxTtmjeXzWYF5KmU6dC7LHEt9wvYdPn2qMmoFUa8hJJHhSHvJ46UEwpDyy5jSboNMRaDBKwU54NT42YcNUp5",
-    "a4cef54ed3fd61cd78a2ceb82ecf85a903ad2db9a86fb77ff56c35c56016280a"
-  }
-};
-
-static const size_t KEYS_COUNT = 5;
+	{
+		// working with legacy address because new ryo addresses can not be recreated out of the spendkey
+		{"RYoTr1KP7tgJFQ4bTWto4MhM3qT4YA8gV3smuJyxucJgBDdCWehV4btgcyNb11MAUC7t9yPDUCwAoREVdyVNankWERkEddsUix3",
+		 "ee0085dbecc26a02415b0b7abab1ce0ef2b18a393d35e39ef5720dd5ba058806"},
+		{"RYoTr2S1o1efcYh16gDXipgq2zypYd6pBJ6iofYemM9P3YUy815iS5ujDfmmNhbWGJPs17nNjxYTNh8LkJdvP7Y4QrD3xC5Xhxy",
+		 "3fadeb3d58152b98db2e2788bdb57fdc5269e1cd8feb287d915b26a3f8ce610e"},
+		{"RYoTqzWU3x38P6uzJpXose4wxRx53RZXc6wipiTFqnuADaZdNYLcV8z9XSSsdcVQjKgkumTat2nJAZ1TYNL6w4bTQqm4apJepaw",
+		 "2a69fc7813c5b9af92f133d841c0859571956c2e544b5eab58d97c9df59ff000"}};
 
 static void make_wallet(unsigned int idx, tools::wallet2 &wallet)
 {
-  ASSERT_TRUE(idx < sizeof(test_addresses) / sizeof(test_addresses[0]));
+	ASSERT_TRUE(idx < sizeof(test_addresses) / sizeof(test_addresses[0]));
 
-  crypto::secret_key spendkey;
-  epee::string_tools::hex_to_pod(test_addresses[idx].spendkey, spendkey);
+	crypto::secret_key spendkey;
+	epee::string_tools::hex_to_pod(test_addresses[idx].spendkey, spendkey);
 
-  try
-  {
-    wallet.init("", boost::none, boost::asio::ip::tcp::endpoint{}, 0, true, epee::net_utils::ssl_support_t::e_ssl_support_disabled);
-    wallet.set_subaddress_lookahead(1, 1);
-    wallet.generate("", "", spendkey, true, false);
-    ASSERT_TRUE(test_addresses[idx].address == wallet.get_account().get_public_address_str(cryptonote::TESTNET));
-    wallet.decrypt_keys("");
-    ASSERT_TRUE(test_addresses[idx].spendkey == epee::string_tools::pod_to_hex(wallet.get_account().get_keys().m_spend_secret_key));
-    wallet.encrypt_keys("");
-  }
-  catch (const std::exception &e)
-  {
-    MFATAL("Error creating test wallet: " << e.what());
-    ASSERT_TRUE(0);
-  }
+	try
+	{
+		wallet.init("");
+		wallet.set_subaddress_lookahead(1, 1);
+		wallet.generate_legacy("", "", spendkey);
+		ASSERT_TRUE(test_addresses[idx].address == wallet.get_account().get_public_address_str(cryptonote::TESTNET));
+	}
+	catch(const std::exception &e)
+	{
+		MFATAL("Error creating test wallet: " << e.what());
+		ASSERT_TRUE(0);
+	}
 }
 
-static std::vector<std::string> exchange_round(std::vector<tools::wallet2>& wallets, const std::vector<std::string>& mis)
+static void make_M_2_wallet(tools::wallet2 &wallet0, tools::wallet2 &wallet1, unsigned int M)
 {
-  std::vector<std::string> new_infos;
-  for (size_t i = 0; i < wallets.size(); ++i) {
-      new_infos.push_back(wallets[i].exchange_multisig_keys("", mis));
-  }
+	ASSERT_TRUE(M <= 2);
 
-  return new_infos;
+	make_wallet(0, wallet0);
+	make_wallet(1, wallet1);
+
+	std::vector<crypto::secret_key> sk0(1), sk1(1);
+	std::vector<crypto::public_key> pk0(1), pk1(1);
+
+	std::string mi0 = wallet0.get_multisig_info();
+	std::string mi1 = wallet1.get_multisig_info();
+
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi1, sk0[0], pk0[0]));
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi0, sk1[0], pk1[0]));
+
+	ASSERT_FALSE(wallet0.multisig() || wallet1.multisig());
+	wallet0.make_multisig("", sk0, pk0, M);
+	wallet1.make_multisig("", sk1, pk1, M);
+
+	ASSERT_TRUE(wallet0.get_account().get_public_address_str(cryptonote::TESTNET) == wallet1.get_account().get_public_address_str(cryptonote::TESTNET));
+
+	bool ready;
+	uint32_t threshold, total;
+	ASSERT_TRUE(wallet0.multisig(&ready, &threshold, &total));
+	ASSERT_TRUE(ready);
+	ASSERT_TRUE(threshold == M);
+	ASSERT_TRUE(total == 2);
+	ASSERT_TRUE(wallet1.multisig(&ready, &threshold, &total));
+	ASSERT_TRUE(ready);
+	ASSERT_TRUE(threshold == M);
+	ASSERT_TRUE(total == 2);
 }
 
-static void make_wallets(std::vector<tools::wallet2>& wallets, unsigned int M)
+static void make_M_3_wallet(tools::wallet2 &wallet0, tools::wallet2 &wallet1, tools::wallet2 &wallet2, unsigned int M)
 {
-  ASSERT_TRUE(wallets.size() > 1 && wallets.size() <= KEYS_COUNT);
-  ASSERT_TRUE(M <= wallets.size());
+	ASSERT_TRUE(M <= 3);
 
-  std::vector<std::string> mis(wallets.size());
+	make_wallet(0, wallet0);
+	make_wallet(1, wallet1);
+	make_wallet(2, wallet2);
 
-  for (size_t i = 0; i < wallets.size(); ++i) {
-    make_wallet(i, wallets[i]);
+	std::vector<crypto::secret_key> sk0(2), sk1(2), sk2(2);
+	std::vector<crypto::public_key> pk0(2), pk1(2), pk2(2);
 
-    wallets[i].decrypt_keys("");
-    mis[i] = wallets[i].get_multisig_info();
-    wallets[i].encrypt_keys("");
-  }
+	std::string mi0 = wallet0.get_multisig_info();
+	std::string mi1 = wallet1.get_multisig_info();
+	std::string mi2 = wallet2.get_multisig_info();
 
-  for (auto& wallet: wallets) {
-    ASSERT_FALSE(wallet.multisig());
-  }
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi1, sk0[0], pk0[0]));
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi2, sk0[1], pk0[1]));
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi0, sk1[0], pk1[0]));
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi2, sk1[1], pk1[1]));
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi0, sk2[0], pk2[0]));
+	ASSERT_TRUE(tools::wallet2::verify_multisig_info(mi1, sk2[1], pk2[1]));
 
-  std::vector<std::string> mxis;
-  for (size_t i = 0; i < wallets.size(); ++i) {
-    // it's ok to put all of multisig keys in this function. it throws in case of error
-    mxis.push_back(wallets[i].make_multisig("", mis, M));
-  }
+	ASSERT_FALSE(wallet0.multisig() || wallet1.multisig() || wallet2.multisig());
+	std::string mxi0 = wallet0.make_multisig("", sk0, pk0, M);
+	std::string mxi1 = wallet1.make_multisig("", sk1, pk1, M);
+	std::string mxi2 = wallet2.make_multisig("", sk2, pk2, M);
 
-  while (!mxis[0].empty()) {
-    mxis = exchange_round(wallets, mxis);
-  }
+	const size_t nset = !mxi0.empty() + !mxi1.empty() + !mxi2.empty();
+	ASSERT_TRUE((M < 3 && nset == 3) || (M == 3 && nset == 0));
 
-  for (size_t i = 0; i < wallets.size(); ++i) {
-    ASSERT_TRUE(mxis[i].empty());
-    bool ready;
-    uint32_t threshold, total;
-    ASSERT_TRUE(wallets[i].multisig(&ready, &threshold, &total));
-    ASSERT_TRUE(ready);
-    ASSERT_TRUE(threshold == M);
-    ASSERT_TRUE(total == wallets.size());
+	if(nset > 0)
+	{
+		std::unordered_set<crypto::public_key> pkeys;
+		std::vector<crypto::public_key> signers(3, crypto::null_pkey);
+		ASSERT_TRUE(tools::wallet2::verify_extra_multisig_info(mxi0, pkeys, signers[0]));
+		ASSERT_TRUE(tools::wallet2::verify_extra_multisig_info(mxi1, pkeys, signers[1]));
+		ASSERT_TRUE(tools::wallet2::verify_extra_multisig_info(mxi2, pkeys, signers[2]));
+		ASSERT_TRUE(pkeys.size() == 3);
+		ASSERT_TRUE(wallet0.finalize_multisig("", pkeys, signers));
+		ASSERT_TRUE(wallet1.finalize_multisig("", pkeys, signers));
+		ASSERT_TRUE(wallet2.finalize_multisig("", pkeys, signers));
+	}
 
-    if (i != 0) {
-      // "equals" is transitive relation so we need only to compare first wallet's address to each others' addresses. no need to compare 0's address with itself.
-      ASSERT_TRUE(wallets[0].get_account().get_public_address_str(cryptonote::TESTNET) == wallets[i].get_account().get_public_address_str(cryptonote::TESTNET));
-    }
-  }
+	ASSERT_TRUE(wallet0.get_account().get_public_address_str(cryptonote::TESTNET) == wallet1.get_account().get_public_address_str(cryptonote::TESTNET));
+	ASSERT_TRUE(wallet0.get_account().get_public_address_str(cryptonote::TESTNET) == wallet2.get_account().get_public_address_str(cryptonote::TESTNET));
+
+	bool ready;
+	uint32_t threshold, total;
+	ASSERT_TRUE(wallet0.multisig(&ready, &threshold, &total));
+	ASSERT_TRUE(ready);
+	ASSERT_TRUE(threshold == M);
+	ASSERT_TRUE(total == 3);
+	ASSERT_TRUE(wallet1.multisig(&ready, &threshold, &total));
+	ASSERT_TRUE(ready);
+	ASSERT_TRUE(threshold == M);
+	ASSERT_TRUE(total == 3);
+	ASSERT_TRUE(wallet2.multisig(&ready, &threshold, &total));
+	ASSERT_TRUE(ready);
+	ASSERT_TRUE(threshold == M);
+	ASSERT_TRUE(total == 3);
 }
 
 TEST(multisig, make_2_2)
 {
-  std::vector<tools::wallet2> wallets(2);
-  make_wallets(wallets, 2);
+	tools::wallet2 wallet0, wallet1;
+	make_M_2_wallet(wallet0, wallet1, 2);
 }
 
 TEST(multisig, make_3_3)
 {
-  std::vector<tools::wallet2> wallets(3);
-  make_wallets(wallets, 3);
+	tools::wallet2 wallet0, wallet1, wallet2;
+	make_M_3_wallet(wallet0, wallet1, wallet2, 3);
 }
 
 TEST(multisig, make_2_3)
 {
-  std::vector<tools::wallet2> wallets(3);
-  make_wallets(wallets, 2);
-}
-
-TEST(multisig, make_2_4)
-{
-  std::vector<tools::wallet2> wallets(4);
-  make_wallets(wallets, 2);
-}
-
-TEST(multisig, make_2_5)
-{
-  std::vector<tools::wallet2> wallets(5);
-  make_wallets(wallets, 2);
+	tools::wallet2 wallet0, wallet1, wallet2;
+	make_M_3_wallet(wallet0, wallet1, wallet2, 2);
 }

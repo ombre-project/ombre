@@ -1,21 +1,37 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2018, Ryo Currency Project
+# Portions copyright (c) 2014-2018, The Monero Project
 #
+# Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 # All rights reserved.
+# 
+# Authors and copyright holders give permission for following:
 #
-# Redistribution and use in source and binary forms, with or without modification, are
-# permitted provided that the following conditions are met:
+# 1. Redistribution and use in source and binary forms WITHOUT modification.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# 2. Modification of the source form for your own personal use. 
+# 
+# As long as the following conditions are met:
+# 
+# 3. You must not distribute modified copies of the work to third parties. This includes 
+#    posting the work online, or hosting copies of the modified work for download.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other
-#    materials provided with the distribution.
+# 4. Any derivative version of this work is also covered by this license, including point 8.
 #
-# 3. Neither the name of the copyright holder nor the names of its contributors may be
+# 5. Neither the name of the copyright holders nor the names of the authors may be
 #    used to endorse or promote products derived from this software without specific
 #    prior written permission.
 #
+# 6. You agree that this licence is governed by and shall be construed in accordance 
+#    with the laws of England and Wales.
+#
+# 7. You agree to submit all disputes arising out of or in connection with this licence 
+#    to the exclusive jurisdiction of the Courts of England and Wales.
+#
+# Authors and copyright holders agree that:
+#
+# 8. This licence expires and the work covered by it is released into the 
+#    public domain on 1st of February 2019
+# 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -27,63 +43,46 @@
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(crypto_sources
-  aesb.c
-  blake256.c
   chacha.c
   crypto-ops-data.c
   crypto-ops.c
   crypto.cpp
-  groestl.c
-  hash-extra-blake.c
-  hash-extra-groestl.c
-  hash-extra-jh.c
-  hash-extra-skein.c
   hash.c
-  hmac-keccak.c
-  jh.c
   keccak.c
-  oaes_lib.c
-  random.c
-  skein.c
+  random.cpp
   tree-hash.c
-  cn_monero_slow_hash.c
-  CryptonightR_JIT.c
-  cn_heavy_hash_soft.cpp
-  cn_heavy_hash_hard_intel.cpp
-  cn_heavy_hash_hard_arm.cpp)
+  pow_hash/aux_hash.c
+  pow_hash/cn_slow_hash_soft.cpp
+  pow_hash/cn_slow_hash_hard_intel.cpp
+  pow_hash/cn_slow_hash_intel_avx2.cpp
+  pow_hash/cn_slow_hash_hard_arm.cpp)
 
-if(ARCH_ID STREQUAL "i386" OR ARCH_ID STREQUAL "x86_64" OR ARCH_ID STREQUAL "x86-64" OR ARCH_ID STREQUAL "amd64")
-list(APPEND crypto_sources CryptonightR_template.S)
+
+if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+	if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64" OR ${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+		set_source_files_properties(pow_hash/cn_slow_hash_intel_avx2.cpp PROPERTIES COMPILE_FLAGS "-mavx2")
+		set_source_files_properties(pow_hash/cn_slow_hard_intel.cpp PROPERTIES COMPILE_FLAGS "-msse2 -maes")
+	elseif (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+		set_source_files_properties(pow_hash/cn_slow_hash_hard_arm.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+	endif()
 endif()
-  
+
 set(crypto_headers)
 
 set(crypto_private_headers
-  blake256.h
   chacha.h
   crypto-ops.h
   crypto.h
   generic-ops.h
-  groestl.h
-  groestl_tables.h
   hash-ops.h
   hash.h
-  hmac-keccak.h
-  initializer.h
-  jh.h
   keccak.h
-  oaes_config.h
-  oaes_lib.h
-  random.h
-  skein.h
-  skein_port.h
-  cn_heavy_hash.hpp
-  CryptonightR_JIT.h
-  CryptonightR_template.h)
+  random.hpp
+  pow_hash/cn_slow_hash.hpp)
 
-monero_private_headers(cncrypto
+ryo_private_headers(cncrypto
   ${crypto_private_headers})
-monero_add_library(cncrypto
+ryo_add_library(cncrypto
   ${crypto_sources}
   ${crypto_headers}
   ${crypto_private_headers})
@@ -91,30 +90,24 @@ target_link_libraries(cncrypto
   PUBLIC
     epee
     ${Boost_SYSTEM_LIBRARY}
-    ${SODIUM_LIBRARY}
   PRIVATE
     ${EXTRA_LIBRARIES})
 
-if (ARM)
-  option(NO_OPTIMIZED_MULTIPLY_ON_ARM
-	   "Compute multiply using generic C implementation instead of ARM ASM" OFF)
-  if(NO_OPTIMIZED_MULTIPLY_ON_ARM)
-    message(STATUS "Using generic C implementation for multiply")
-    set_property(SOURCE cn_monero_slow_hash.c
-      PROPERTY COMPILE_DEFINITIONS "NO_OPTIMIZED_MULTIPLY_ON_ARM")
-  endif()
+if(BUILD_TESTS)
+  # if tests are enabled than build a special crypto library with a deterministic
+  # random number generator, this lib is than used for the test `crypto`
+  ryo_add_library(cncrypto_for_test
+    ${crypto_sources}
+    ${crypto_headers}
+    ${crypto_private_headers})
+  target_link_libraries(cncrypto_for_test
+    PUBLIC
+      epee
+      ${Boost_SYSTEM_LIBRARY}
+    PRIVATE
+      ${EXTRA_LIBRARIES})
+  target_compile_definitions(cncrypto_for_test
+      PUBLIC
+      -DCRYPTO_TEST_ONLY_FIXED_PRNG
+  )
 endif()
-
-# Because of the way Qt works on android with JNI, the code does not live in the main android thread
-# So this code runs with a 1 MB default stack size. 
-# This will force the use of the heap for the allocation of the scratchpad
-if (ANDROID OR IOS)
-  if( BUILD_GUI_DEPS )
-    add_definitions(-DFORCE_USE_HEAP=1)
-  endif()
-endif()
-
-# cheat because cmake and ccache hate each other
-set_property(SOURCE CryptonightR_template.S PROPERTY LANGUAGE C)
-
-

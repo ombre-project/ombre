@@ -1,21 +1,11 @@
-// Copyright (c) 2017-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -29,77 +19,46 @@
 
 #include "device.hpp"
 #include "device_default.hpp"
-#ifdef WITH_DEVICE_LEDGER
+#ifdef HAVE_PCSC
 #include "device_ledger.hpp"
 #endif
 #include "misc_log_ex.h"
 
+namespace hw
+{
 
-namespace hw {
-    
-    /* ======================================================================= */
-    /*  SETUP                                                                  */
-    /* ======================================================================= */
+/* ======================================================================= */
+/*  SETUP                                                                  */
+/* ======================================================================= */
+device &get_device(const std::string device_descriptor)
+{
 
-    static device_registry *get_device_registry(bool clear = false){
-      static device_registry *registry = new device_registry();
-      if (clear)
-      {
-        delete registry;
-        registry = NULL;
-      }
-      return registry;
-    }
+	struct s_devices
+	{
+		std::map<std::string, std::unique_ptr<device>> registry;
+		s_devices() : registry()
+		{
+			hw::core::register_all(registry);
+#ifdef HAVE_PCSC
+			hw::ledger::register_all(registry);
+#endif
+		};
+	};
 
-    static void clear_device_registry(){
-      get_device_registry(true);
-    }
+	static const s_devices devices;
 
-    device_registry::device_registry(){
-        hw::core::register_all(registry);
-        #ifdef WITH_DEVICE_LEDGER
-        hw::ledger::register_all(registry);
-        #endif
-        atexit(clear_device_registry);
-    }
+	auto device = devices.registry.find(device_descriptor);
+	if(device == devices.registry.end())
+	{
+		MERROR("device not found in registry: '" << device_descriptor << "'\n"
+												 << "known devices:");
 
-    bool device_registry::register_device(const std::string & device_name, device * hw_device){
-        auto search = registry.find(device_name);
-        if (search != registry.end()){
-            return false;
-        }
-
-        registry.insert(std::make_pair(device_name, std::unique_ptr<device>(hw_device)));
-        return true;
-    }
-
-    device& device_registry::get_device(const std::string & device_descriptor){
-        // Device descriptor can contain further specs after first :
-        auto delim = device_descriptor.find(':');
-        auto device_descriptor_lookup = device_descriptor;
-        if (delim != std::string::npos) {
-            device_descriptor_lookup = device_descriptor.substr(0, delim);
-        }
-
-        auto device = registry.find(device_descriptor_lookup);
-        if (device == registry.end()) {
-            MERROR("Device not found in registry: '" << device_descriptor << "'. Known devices: ");
-            for( const auto& sm_pair : registry ) {
-                MERROR(" - " << sm_pair.first);
-            }
-            throw std::runtime_error("device not found: " + device_descriptor);
-        }
-        return *device->second;
-    }
-
-    device& get_device(const std::string & device_descriptor) {
-        device_registry *registry = get_device_registry();
-        return registry->get_device(device_descriptor);
-    }
-
-    bool register_device(const std::string & device_name, device * hw_device){
-        device_registry *registry = get_device_registry();
-        return registry->register_device(device_name, hw_device);
-    }
-
+		for(const auto &sm_pair : devices.registry)
+		{
+			MERROR(" - " << sm_pair.first);
+		}
+		throw std::runtime_error("device not found: " + device_descriptor);
+	}
+	return *device->second;
+}
 }

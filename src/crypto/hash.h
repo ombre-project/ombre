@@ -1,21 +1,11 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,94 +15,74 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
 
-#include <stddef.h>
-#include <iostream>
 #include <boost/utility/value_init.hpp>
+#include <iostream>
+#include <stddef.h>
 
-#include "common/pod-class.h"
 #include "generic-ops.h"
 #include "hex.h"
 #include "span.h"
-#include "crypto/cn_heavy_hash.hpp"
 
+namespace crypto
+{
 
-namespace crypto {
-
-  extern "C" {
+extern "C" {
 #include "hash-ops.h"
 }
 
 #pragma pack(push, 1)
-  POD_CLASS hash {
-    char data[HASH_SIZE];
-  };
-  POD_CLASS hash8 {
-    char data[8];
-  };
+struct hash
+{
+	char data[HASH_SIZE];
+};
+struct hash8
+{
+	char data[8];
+};
 #pragma pack(pop)
 
-  static_assert(sizeof(hash) == HASH_SIZE, "Invalid structure size");
-  static_assert(sizeof(hash8) == 8, "Invalid structure size");
+static_assert(sizeof(hash) == HASH_SIZE, "Invalid structure size");
+static_assert(sizeof(hash8) == 8, "Invalid structure size");
 
-  /*
+/*
     Cryptonight hash functions
   */
 
-  inline void cn_fast_hash(const void *data, std::size_t length, hash &hash) {
-    cn_fast_hash(data, length, reinterpret_cast<char *>(&hash));
-  }
+inline void cn_fast_hash(const void *data, std::size_t length, hash &hash)
+{
+	cn_fast_hash(data, length, reinterpret_cast<char *>(&hash));
+}
 
-  inline hash cn_fast_hash(const void *data, std::size_t length) {
-    hash h;
-    cn_fast_hash(data, length, reinterpret_cast<char *>(&h));
-    return h;
-  }
+inline hash cn_fast_hash(const void *data, std::size_t length)
+{
+	hash h;
+	cn_fast_hash(data, length, reinterpret_cast<char *>(&h));
+	return h;
+}
 
-  enum struct cn_slow_hash_type
-  {
-    cn_original,
-    cn_heavy,
-    cn_r,
-  };
+inline void tree_hash(const hash *hashes, std::size_t count, hash &root_hash)
+{
+	tree_hash(reinterpret_cast<const char(*)[HASH_SIZE]>(hashes), count, reinterpret_cast<char *>(&root_hash));
+}
 
-  inline void cn_slow_hash(const void *data, std::size_t length, hash &hash, int variant = 0, uint64_t height = 0, cn_slow_hash_type type = cn_slow_hash_type::cn_original) {
-    switch (type)
-    {
-      case cn_slow_hash_type::cn_heavy:
-      {
-        static thread_local cn_heavy_hash_v2 v2;
-        v2.hash(data, length, hash.data);
-      }
-      break;
-      
-      case cn_slow_hash_type::cn_r:
-      case cn_slow_hash_type::cn_original:
-      default:
-      {
-        cn_monero_slow_hash(data, length, reinterpret_cast<char *>(&hash), variant, 0/*prehashed*/, height);
-      }
-      break;
-    }
-  }
+inline std::ostream &operator<<(std::ostream &o, const crypto::hash &v)
+{
+	epee::to_hex::formatted(o, epee::as_byte_span(v));
+	return o;
+}
+inline std::ostream &operator<<(std::ostream &o, const crypto::hash8 &v)
+{
+	epee::to_hex::formatted(o, epee::as_byte_span(v));
+	return o;
+}
 
-  inline void tree_hash(const hash *hashes, std::size_t count, hash &root_hash) {
-    tree_hash(reinterpret_cast<const char (*)[HASH_SIZE]>(hashes), count, reinterpret_cast<char *>(&root_hash));
-  }
-
-  inline std::ostream &operator <<(std::ostream &o, const crypto::hash &v) {
-    epee::to_hex::formatted(o, epee::as_byte_span(v)); return o;
-  }
-  inline std::ostream &operator <<(std::ostream &o, const crypto::hash8 &v) {
-    epee::to_hex::formatted(o, epee::as_byte_span(v)); return o;
-  }
-
-  const static crypto::hash null_hash = boost::value_initialized<crypto::hash>();
-  const static crypto::hash8 null_hash8 = boost::value_initialized<crypto::hash8>();
+const static crypto::hash null_hash = boost::value_initialized<crypto::hash>();
+const static crypto::hash8 null_hash8 = boost::value_initialized<crypto::hash8>();
 }
 
 CRYPTO_MAKE_HASHABLE(hash)

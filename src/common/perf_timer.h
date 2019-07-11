@@ -1,21 +1,11 @@
-// Copyright (c) 2016-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -28,10 +18,10 @@
 
 #pragma once
 
-#include <string>
-#include <stdio.h>
-#include <memory>
 #include "misc_log_ex.h"
+#include <memory>
+#include <stdio.h>
+#include <string>
 
 namespace tools
 {
@@ -46,44 +36,46 @@ uint64_t ticks_to_ns(uint64_t ticks);
 
 class PerformanceTimer
 {
-public:
-  PerformanceTimer(bool paused = false);
-  ~PerformanceTimer();
-  void pause();
-  void resume();
-  void reset();
-  uint64_t value() const;
-  operator uint64_t() const { return value(); }
+  public:
+	PerformanceTimer(bool paused = false);
+	~PerformanceTimer();
+	void pause();
+	void resume();
 
-protected:
-  uint64_t ticks;
-  bool started;
-  bool paused;
+	uint64_t value() const { return ticks; }
+
+  protected:
+	uint64_t ticks;
+	bool started;
+	bool paused;
 };
 
-class LoggingPerformanceTimer: public PerformanceTimer
+class LoggingPerformanceTimer : public PerformanceTimer
 {
-public:
-  LoggingPerformanceTimer(const std::string &s, const std::string &cat, uint64_t unit, el::Level l = el::Level::Info);
-  ~LoggingPerformanceTimer();
+  public:
+	LoggingPerformanceTimer(const std::string &s, const std::string &cat, uint64_t unit, el::Level l = el::Level::Debug);
+	~LoggingPerformanceTimer();
 
-private:
-  std::string name;
-  std::string cat;
-  uint64_t unit;
-  el::Level level;
+  private:
+	std::string name;
+	std::string cat;
+	uint64_t unit;
+	el::Level level;
 };
 
 void set_performance_timer_log_level(el::Level level);
 
-#define PERF_TIMER_UNIT(name, unit) tools::LoggingPerformanceTimer pt_##name(#name, "perf." MONERO_DEFAULT_LOG_CATEGORY, unit, tools::performance_timer_log_level)
-#define PERF_TIMER_UNIT_L(name, unit, l) tools::LoggingPerformanceTimer pt_##name(#name, "perf." MONERO_DEFAULT_LOG_CATEGORY, unit, l)
+#define PERF_TIMER_UNIT(name, unit) tools::LoggingPerformanceTimer pt_##name(#name, "perf.oldlog", unit, tools::performance_timer_log_level)
+#define PERF_TIMER_UNIT_L(name, unit, l) tools::LoggingPerformanceTimer pt_##name(#name, "perf.oldlog", unit, l)
 #define PERF_TIMER(name) PERF_TIMER_UNIT(name, 1000000)
 #define PERF_TIMER_L(name, l) PERF_TIMER_UNIT_L(name, 1000000, l)
-#define PERF_TIMER_START_UNIT(name, unit) std::unique_ptr<tools::LoggingPerformanceTimer> pt_##name(new tools::LoggingPerformanceTimer(#name, "perf." MONERO_DEFAULT_LOG_CATEGORY, unit, el::Level::Info))
+#define PERF_TIMER_START_UNIT(name, unit) std::unique_ptr<tools::LoggingPerformanceTimer> pt_##name(new tools::LoggingPerformanceTimer(#name, "perf.oldlog", unit, el::Level::Info))
 #define PERF_TIMER_START(name) PERF_TIMER_START_UNIT(name, 1000000)
-#define PERF_TIMER_STOP(name) do { pt_##name.reset(NULL); } while(0)
+#define PERF_TIMER_STOP(name)  \
+	do                         \
+	{                          \
+		pt_##name.reset(NULL); \
+	} while(0)
 #define PERF_TIMER_PAUSE(name) pt_##name->pause()
 #define PERF_TIMER_RESUME(name) pt_##name->resume()
-
 }

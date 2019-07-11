@@ -1,20 +1,10 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
 //
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-//
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-//
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -34,42 +24,39 @@
 #include <string>
 #include <vector>
 
-
-namespace Monero {
+namespace Ryo
+{
 
 class WalletImpl;
 class UnsignedTransactionImpl : public UnsignedTransaction
 {
-public:
-    UnsignedTransactionImpl(WalletImpl &wallet);
-    ~UnsignedTransactionImpl();
-    int status() const override;
-    std::string errorString() const override;
-    std::vector<uint64_t> amount() const override;
-    std::vector<uint64_t> fee() const override;
-    std::vector<uint64_t> mixin() const override;
-    std::vector<std::string> paymentId() const override;
-    std::vector<std::string> recipientAddress() const override;
-    uint64_t txCount() const override;
-    // sign txs and save to file
-    bool sign(const std::string &signedFileName) override;
-    std::string confirmationMessage() const override {return m_confirmationMessage;}
-    uint64_t minMixinCount() const override;
+  public:
+	UnsignedTransactionImpl(WalletImpl &wallet);
+	~UnsignedTransactionImpl();
+	int status() const;
+	std::string errorString() const;
+	std::vector<uint64_t> amount() const;
+	std::vector<uint64_t> dust() const;
+	std::vector<uint64_t> fee() const;
+	std::vector<uint64_t> mixin() const;
+	std::vector<std::string> paymentId() const;
+	std::vector<std::string> recipientAddress() const;
+	uint64_t txCount() const;
+	// sign txs and save to file
+	bool sign(const std::string &signedFileName);
+	std::string confirmationMessage() const { return m_confirmationMessage; }
+	uint64_t minMixinCount() const;
 
-private:
-    // Callback function to check all loaded tx's and generate confirmationMessage
-    bool checkLoadedTx(const std::function<size_t()> get_num_txes, const std::function<const tools::wallet2::tx_construction_data&(size_t)> &get_tx, const std::string &extra_message);
-    
-    friend class WalletImpl;
-    WalletImpl &m_wallet;
+  private:
+	// Callback function to check all loaded tx's and generate confirmationMessage
+	bool checkLoadedTx(const std::function<size_t()> get_num_txes, const std::function<const tools::wallet2::tx_construction_data &(size_t)> &get_tx, const std::string &extra_message);
 
-    int  m_status;
-    std::string m_errorString;
-    tools::wallet2::unsigned_tx_set m_unsigned_tx_set;
-    std::string m_confirmationMessage;
+	friend class WalletImpl;
+	WalletImpl &m_wallet;
+
+	int m_status;
+	std::string m_errorString;
+	tools::wallet2::unsigned_tx_set m_unsigned_tx_set;
+	std::string m_confirmationMessage;
 };
-
-
 }
-
-namespace Bitmonero = Monero;

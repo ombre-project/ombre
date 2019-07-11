@@ -1,6 +1,6 @@
 // Copyright (c) 2006-2013, Andrey N. Sabelnikov, www.sabelnikov.net
 // All rights reserved.
-// 
+//
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 // * Redistributions of source code must retain the above copyright
@@ -11,7 +11,7 @@
 // * Neither the name of the Andrey N. Sabelnikov nor the
 // names of its contributors may be used to endorse or promote products
 // derived from this software without specific prior written permission.
-// 
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 // ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 // WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -22,10 +22,7 @@
 // ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
-
-
-
+//
 
 #pragma once
 #include "smtp.h"
@@ -34,55 +31,52 @@ namespace epee
 {
 namespace net_utils
 {
-	namespace smtp
+namespace smtp
+{
+
+inline bool send_mail(const std::string &server, int port, const std::string &login, const std::string &pass, const std::string &from_addres, const std::string &from_name, const std::string &maillist, const std::string &subject, const std::string &mail_body)
+{
+	net_utils::smtp::CSMTPClient smtp;
+
+	if(!smtp.ServerConnect(server.c_str(), port))
 	{
+		LOG_PRINT("Reporting: Failed to connect to server " << server << ":" << port, LOG_LEVEL_0);
+		return false;
+	}
 
-		inline bool send_mail(const std::string& server, int port, const std::string& login, const std::string& pass, const std::string& from_addres, const std::string& from_name, const std::string& maillist, const std::string& subject, const std::string& mail_body)
+	if(login.size() && pass.size())
+	{
+		if(!smtp.ServerLogin(login.c_str(), pass.c_str()))
 		{
-			net_utils::smtp::CSMTPClient smtp;
-
-			if ( !smtp.ServerConnect( server.c_str(), port ) )
-			{
-				LOG_PRINT("Reporting: Failed to connect to server " << server <<":"<< port, LOG_LEVEL_0);
-				return false;
-			}
-
-			if(login.size() && pass.size())
-			{
-				if ( !smtp.ServerLogin( login.c_str(), pass.c_str()) )
-				{
-					LOG_PRINT("Reporting: Failed to auth on server " << server <<":"<< port, LOG_LEVEL_0);
-					return false;
-
-				}
-			}
-
-			if ( !smtp.SendMessage( from_addres.c_str(),
-				from_name.c_str(),
-				maillist.c_str(),
-				subject.c_str(),
-				"bicycle-client",
-				(LPBYTE)mail_body.data(),
-				mail_body.size()))
-			{
-				char *szErrorText = smtp.GetLastErrorText();
-				if ( szErrorText )
-				{
-					LOG_PRINT("Failed to send message, error text: " << szErrorText, LOG_LEVEL_0);
-				}
-				else
-				{
-					LOG_PRINT("Failed to send message, error text: null", LOG_LEVEL_0);
-				}
-				return false;
-			}
-
-			smtp.ServerDisconnect();
-
-			return true;
-
-
+			LOG_PRINT("Reporting: Failed to auth on server " << server << ":" << port, LOG_LEVEL_0);
+			return false;
 		}
 	}
+
+	if(!smtp.SendMessage(from_addres.c_str(),
+						 from_name.c_str(),
+						 maillist.c_str(),
+						 subject.c_str(),
+						 "bicycle-client",
+						 (LPBYTE)mail_body.data(),
+						 mail_body.size()))
+	{
+		char *szErrorText = smtp.GetLastErrorText();
+		if(szErrorText)
+		{
+			LOG_PRINT("Failed to send message, error text: " << szErrorText, LOG_LEVEL_0);
+		}
+		else
+		{
+			LOG_PRINT("Failed to send message, error text: null", LOG_LEVEL_0);
+		}
+		return false;
+	}
+
+	smtp.ServerDisconnect();
+
+	return true;
+}
+}
 }
 }

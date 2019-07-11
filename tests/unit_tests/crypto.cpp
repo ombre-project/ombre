@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2017-2018, The Monero Project
 //
 // All rights reserved.
 //
@@ -28,6 +28,7 @@
 
 #include <cstdint>
 #include <gtest/gtest.h>
+#include <sodium/crypto_verify_32.h>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -36,66 +37,62 @@
 
 namespace
 {
-  static constexpr const std::uint8_t source[] = {
-    0x8b, 0x65, 0x59, 0x70, 0x15, 0x37, 0x99, 0xaf, 0x2a, 0xea, 0xdc, 0x9f, 0xf1, 0xad, 0xd0, 0xea,
-    0x6c, 0x72, 0x51, 0xd5, 0x41, 0x54, 0xcf, 0xa9, 0x2c, 0x17, 0x3a, 0x0d, 0xd3, 0x9c, 0x1f, 0x94,
-    0x6c, 0x72, 0x51, 0xd5, 0x41, 0x54, 0xcf, 0xa9, 0x2c, 0x17, 0x3a, 0x0d, 0xd3, 0x9c, 0x1f, 0x94,
-    0x8b, 0x65, 0x59, 0x70, 0x15, 0x37, 0x99, 0xaf, 0x2a, 0xea, 0xdc, 0x9f, 0xf1, 0xad, 0xd0, 0xea
-  };
+static constexpr const std::uint8_t source[] = {
+	0x8b, 0x65, 0x59, 0x70, 0x15, 0x37, 0x99, 0xaf, 0x2a, 0xea, 0xdc, 0x9f, 0xf1, 0xad, 0xd0, 0xea,
+	0x6c, 0x72, 0x51, 0xd5, 0x41, 0x54, 0xcf, 0xa9, 0x2c, 0x17, 0x3a, 0x0d, 0xd3, 0x9c, 0x1f, 0x94,
+	0x6c, 0x72, 0x51, 0xd5, 0x41, 0x54, 0xcf, 0xa9, 0x2c, 0x17, 0x3a, 0x0d, 0xd3, 0x9c, 0x1f, 0x94,
+	0x8b, 0x65, 0x59, 0x70, 0x15, 0x37, 0x99, 0xaf, 0x2a, 0xea, 0xdc, 0x9f, 0xf1, 0xad, 0xd0, 0xea};
 
-  static constexpr const char expected[] =
-    "8b655970153799af2aeadc9ff1add0ea6c7251d54154cfa92c173a0dd39c1f94"
-    "6c7251d54154cfa92c173a0dd39c1f948b655970153799af2aeadc9ff1add0ea";
+static constexpr const char expected[] =
+	"8b655970153799af2aeadc9ff1add0ea6c7251d54154cfa92c173a0dd39c1f94"
+	"6c7251d54154cfa92c173a0dd39c1f948b655970153799af2aeadc9ff1add0ea";
 
-  template<typename T> void *addressof(T &t) { return &t; }
-  template<> void *addressof(crypto::secret_key &k) { return addressof(unwrap(unwrap(k))); }
+template <typename T>
+bool is_formatted()
+{
+	T value{};
 
-  template<typename T>
-  bool is_formatted()
-  {
-    T value{};
+	static_assert(alignof(T) == 1, "T must have 1 byte alignment");
+	static_assert(sizeof(T) <= sizeof(source), "T is too large for source");
+	static_assert(sizeof(T) * 2 <= sizeof(expected), "T is too large for destination");
+	std::memcpy(std::addressof(value), source, sizeof(T));
 
-    static_assert(alignof(T) == 1, "T must have 1 byte alignment");
-    static_assert(sizeof(T) <= sizeof(source), "T is too large for source");
-    static_assert(sizeof(T) * 2 <= sizeof(expected), "T is too large for destination");
-    std::memcpy(addressof(value), source, sizeof(T));
-
-    std::stringstream out;
-    out << "BEGIN" << value << "END";  
-    return out.str() == "BEGIN<" + std::string{expected, sizeof(T) * 2} + ">END";
-  }
+	std::stringstream out;
+	out << "BEGIN" << value << "END";
+	return out.str() == "BEGIN<" + std::string{expected, sizeof(T) * 2} + ">END";
+}
 }
 
 TEST(Crypto, Ostream)
 {
-  EXPECT_TRUE(is_formatted<crypto::hash8>());
-  EXPECT_TRUE(is_formatted<crypto::hash>());
-  EXPECT_TRUE(is_formatted<crypto::public_key>());
-  EXPECT_TRUE(is_formatted<crypto::secret_key>());
-  EXPECT_TRUE(is_formatted<crypto::signature>());
-  EXPECT_TRUE(is_formatted<crypto::key_derivation>());
-  EXPECT_TRUE(is_formatted<crypto::key_image>());
+	EXPECT_TRUE(is_formatted<crypto::hash8>());
+	EXPECT_TRUE(is_formatted<crypto::hash>());
+	EXPECT_TRUE(is_formatted<crypto::public_key>());
+	EXPECT_TRUE(is_formatted<crypto::secret_key>());
+	EXPECT_TRUE(is_formatted<crypto::signature>());
+	EXPECT_TRUE(is_formatted<crypto::key_derivation>());
+	EXPECT_TRUE(is_formatted<crypto::key_image>());
 }
 
 TEST(Crypto, null_keys)
 {
-  char zero[32];
-  memset(zero, 0, 32);
-  ASSERT_EQ(memcmp(crypto::null_skey.data, zero, 32), 0);
-  ASSERT_EQ(memcmp(crypto::null_pkey.data, zero, 32), 0);
+	char zero[32];
+	memset(zero, 0, 32);
+	ASSERT_EQ(memcmp(crypto::null_skey.data, zero, 32), 0);
+	ASSERT_EQ(memcmp(crypto::null_pkey.data, zero, 32), 0);
 }
 
 TEST(Crypto, verify_32)
 {
-  // all bytes are treated the same, so we can brute force just one byte
-  unsigned char k0[32] = {0}, k1[32] = {0};
-  for (unsigned int i0 = 0; i0 < 256; ++i0)
-  {
-    k0[0] = i0;
-    for (unsigned int i1 = 0; i1 < 256; ++i1)
-    {
-      k1[0] = i1;
-      ASSERT_EQ(!crypto_verify_32(k0, k1), i0 == i1);
-    }
-  }
+	// all bytes are treated the same, so we can brute force just one byte
+	unsigned char k0[32] = {0}, k1[32] = {0};
+	for(unsigned int i0 = 0; i0 < 256; ++i0)
+	{
+		k0[0] = i0;
+		for(unsigned int i1 = 0; i1 < 256; ++i1)
+		{
+			k1[0] = i1;
+			ASSERT_EQ(!crypto_verify_32(k0, k1), i0 == i1);
+		}
+	}
 }

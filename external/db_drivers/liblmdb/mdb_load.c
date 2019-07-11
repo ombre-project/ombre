@@ -1,6 +1,6 @@
 /* mdb_load.c - memory-mapped database load tool */
 /*
- * Copyright 2011-2018 Howard Chu, Symas Corp.
+ * Copyright 2011-2015 Howard Chu, Symas Corp.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -11,21 +11,21 @@
  * top-level directory of the distribution or, alternatively, at
  * <http://www.OpenLDAP.org/license.html>.
  */
+#include "lmdb.h"
+#include <ctype.h>
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
-#include <ctype.h>
 #include <unistd.h>
-#include "lmdb.h"
 
-#define PRINT	1
-#define NOHDR	2
+#define PRINT 1
+#define NOHDR 2
 static int mode;
 
 static char *subname = NULL;
 
-static mdb_size_t lineno;
+static size_t lineno;
 static int version;
 
 static int flags;
@@ -39,113 +39,160 @@ static MDB_envinfo info;
 static MDB_val kbuf, dbuf;
 static MDB_val k0buf;
 
-#define Yu	MDB_PRIy(u)
+#ifdef _WIN32
+#define Z "I"
+#else
+#define Z "z"
+#endif
+#ifdef MDB_VL32
+#ifdef _WIN32
+#define Y "I64"
+#else
+#define Y "ll"
+#endif
+#else
+#define Y Z
+#endif
 
-#define STRLENOF(s)	(sizeof(s)-1)
+#define STRLENOF(s) (sizeof(s) - 1)
 
-typedef struct flagbit {
+typedef struct flagbit
+{
 	int bit;
 	char *name;
 	int len;
 } flagbit;
 
-#define S(s)	s, STRLENOF(s)
+#define S(s) s, STRLENOF(s)
 
 flagbit dbflags[] = {
-	{ MDB_REVERSEKEY, S("reversekey") },
-	{ MDB_DUPSORT, S("dupsort") },
-	{ MDB_INTEGERKEY, S("integerkey") },
-	{ MDB_DUPFIXED, S("dupfixed") },
-	{ MDB_INTEGERDUP, S("integerdup") },
-	{ MDB_REVERSEDUP, S("reversedup") },
-	{ 0, NULL, 0 }
-};
+	{MDB_REVERSEKEY, S("reversekey")},
+	{MDB_DUPSORT, S("dupsort")},
+	{MDB_INTEGERKEY, S("integerkey")},
+	{MDB_DUPFIXED, S("dupfixed")},
+	{MDB_INTEGERDUP, S("integerdup")},
+	{MDB_REVERSEDUP, S("reversedup")},
+	{0, NULL, 0}};
 
 static void readhdr(void)
 {
 	char *ptr;
 
 	flags = 0;
-	while (fgets(dbuf.mv_data, dbuf.mv_size, stdin) != NULL) {
+	while(fgets(dbuf.mv_data, dbuf.mv_size, stdin) != NULL)
+	{
 		lineno++;
-		if (!strncmp(dbuf.mv_data, "VERSION=", STRLENOF("VERSION="))) {
-			version=atoi((char *)dbuf.mv_data+STRLENOF("VERSION="));
-			if (version > 3) {
-				fprintf(stderr, "%s: line %"Yu": unsupported VERSION %d\n",
-					prog, lineno, version);
+		if(!strncmp(dbuf.mv_data, "VERSION=", STRLENOF("VERSION=")))
+		{
+			version = atoi((char *)dbuf.mv_data + STRLENOF("VERSION="));
+			if(version > 3)
+			{
+				fprintf(stderr, "%s: line %" Z "d: unsupported VERSION %d\n",
+						prog, lineno, version);
 				exit(EXIT_FAILURE);
 			}
-		} else if (!strncmp(dbuf.mv_data, "HEADER=END", STRLENOF("HEADER=END"))) {
+		}
+		else if(!strncmp(dbuf.mv_data, "HEADER=END", STRLENOF("HEADER=END")))
+		{
 			break;
-		} else if (!strncmp(dbuf.mv_data, "format=", STRLENOF("format="))) {
-			if (!strncmp((char *)dbuf.mv_data+STRLENOF("FORMAT="), "print", STRLENOF("print")))
+		}
+		else if(!strncmp(dbuf.mv_data, "format=", STRLENOF("format=")))
+		{
+			if(!strncmp((char *)dbuf.mv_data + STRLENOF("FORMAT="), "print", STRLENOF("print")))
 				mode |= PRINT;
-			else if (strncmp((char *)dbuf.mv_data+STRLENOF("FORMAT="), "bytevalue", STRLENOF("bytevalue"))) {
-				fprintf(stderr, "%s: line %"Yu": unsupported FORMAT %s\n",
-					prog, lineno, (char *)dbuf.mv_data+STRLENOF("FORMAT="));
+			else if(strncmp((char *)dbuf.mv_data + STRLENOF("FORMAT="), "bytevalue", STRLENOF("bytevalue")))
+			{
+				fprintf(stderr, "%s: line %" Z "d: unsupported FORMAT %s\n",
+						prog, lineno, (char *)dbuf.mv_data + STRLENOF("FORMAT="));
 				exit(EXIT_FAILURE);
 			}
-		} else if (!strncmp(dbuf.mv_data, "database=", STRLENOF("database="))) {
+		}
+		else if(!strncmp(dbuf.mv_data, "database=", STRLENOF("database=")))
+		{
 			ptr = memchr(dbuf.mv_data, '\n', dbuf.mv_size);
-			if (ptr) *ptr = '\0';
-			if (subname) free(subname);
-			subname = strdup((char *)dbuf.mv_data+STRLENOF("database="));
-		} else if (!strncmp(dbuf.mv_data, "type=", STRLENOF("type="))) {
-			if (strncmp((char *)dbuf.mv_data+STRLENOF("type="), "btree", STRLENOF("btree")))  {
-				fprintf(stderr, "%s: line %"Yu": unsupported type %s\n",
-					prog, lineno, (char *)dbuf.mv_data+STRLENOF("type="));
+			if(ptr)
+				*ptr = '\0';
+			if(subname)
+				free(subname);
+			subname = strdup((char *)dbuf.mv_data + STRLENOF("database="));
+		}
+		else if(!strncmp(dbuf.mv_data, "type=", STRLENOF("type=")))
+		{
+			if(strncmp((char *)dbuf.mv_data + STRLENOF("type="), "btree", STRLENOF("btree")))
+			{
+				fprintf(stderr, "%s: line %" Z "d: unsupported type %s\n",
+						prog, lineno, (char *)dbuf.mv_data + STRLENOF("type="));
 				exit(EXIT_FAILURE);
 			}
-		} else if (!strncmp(dbuf.mv_data, "mapaddr=", STRLENOF("mapaddr="))) {
+		}
+		else if(!strncmp(dbuf.mv_data, "mapaddr=", STRLENOF("mapaddr=")))
+		{
 			int i;
 			ptr = memchr(dbuf.mv_data, '\n', dbuf.mv_size);
-			if (ptr) *ptr = '\0';
-			i = sscanf((char *)dbuf.mv_data+STRLENOF("mapaddr="), "%p", &info.me_mapaddr);
-			if (i != 1) {
-				fprintf(stderr, "%s: line %"Yu": invalid mapaddr %s\n",
-					prog, lineno, (char *)dbuf.mv_data+STRLENOF("mapaddr="));
+			if(ptr)
+				*ptr = '\0';
+			i = sscanf((char *)dbuf.mv_data + STRLENOF("mapaddr="), "%p", &info.me_mapaddr);
+			if(i != 1)
+			{
+				fprintf(stderr, "%s: line %" Z "d: invalid mapaddr %s\n",
+						prog, lineno, (char *)dbuf.mv_data + STRLENOF("mapaddr="));
 				exit(EXIT_FAILURE);
 			}
-		} else if (!strncmp(dbuf.mv_data, "mapsize=", STRLENOF("mapsize="))) {
+		}
+		else if(!strncmp(dbuf.mv_data, "mapsize=", STRLENOF("mapsize=")))
+		{
 			int i;
 			ptr = memchr(dbuf.mv_data, '\n', dbuf.mv_size);
-			if (ptr) *ptr = '\0';
-			i = sscanf((char *)dbuf.mv_data+STRLENOF("mapsize="),
-				"%" MDB_SCNy(u), &info.me_mapsize);
-			if (i != 1) {
-				fprintf(stderr, "%s: line %"Yu": invalid mapsize %s\n",
-					prog, lineno, (char *)dbuf.mv_data+STRLENOF("mapsize="));
+			if(ptr)
+				*ptr = '\0';
+			i = sscanf((char *)dbuf.mv_data + STRLENOF("mapsize="), "%" Y "u", &info.me_mapsize);
+			if(i != 1)
+			{
+				fprintf(stderr, "%s: line %" Z "d: invalid mapsize %s\n",
+						prog, lineno, (char *)dbuf.mv_data + STRLENOF("mapsize="));
 				exit(EXIT_FAILURE);
 			}
-		} else if (!strncmp(dbuf.mv_data, "maxreaders=", STRLENOF("maxreaders="))) {
+		}
+		else if(!strncmp(dbuf.mv_data, "maxreaders=", STRLENOF("maxreaders=")))
+		{
 			int i;
 			ptr = memchr(dbuf.mv_data, '\n', dbuf.mv_size);
-			if (ptr) *ptr = '\0';
-			i = sscanf((char *)dbuf.mv_data+STRLENOF("maxreaders="), "%u", &info.me_maxreaders);
-			if (i != 1) {
-				fprintf(stderr, "%s: line %"Yu": invalid maxreaders %s\n",
-					prog, lineno, (char *)dbuf.mv_data+STRLENOF("maxreaders="));
+			if(ptr)
+				*ptr = '\0';
+			i = sscanf((char *)dbuf.mv_data + STRLENOF("maxreaders="), "%u", &info.me_maxreaders);
+			if(i != 1)
+			{
+				fprintf(stderr, "%s: line %" Z "d: invalid maxreaders %s\n",
+						prog, lineno, (char *)dbuf.mv_data + STRLENOF("maxreaders="));
 				exit(EXIT_FAILURE);
 			}
-		} else {
+		}
+		else
+		{
 			int i;
-			for (i=0; dbflags[i].bit; i++) {
-				if (!strncmp(dbuf.mv_data, dbflags[i].name, dbflags[i].len) &&
-					((char *)dbuf.mv_data)[dbflags[i].len] == '=') {
+			for(i = 0; dbflags[i].bit; i++)
+			{
+				if(!strncmp(dbuf.mv_data, dbflags[i].name, dbflags[i].len) &&
+				   ((char *)dbuf.mv_data)[dbflags[i].len] == '=')
+				{
 					flags |= dbflags[i].bit;
 					break;
 				}
 			}
-			if (!dbflags[i].bit) {
+			if(!dbflags[i].bit)
+			{
 				ptr = memchr(dbuf.mv_data, '=', dbuf.mv_size);
-				if (!ptr) {
-					fprintf(stderr, "%s: line %"Yu": unexpected format\n",
-						prog, lineno);
+				if(!ptr)
+				{
+					fprintf(stderr, "%s: line %" Z "d: unexpected format\n",
+							prog, lineno);
 					exit(EXIT_FAILURE);
-				} else {
+				}
+				else
+				{
 					*ptr = '\0';
-					fprintf(stderr, "%s: line %"Yu": unrecognized keyword ignored: %s\n",
-						prog, lineno, (char *)dbuf.mv_data);
+					fprintf(stderr, "%s: line %" Z "d: unrecognized keyword ignored: %s\n",
+							prog, lineno, (char *)dbuf.mv_data);
 				}
 			}
 		}
@@ -154,19 +201,19 @@ static void readhdr(void)
 
 static void badend(void)
 {
-	fprintf(stderr, "%s: line %"Yu": unexpected end of input\n",
-		prog, lineno);
+	fprintf(stderr, "%s: line %" Z "d: unexpected end of input\n",
+			prog, lineno);
 }
 
 static int unhex(unsigned char *c2)
 {
 	int x, c;
 	x = *c2++ & 0x4f;
-	if (x & 0x40)
+	if(x & 0x40)
 		x -= 55;
 	c = x << 4;
 	x = *c2 & 0x4f;
-	if (x & 0x40)
+	if(x & 0x40)
 		x -= 55;
 	c |= x;
 	return c;
@@ -178,26 +225,31 @@ static int readline(MDB_val *out, MDB_val *buf)
 	size_t len, l2;
 	int c;
 
-	if (!(mode & NOHDR)) {
+	if(!(mode & NOHDR))
+	{
 		c = fgetc(stdin);
-		if (c == EOF) {
+		if(c == EOF)
+		{
 			Eof = 1;
 			return EOF;
 		}
-		if (c != ' ') {
+		if(c != ' ')
+		{
 			lineno++;
-			if (fgets(buf->mv_data, buf->mv_size, stdin) == NULL) {
-badend:
+			if(fgets(buf->mv_data, buf->mv_size, stdin) == NULL)
+			{
+			badend:
 				Eof = 1;
 				badend();
 				return EOF;
 			}
-			if (c == 'D' && !strncmp(buf->mv_data, "ATA=END", STRLENOF("ATA=END")))
+			if(c == 'D' && !strncmp(buf->mv_data, "ATA=END", STRLENOF("ATA=END")))
 				return EOF;
 			goto badend;
 		}
 	}
-	if (fgets(buf->mv_data, buf->mv_size, stdin) == NULL) {
+	if(fgets(buf->mv_data, buf->mv_size, stdin) == NULL)
+	{
 		Eof = 1;
 		return EOF;
 	}
@@ -208,17 +260,20 @@ badend:
 	l2 = len;
 
 	/* Is buffer too short? */
-	while (c1[len-1] != '\n') {
-		buf->mv_data = realloc(buf->mv_data, buf->mv_size*2);
-		if (!buf->mv_data) {
+	while(c1[len - 1] != '\n')
+	{
+		buf->mv_data = realloc(buf->mv_data, buf->mv_size * 2);
+		if(!buf->mv_data)
+		{
 			Eof = 1;
-			fprintf(stderr, "%s: line %"Yu": out of memory, line too long\n",
-				prog, lineno);
+			fprintf(stderr, "%s: line %" Z "d: out of memory, line too long\n",
+					prog, lineno);
 			return EOF;
 		}
 		c1 = buf->mv_data;
 		c1 += l2;
-		if (fgets((char *)c1, buf->mv_size+1, stdin) == NULL) {
+		if(fgets((char *)c1, buf->mv_size + 1, stdin) == NULL)
+		{
 			Eof = 1;
 			badend();
 			return EOF;
@@ -232,13 +287,21 @@ badend:
 	c1[--len] = '\0';
 	end = c1 + len;
 
-	if (mode & PRINT) {
-		while (c2 < end) {
-			if (*c2 == '\\') {
-				if (c2[1] == '\\') {
-					c1++; c2 += 2;
-				} else {
-					if (c2+3 > end || !isxdigit(c2[1]) || !isxdigit(c2[2])) {
+	if(mode & PRINT)
+	{
+		while(c2 < end)
+		{
+			if(*c2 == '\\')
+			{
+				if(c2[1] == '\\')
+				{
+					c1++;
+					c2 += 2;
+				}
+				else
+				{
+					if(c2 + 3 > end || !isxdigit(c2[1]) || !isxdigit(c2[2]))
+					{
 						Eof = 1;
 						badend();
 						return EOF;
@@ -246,20 +309,27 @@ badend:
 					*c1++ = unhex(++c2);
 					c2 += 2;
 				}
-			} else {
-				/* copies are redundant when no escapes were used */
-				*c1++ = *c2++;
+			}
+			else
+			{
+				c1++;
+				c2++;
 			}
 		}
-	} else {
+	}
+	else
+	{
 		/* odd length not allowed */
-		if (len & 1) {
+		if(len & 1)
+		{
 			Eof = 1;
 			badend();
 			return EOF;
 		}
-		while (c2 < end) {
-			if (!isxdigit(*c2) || !isxdigit(c2[1])) {
+		while(c2 < end)
+		{
+			if(!isxdigit(*c2) || !isxdigit(c2[1]))
+			{
 				Eof = 1;
 				badend();
 				return EOF;
@@ -299,7 +369,8 @@ int main(int argc, char *argv[])
 
 	prog = argv[0];
 
-	if (argc < 2) {
+	if(argc < 2)
+	{
 		usage();
 	}
 
@@ -311,8 +382,10 @@ int main(int argc, char *argv[])
 	 * -T: read plaintext
 	 * -V: print version and exit
 	 */
-	while ((i = getopt(argc, argv, "af:ns:NTV")) != EOF) {
-		switch(i) {
+	while((i = getopt(argc, argv, "af:ns:NTV")) != EOF)
+	{
+		switch(i)
+		{
 		case 'V':
 			printf("%s\n", MDB_VERSION_STRING);
 			exit(0);
@@ -321,9 +394,10 @@ int main(int argc, char *argv[])
 			append = 1;
 			break;
 		case 'f':
-			if (freopen(optarg, "r", stdin) == NULL) {
+			if(freopen(optarg, "r", stdin) == NULL)
+			{
 				fprintf(stderr, "%s: %s: reopen: %s\n",
-					prog, optarg, strerror(errno));
+						prog, optarg, strerror(errno));
 				exit(EXIT_FAILURE);
 			}
 			break;
@@ -334,7 +408,7 @@ int main(int argc, char *argv[])
 			subname = strdup(optarg);
 			break;
 		case 'N':
-			putflags = MDB_NOOVERWRITE|MDB_NODUPDATA;
+			putflags = MDB_NOOVERWRITE | MDB_NODUPDATA;
 			break;
 		case 'T':
 			mode |= NOHDR | PRINT;
@@ -344,35 +418,37 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	if (optind != argc - 1)
+	if(optind != argc - 1)
 		usage();
 
 	dbuf.mv_size = 4096;
 	dbuf.mv_data = malloc(dbuf.mv_size);
 
-	if (!(mode & NOHDR))
+	if(!(mode & NOHDR))
 		readhdr();
 
 	envname = argv[optind];
 	rc = mdb_env_create(&env);
-	if (rc) {
+	if(rc)
+	{
 		fprintf(stderr, "mdb_env_create failed, error %d %s\n", rc, mdb_strerror(rc));
 		return EXIT_FAILURE;
 	}
 
 	mdb_env_set_maxdbs(env, 2);
 
-	if (info.me_maxreaders)
+	if(info.me_maxreaders)
 		mdb_env_set_maxreaders(env, info.me_maxreaders);
 
-	if (info.me_mapsize)
+	if(info.me_mapsize)
 		mdb_env_set_mapsize(env, info.me_mapsize);
 
-	if (info.me_mapaddr)
+	if(info.me_mapaddr)
 		envflags |= MDB_FIXEDMAP;
 
 	rc = mdb_env_open(env, envname, envflags, 0664);
-	if (rc) {
+	if(rc)
+	{
 		fprintf(stderr, "mdb_env_open failed, error %d %s\n", rc, mdb_strerror(rc));
 		goto env_close;
 	}
@@ -383,90 +459,110 @@ int main(int argc, char *argv[])
 	k0buf.mv_data = (char *)kbuf.mv_data + kbuf.mv_size;
 	prevk.mv_data = k0buf.mv_data;
 
-	while(!Eof) {
+	while(!Eof)
+	{
 		MDB_val key, data;
 		int batch = 0;
 		int appflag;
 
-		if (!dohdr) {
+		if(!dohdr)
+		{
 			dohdr = 1;
-		} else if (!(mode & NOHDR))
+		}
+		else if(!(mode & NOHDR))
 			readhdr();
-		
+
 		rc = mdb_txn_begin(env, NULL, 0, &txn);
-		if (rc) {
+		if(rc)
+		{
 			fprintf(stderr, "mdb_txn_begin failed, error %d %s\n", rc, mdb_strerror(rc));
 			goto env_close;
 		}
 
-		rc = mdb_open(txn, subname, flags|MDB_CREATE, &dbi);
-		if (rc) {
+		rc = mdb_open(txn, subname, flags | MDB_CREATE, &dbi);
+		if(rc)
+		{
 			fprintf(stderr, "mdb_open failed, error %d %s\n", rc, mdb_strerror(rc));
 			goto txn_abort;
 		}
 		prevk.mv_size = 0;
-		if (append) {
+		if(append)
+		{
 			mdb_set_compare(txn, dbi, greater);
-			if (flags & MDB_DUPSORT)
+			if(flags & MDB_DUPSORT)
 				mdb_set_dupsort(txn, dbi, greater);
 		}
 
 		rc = mdb_cursor_open(txn, dbi, &mc);
-		if (rc) {
+		if(rc)
+		{
 			fprintf(stderr, "mdb_cursor_open failed, error %d %s\n", rc, mdb_strerror(rc));
 			goto txn_abort;
 		}
 
-		while(1) {
+		while(1)
+		{
 			rc = readline(&key, &kbuf);
-			if (rc)  /* rc == EOF */
+			if(rc) /* rc == EOF */
 				break;
 
 			rc = readline(&data, &dbuf);
-			if (rc) {
-				fprintf(stderr, "%s: line %"Yu": failed to read key value\n", prog, lineno);
+			if(rc)
+			{
+				fprintf(stderr, "%s: line %" Z "d: failed to read key value\n", prog, lineno);
 				goto txn_abort;
 			}
 
-			if (append) {
+			if(append)
+			{
 				appflag = MDB_APPEND;
-				if (flags & MDB_DUPSORT) {
-					if (prevk.mv_size == key.mv_size && !memcmp(prevk.mv_data, key.mv_data, key.mv_size))
-						appflag = MDB_CURRENT|MDB_APPENDDUP;
-					else {
+				if(flags & MDB_DUPSORT)
+				{
+					if(prevk.mv_size == key.mv_size && !memcmp(prevk.mv_data, key.mv_data, key.mv_size))
+						appflag = MDB_CURRENT | MDB_APPENDDUP;
+					else
+					{
 						memcpy(prevk.mv_data, key.mv_data, key.mv_size);
 						prevk.mv_size = key.mv_size;
 					}
 				}
-			} else {
+			}
+			else
+			{
 				appflag = 0;
 			}
-			rc = mdb_cursor_put(mc, &key, &data, putflags|appflag);
-			if (rc == MDB_KEYEXIST && putflags)
+			rc = mdb_cursor_put(mc, &key, &data, putflags | appflag);
+			if(rc == MDB_KEYEXIST && putflags)
 				continue;
-			if (rc) {
+			if(rc)
+			{
 				fprintf(stderr, "mdb_cursor_put failed, error %d %s\n", rc, mdb_strerror(rc));
 				goto txn_abort;
 			}
 			batch++;
-			if (batch == 100) {
+			if(batch == 100)
+			{
 				rc = mdb_txn_commit(txn);
-				if (rc) {
-					fprintf(stderr, "%s: line %"Yu": txn_commit: %s\n",
-						prog, lineno, mdb_strerror(rc));
+				if(rc)
+				{
+					fprintf(stderr, "%s: line %" Z "d: txn_commit: %s\n",
+							prog, lineno, mdb_strerror(rc));
 					goto env_close;
 				}
 				rc = mdb_txn_begin(env, NULL, 0, &txn);
-				if (rc) {
+				if(rc)
+				{
 					fprintf(stderr, "mdb_txn_begin failed, error %d %s\n", rc, mdb_strerror(rc));
 					goto env_close;
 				}
 				rc = mdb_cursor_open(txn, dbi, &mc);
-				if (rc) {
+				if(rc)
+				{
 					fprintf(stderr, "mdb_cursor_open failed, error %d %s\n", rc, mdb_strerror(rc));
 					goto txn_abort;
 				}
-				if (appflag & MDB_APPENDDUP) {
+				if(appflag & MDB_APPENDDUP)
+				{
 					MDB_val k, d;
 					mdb_cursor_get(mc, &k, &d, MDB_LAST);
 				}
@@ -475,9 +571,10 @@ int main(int argc, char *argv[])
 		}
 		rc = mdb_txn_commit(txn);
 		txn = NULL;
-		if (rc) {
-			fprintf(stderr, "%s: line %"Yu": txn_commit: %s\n",
-				prog, lineno, mdb_strerror(rc));
+		if(rc)
+		{
+			fprintf(stderr, "%s: line %" Z "d: txn_commit: %s\n",
+					prog, lineno, mdb_strerror(rc));
 			goto env_close;
 		}
 		mdb_dbi_close(env, dbi);

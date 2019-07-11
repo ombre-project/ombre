@@ -1,21 +1,11 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +15,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #include <stddef.h>
@@ -35,23 +25,7 @@
 #include "hash-ops.h"
 #include "keccak.h"
 
-void hash_permutation(union hash_state *state) {
-#if BYTE_ORDER == LITTLE_ENDIAN
-  keccakf((uint64_t*)state, 24);
-#else
-  uint64_t le_state[25];
-  memcpy_swap64le(le_state, state, 25);
-  keccakf(le_state, 24);
-  memcpy_swap64le(state, le_state, 25);
-#endif
-}
-
-void hash_process(union hash_state *state, const uint8_t *buf, size_t count) {
-  keccak1600(buf, count, (uint8_t*)state);
-}
-
-void cn_fast_hash(const void *data, size_t length, char *hash) {
-  union hash_state state;
-  hash_process(&state, data, length);
-  memcpy(hash, &state, HASH_SIZE);
+void cn_fast_hash(const void* data, size_t length, char* hash)
+{
+	keccak((const uint8_t*)data, length, (uint8_t*)hash, 32);
 }

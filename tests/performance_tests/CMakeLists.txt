@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
 #
@@ -27,11 +27,11 @@
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 set(performance_tests_sources
+  ../../src/crypto/crypto_ops_builder/verify.c
   main.cpp)
 
 set(performance_tests_headers
   check_tx_signature.h
-  check_hash.h
   cn_slow_hash.h
   construct_tx.h
   derive_public_key.h

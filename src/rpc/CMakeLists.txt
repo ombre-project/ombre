@@ -1,21 +1,37 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2018, Ryo Currency Project
+# Portions copyright (c) 2014-2018, The Monero Project
 #
+# Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 # All rights reserved.
+# 
+# Authors and copyright holders give permission for following:
 #
-# Redistribution and use in source and binary forms, with or without modification, are
-# permitted provided that the following conditions are met:
+# 1. Redistribution and use in source and binary forms WITHOUT modification.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# 2. Modification of the source form for your own personal use. 
+# 
+# As long as the following conditions are met:
+# 
+# 3. You must not distribute modified copies of the work to third parties. This includes 
+#    posting the work online, or hosting copies of the modified work for download.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other
-#    materials provided with the distribution.
+# 4. Any derivative version of this work is also covered by this license, including point 8.
 #
-# 3. Neither the name of the copyright holder nor the names of its contributors may be
+# 5. Neither the name of the copyright holders nor the names of the authors may be
 #    used to endorse or promote products derived from this software without specific
 #    prior written permission.
 #
+# 6. You agree that this licence is governed by and shall be construed in accordance 
+#    with the laws of England and Wales.
+#
+# 7. You agree to submit all disputes arising out of or in connection with this licence 
+#    to the exclusive jurisdiction of the Courts of England and Wales.
+#
+# Authors and copyright holders agree that:
+#
+# 8. This licence expires and the work covered by it is released into the 
+#    public domain on 1st of February 2019
+# 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -31,7 +47,6 @@ set(rpc_base_sources
 
 set(rpc_sources
   core_rpc_server.cpp
-  rpc_handler.cpp
   instanciations)
 
 set(daemon_messages_sources
@@ -46,8 +61,7 @@ set(daemon_rpc_server_sources
 set(rpc_base_headers
   rpc_args.h)
 
-set(rpc_headers
-  rpc_handler.cpp)
+set(rpc_headers)
 
 set(daemon_rpc_server_headers)
 
@@ -65,32 +79,33 @@ set(daemon_rpc_server_private_headers
   message.h
   daemon_messages.h
   daemon_handler.h
+  rpc_handler.h
   zmq_server.h)
 
 
-monero_private_headers(rpc
+ryo_private_headers(rpc
   ${rpc_private_headers})
 
-monero_private_headers(daemon_rpc_server
+ryo_private_headers(daemon_rpc_server
   ${daemon_rpc_server_private_headers})
 
 
-monero_add_library(rpc_base
+ryo_add_library(rpc_base
   ${rpc_base_sources}
   ${rpc_base_headers}
   ${rpc_base_private_headers})
 
-monero_add_library(rpc
+ryo_add_library(rpc
   ${rpc_sources}
   ${rpc_headers}
   ${rpc_private_headers})
 
-monero_add_library(daemon_messages
+ryo_add_library(daemon_messages
   ${daemon_messages_sources}
   ${daemon_messages_headers}
   ${daemon_messages_private_headers})
 
-monero_add_library(daemon_rpc_server
+ryo_add_library(daemon_rpc_server
   ${daemon_rpc_server_sources}
   ${daemon_rpc_server_headers}
   ${daemon_rpc_server_private_headers})
@@ -112,8 +127,7 @@ target_link_libraries(rpc
     common
     cryptonote_core
     cryptonote_protocol
-    net
-    version
+    epee
     ${Boost_REGEX_LIBRARY}
     ${Boost_THREAD_LIBRARY}
   PRIVATE
@@ -123,7 +137,6 @@ target_link_libraries(daemon_messages
   LINK_PRIVATE
     cryptonote_core
     cryptonote_protocol
-    version
     serialization
     ${EXTRA_LIBRARIES})
 
@@ -132,7 +145,6 @@ target_link_libraries(daemon_rpc_server
     rpc
     cryptonote_core
     cryptonote_protocol
-    version
     daemon_messages
     serialization
     ${Boost_CHRONO_LIBRARY}

@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
 #
@@ -41,6 +41,7 @@ target_link_libraries(core_proxy
     cryptonote_protocol
     p2p
     version
+    ccnconfig
     epee
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})

@@ -1,21 +1,11 @@
-// Copyright (c) 2017-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -26,19 +16,21 @@
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <boost/algorithm/string.hpp>
+#include "updates.h"
+#include "dns_utils.h"
 #include "misc_log_ex.h"
 #include "util.h"
-#include "dns_utils.h"
-#include "updates.h"
+#include <boost/algorithm/string.hpp>
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "updates"
+//#undef RYO_DEFAULT_LOG_CATEGORY
+//#define RYO_DEFAULT_LOG_CATEGORY "updates"
 
 namespace tools
 {
-  bool check_updates(const std::string &software, const std::string &buildtag, std::string &version, std::string &hash)
-  {
+bool check_updates(const std::string &software, const std::string &buildtag, std::string &version, std::string &hash)
+{
+	return false; //Temporarily disabled
+#if 0
     std::vector<std::string> records;
     bool found = false;
 
@@ -46,10 +38,10 @@ namespace tools
 
     // All four MoneroPulse domains have DNSSEC on and valid
     static const std::vector<std::string> dns_urls = {
-        "updates.ombrepulse.stream",
-        "updates.ombrepulse.download",
-        "updates.ombrepulse.win",
-        "updates.ombrepulse.bid"
+        "updates.moneropulse.org",
+        "updates.moneropulse.net",
+        "updates.moneropulse.co",
+        "updates.moneropulse.se"
     };
 
     if (!tools::dns_utils::load_txt_records_from_dns(records, dns_urls))
@@ -69,12 +61,12 @@ namespace tools
         continue;
 
       bool alnum = true;
-      for (auto c: fields[3])
+      for (auto c: hash)
         if (!isalnum(c))
           alnum = false;
-      if (fields[3].size() != 64 && !alnum)
+      if (hash.size() != 64 && !alnum)
       {
-        MWARNING("Invalid hash: " << fields[3]);
+        MWARNING("Invalid hash: " << hash);
         continue;
       }
 
@@ -95,11 +87,13 @@ namespace tools
       found = true;
     }
     return found;
-  }
+#endif
+}
 
-  std::string get_update_url(const std::string &software, const std::string &subdir, const std::string &buildtag, const std::string &version, bool user)
-  {
-    const char *base = user ? "https://downloads.ombre.org/" : "https://updates.ombre.org/";
+std::string get_update_url(const std::string &software, const std::string &subdir, const std::string &buildtag, const std::string &version, bool user)
+{
+#if 0
+    const char *base = user ? "https://downloads.getmonero.org/" : "https://updates.getmonero.org/";
 #ifdef _WIN32
     static const char *extension = strncmp(buildtag.c_str(), "install-", 8) ? ".zip" : ".exe";
 #else
@@ -113,5 +107,7 @@ namespace tools
       url += subdir + "/";
     url = url + software + "-" + buildtag + "-v" + version + extension;
     return url;
-  }
+#endif
+	return "";
+}
 }

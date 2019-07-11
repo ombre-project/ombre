@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
 #
@@ -31,8 +31,7 @@ set(crypto_sources
   crypto-ops.c
   crypto.cpp
   hash.c
-  main.cpp
-  random.c)
+  main.cpp)
 
 set(crypto_headers
   crypto-tests.h)
@@ -42,6 +41,7 @@ add_executable(cncrypto-tests
   ${crypto_headers})
 target_link_libraries(cncrypto-tests
   PRIVATE
+    cncrypto_for_test
     common
     ${Boost_SYSTEM_LIBRARY}
     ${EXTRA_LIBRARIES})
@@ -52,16 +52,3 @@ set_property(TARGET cncrypto-tests
 add_test(
   NAME    cncrypto
   COMMAND cncrypto-tests "${CMAKE_CURRENT_SOURCE_DIR}/tests.txt")
-
-add_executable(cnv4-jit-tests cnv4-jit.c)
-target_link_libraries(cnv4-jit-tests
-  PRIVATE
-    common
-    ${EXTRA_LIBRARIES})
-set_property(TARGET cnv4-jit-tests
-  PROPERTY
-    FOLDER "tests")
-
-add_test(
-  NAME    cnv4-jit
-  COMMAND cnv4-jit-tests 1788000 1789000)

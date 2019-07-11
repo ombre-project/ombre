@@ -1,20 +1,10 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
 //
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-//
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-//
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -28,54 +18,49 @@
 
 #pragma once
 
-#include <boost/iostreams/stream_buffer.hpp>
-#include <boost/iostreams/stream.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/iostreams/device/back_inserter.hpp>
 #include <boost/iostreams/filtering_streambuf.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/iostreams/stream_buffer.hpp>
 
+#include "blockchain_db/blockchain_db.h"
 #include "cryptonote_basic/cryptonote_basic.h"
 #include "cryptonote_basic/cryptonote_boost_serialization.h"
 #include "cryptonote_core/blockchain.h"
-#include "blockchain_db/blockchain_db.h"
 
 #include <algorithm>
+#include <atomic>
+#include <boost/iostreams/copy.hpp>
 #include <cstdio>
 #include <fstream>
-#include <boost/iostreams/copy.hpp>
-#include <atomic>
 
 #include "common/command_line.h"
 #include "version.h"
 
 #include "blockchain_utilities.h"
 
-
 using namespace cryptonote;
-
 
 class BlocksdatFile
 {
-public:
+  public:
+	bool store_blockchain_raw(cryptonote::Blockchain *cs, cryptonote::tx_memory_pool *txp,
+							  boost::filesystem::path &output_file, uint64_t use_block_height = 0);
 
-  bool store_blockchain_raw(cryptonote::Blockchain* cs, cryptonote::tx_memory_pool* txp,
-      boost::filesystem::path& output_file, uint64_t use_block_height=0);
+  protected:
+	Blockchain *m_blockchain_storage;
 
-protected:
+	std::ofstream *m_raw_data_file;
 
-  Blockchain* m_blockchain_storage;
+	// open export file for write
+	bool open_writer(const boost::filesystem::path &file_path, uint64_t block_stop);
+	bool initialize_file(uint64_t block_stop);
+	bool close();
+	void write_block(const crypto::hash &block_hash);
 
-  std::ofstream * m_raw_data_file;
-
-  // open export file for write
-  bool open_writer(const boost::filesystem::path& file_path, uint64_t block_stop);
-  bool initialize_file(uint64_t block_stop);
-  bool close();
-  void write_block(const crypto::hash &block_hash);
-
-private:
-
-  uint64_t m_cur_height; // tracks current height during export
-  std::vector<crypto::hash> m_hashes;
+  private:
+	uint64_t m_cur_height; // tracks current height during export
+	std::vector<crypto::hash> m_hashes;
 };

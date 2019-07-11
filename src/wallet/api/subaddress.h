@@ -1,20 +1,10 @@
-// Copyright (c) 2017-2019, The Monero Project
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
 //
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-//
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-//
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -29,28 +19,28 @@
 #include "wallet/api/wallet2_api.h"
 #include "wallet/wallet2.h"
 
-namespace Monero {
+namespace Ryo
+{
 
 class WalletImpl;
 
 class SubaddressImpl : public Subaddress
 {
-public:
-    SubaddressImpl(WalletImpl * wallet);
-    ~SubaddressImpl();
-    
-    // Fetches addresses from Wallet2
-    void refresh(uint32_t accountIndex) override;
-    std::vector<SubaddressRow*> getAll() const override;
-    void addRow(uint32_t accountIndex, const std::string &label) override;
-    void setLabel(uint32_t accountIndex, uint32_t addressIndex, const std::string &label) override;
+  public:
+	SubaddressImpl(WalletImpl *wallet);
+	~SubaddressImpl();
 
-private:
-    void clearRows();
-    
-private:
-    WalletImpl *m_wallet;
-    std::vector<SubaddressRow*> m_rows;
+	// Fetches addresses from Wallet2
+	void refresh(uint32_t accountIndex);
+	std::vector<SubaddressRow *> getAll() const;
+	void addRow(uint32_t accountIndex, const std::string &label);
+	void setLabel(uint32_t accountIndex, uint32_t addressIndex, const std::string &label);
+
+  private:
+	void clearRows();
+
+  private:
+	WalletImpl *m_wallet;
+	std::vector<SubaddressRow *> m_rows;
 };
-
 }

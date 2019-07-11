@@ -1,21 +1,10 @@
-// Copyright (c) 2017-2019, Sumokoin Project
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
 //
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-//
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-//
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -32,323 +21,351 @@
 #include "include_base_utils.h"
 using namespace epee;
 
+#include "common/base58.h"
+#include "common/dns_utils.h"
+#include "common/int-util.h"
+#include "crypto/hash.h"
 #include "cryptonote_basic_impl.h"
-#include "string_tools.h"
+#include "cryptonote_config.h"
+#include "cryptonote_format_utils.h"
+#include "misc_language.h"
 #include "serialization/binary_utils.h"
 #include "serialization/container.h"
-#include "cryptonote_format_utils.h"
-#include "cryptonote_config.h"
-#include "misc_language.h"
-#include "common/base58.h"
-#include "crypto/hash.h"
-#include "int-util.h"
-#include "common/dns_utils.h"
+#include "string_tools.h"
 
-#undef MONERO_DEFAULT_LOG_CATEGORY
-#define MONERO_DEFAULT_LOG_CATEGORY "cn"
+//#undef RYO_DEFAULT_LOG_CATEGORY
+//#define RYO_DEFAULT_LOG_CATEGORY "cn"
 
-namespace cryptonote {
+namespace cryptonote
+{
 
-  struct integrated_address {
-    account_public_address adr;
-    crypto::hash8 payment_id;
+struct integrated_address
+{
+	account_public_address adr;
+	crypto::hash8 payment_id;
 
-    BEGIN_SERIALIZE_OBJECT()
-      FIELD(adr)
-      FIELD(payment_id)
-    END_SERIALIZE()
+	BEGIN_SERIALIZE_OBJECT()
+	FIELD(adr)
+	FIELD(payment_id)
+	END_SERIALIZE()
 
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(adr)
-      KV_SERIALIZE(payment_id)
-    END_KV_SERIALIZE_MAP()
-  };
+	BEGIN_KV_SERIALIZE_MAP()
+	KV_SERIALIZE(adr)
+	KV_SERIALIZE(payment_id)
+	END_KV_SERIALIZE_MAP()
+};
 
-  /************************************************************************/
-  /* Cryptonote helper functions                                          */
-  /************************************************************************/
-  //-----------------------------------------------------------------------------------------------
-  size_t get_min_block_weight(uint8_t version)
-  {
-    return CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
-  }
-  //-----------------------------------------------------------------------------------------------
-  size_t get_max_block_weight()
-  {
-    return CRYPTONOTE_MAX_BLOCK_WEIGHT;
-  }
-  //-----------------------------------------------------------------------------------------------
-  size_t get_max_tx_size()
-  {
-    return CRYPTONOTE_MAX_TX_SIZE;
-  }
-  //-----------------------------------------------------------------------------------------------
-  bool get_block_reward(size_t median_weight, size_t current_block_weight, uint64_t already_generated_coins, uint64_t &reward, uint64_t height) {
+struct kurz_address
+{
+	crypto::public_key m_public_key;
 
-    uint64_t base_reward;
-    uint64_t round_factor = 10000000; // 1 * pow(10, 7)
-    if (height > 0)
-    {
-      if (height < (PEAK_COIN_EMISSION_HEIGHT + COIN_EMISSION_HEIGHT_INTERVAL)) {
-        uint64_t interval_num = height / COIN_EMISSION_HEIGHT_INTERVAL;
-        double money_supply_pct = 0.1888 + interval_num*(0.023 + interval_num*0.0032);
-        base_reward = ((uint64_t)(MONEY_SUPPLY * money_supply_pct)) >> EMISSION_SPEED_FACTOR;
-      }
-      else{
-        base_reward = (MONEY_SUPPLY - already_generated_coins) >> EMISSION_SPEED_FACTOR;
-      }
-    }
-    else
-    {
-      base_reward = GENESIS_BLOCK_REWARD;
-    }
+	BEGIN_SERIALIZE_OBJECT()
+	FIELD(m_public_key)
+	END_SERIALIZE()
 
-    if (base_reward < FINAL_SUBSIDY){
-      if (MONEY_SUPPLY > already_generated_coins){
-        base_reward = FINAL_SUBSIDY;
-      }
-      else{
-        base_reward = FINAL_SUBSIDY / 2;
-      }
-    }
+	BEGIN_KV_SERIALIZE_MAP()
+	KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_public_key)
+	END_KV_SERIALIZE_MAP()
+};
 
-    // rounding (floor) base reward
-    base_reward = base_reward / round_factor * round_factor;
+/************************************************************************/
+/* Cryptonote helper functions                                          */
+/************************************************************************/
+//-----------------------------------------------------------------------------------------------
+size_t get_min_block_size()
+{
+	return common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
+}
+//-----------------------------------------------------------------------------------------------
+size_t get_max_tx_size()
+{
+	return common_config::TRANSACTION_SIZE_LIMIT;
+}
+//-----------------------------------------------------------------------------------------------
+uint64_t get_dev_fund_amount_v0(uint64_t tx_total, uint64_t already_generated_coins)
+{
+	float mult;
+	mult =  CRYPTONOTE_PROJECT_INITIAL_MULTIPLIER * (1 - std::sqrt((float)already_generated_coins / (float)MONEY_SUPPLY));
+	mult = std::round(mult * 100000) / 100000; // 32bit float rounded to 5 decimal places for consistency (this ensures functional determinism)
+	
+	return tx_total * mult;
+}
 
-    //make it soft
-    if (median_weight < CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE) {
-      median_weight = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
-    }
+uint64_t get_dev_fund_amount_v1(uint64_t tx_total, uint64_t already_generated_coins)
+{
+	float mult;
+	mult = CRYPTONOTE_PROJECT_BLOCK_REWARD;
+	return tx_total * mult;
+}
 
-    if (current_block_weight > 2 * median_weight) {
-      MERROR("Block cumulative size is too big: " << current_block_weight << ", expected less than " << 2 * median_weight);
-      return false;
-    }
+//-----------------------------------------------------------------------------------------------
+bool get_block_reward(network_type nettype, size_t median_size, size_t current_block_size, uint64_t already_generated_coins, uint64_t &reward, uint64_t height)
+{
+	uint64_t base_reward;
+	uint64_t round_factor = 10000000; // 1 * pow(10, 7)
+	if(height > 0)
+	{
+		if(height < (PEAK_COIN_EMISSION_HEIGHT + COIN_EMISSION_HEIGHT_INTERVAL))
+		{
+			uint64_t interval_num = height / COIN_EMISSION_HEIGHT_INTERVAL;
+			double money_supply_pct = 0.1888 + interval_num * (0.023 + interval_num * 0.0032);
+			base_reward = ((uint64_t)(MONEY_SUPPLY * money_supply_pct)) >> EMISSION_SPEED_FACTOR;
+		}
+		else
+		{
+			base_reward = (MONEY_SUPPLY - already_generated_coins) >> EMISSION_SPEED_FACTOR;
+		}
+	}
+	else
+	{
+		base_reward = GENESIS_BLOCK_REWARD;
+	}
 
-    if (current_block_weight <= (median_weight < BLOCK_SIZE_GROWTH_FAVORED_ZONE ? median_weight * 110 / 100 : median_weight)) {
-      reward = base_reward;
-      return true;
-    }
+	if(base_reward < FINAL_SUBSIDY)
+	{
+		if(MONEY_SUPPLY > already_generated_coins)
+		{
+			base_reward = FINAL_SUBSIDY;
+		}
+		else
+		{
+			base_reward = FINAL_SUBSIDY / 2;
+		}
+	}
 
-    assert(median_weight < std::numeric_limits<uint32_t>::max());
-    assert(current_block_weight < std::numeric_limits<uint32_t>::max());
+	// rounding (floor) base reward
+	base_reward = base_reward / round_factor * round_factor;
 
-    uint64_t product_hi;
-    // BUGFIX: 32-bit saturation bug (e.g. ARM7), the result was being
-    // treated as 32-bit by default.
-    uint64_t multiplicand = 2 * median_weight - current_block_weight;
-    multiplicand *= current_block_weight;
-    uint64_t product_lo = mul128(base_reward, multiplicand, &product_hi);
+	//make it soft
+	if(median_size < common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE)
+	{
+		median_size = common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
+	}
 
-    uint64_t reward_hi;
-    uint64_t reward_lo;
-    div128_32(product_hi, product_lo, static_cast<uint32_t>(median_weight), &reward_hi, &reward_lo);
-    div128_32(reward_hi, reward_lo, static_cast<uint32_t>(median_weight), &reward_hi, &reward_lo);
-    assert(0 == reward_hi);
-    assert(reward_lo < base_reward);
+	if(current_block_size > 2 * median_size)
+	{
+		MERROR("Block cumulative size is too big: " << current_block_size << ", expected less than " << 2 * median_size);
+		return false;
+	}
 
-    reward = reward_lo;
-    return true;
-  }
-  //------------------------------------------------------------------------------------
-  uint8_t get_account_address_checksum(const public_address_outer_blob& bl)
-  {
-    const unsigned char* pbuf = reinterpret_cast<const unsigned char*>(&bl);
-    uint8_t summ = 0;
-    for(size_t i = 0; i!= sizeof(public_address_outer_blob)-1; i++)
-      summ += pbuf[i];
+	if(current_block_size <= (median_size < common_config::BLOCK_SIZE_GROWTH_FAVORED_ZONE ? median_size * 110 / 100 : median_size))
+	{
+		reward = base_reward;
+		return true;
+	}
 
-    return summ;
-  }
-  //------------------------------------------------------------------------------------
-  uint8_t get_account_integrated_address_checksum(const public_integrated_address_outer_blob& bl)
-  {
-    const unsigned char* pbuf = reinterpret_cast<const unsigned char*>(&bl);
-    uint8_t summ = 0;
-    for(size_t i = 0; i!= sizeof(public_integrated_address_outer_blob)-1; i++)
-      summ += pbuf[i];
+	assert(median_size < std::numeric_limits<uint32_t>::max());
+	assert(current_block_size < std::numeric_limits<uint32_t>::max());
 
-    return summ;
-  }
-  //-----------------------------------------------------------------------
-  std::string get_account_address_as_str(
-      network_type nettype
-    , bool subaddress
-    , account_public_address const & adr
-    )
-  {
-    uint64_t address_prefix = subaddress ? get_config(nettype).CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX : get_config(nettype).CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX;
+	uint64_t product_hi;
+	// BUGFIX: 32-bit saturation bug (e.g. ARM7), the result was being
+	// treated as 32-bit by default.
+	uint64_t multiplicand = 2 * median_size - current_block_size;
+	multiplicand *= current_block_size;
+	uint64_t product_lo = mul128(base_reward, multiplicand, &product_hi);
 
-    return tools::base58::encode_addr(address_prefix, t_serializable_object_to_blob(adr));
-  }
-  //-----------------------------------------------------------------------
-  std::string get_account_integrated_address_as_str(
-      network_type nettype
-    , account_public_address const & adr
-    , crypto::hash8 const & payment_id
-    )
-  {
-    uint64_t integrated_address_prefix = get_config(nettype).CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX;
+	uint64_t reward_hi;
+	uint64_t reward_lo;
+	div128_32(product_hi, product_lo, static_cast<uint32_t>(median_size), &reward_hi, &reward_lo);
+	div128_32(reward_hi, reward_lo, static_cast<uint32_t>(median_size), &reward_hi, &reward_lo);
+	assert(0 == reward_hi);
+	assert(reward_lo < base_reward);
 
-    integrated_address iadr = {
-      adr, payment_id
-    };
-    return tools::base58::encode_addr(integrated_address_prefix, t_serializable_object_to_blob(iadr));
-  }
-  //-----------------------------------------------------------------------
-  bool is_coinbase(const transaction& tx)
-  {
-    if(tx.vin.size() != 1)
-      return false;
+	reward = reward_lo;
+	return true;
+}
+//------------------------------------------------------------------------------------
+uint8_t get_account_address_checksum(const public_address_outer_blob &bl)
+{
+	const unsigned char *pbuf = reinterpret_cast<const unsigned char *>(&bl);
+	uint8_t summ = 0;
+	for(size_t i = 0; i != sizeof(public_address_outer_blob) - 1; i++)
+		summ += pbuf[i];
 
-    if(tx.vin[0].type() != typeid(txin_gen))
-      return false;
+	return summ;
+}
+//------------------------------------------------------------------------------------
+uint8_t get_account_integrated_address_checksum(const public_integrated_address_outer_blob &bl)
+{
+	const unsigned char *pbuf = reinterpret_cast<const unsigned char *>(&bl);
+	uint8_t summ = 0;
+	for(size_t i = 0; i != sizeof(public_integrated_address_outer_blob) - 1; i++)
+		summ += pbuf[i];
 
-    return true;
-  }
-  //-----------------------------------------------------------------------
-  bool get_account_address_from_str(
-      address_parse_info& info
-    , network_type nettype
-    , std::string const & str
-    )
-  {
-    uint64_t address_prefix = get_config(nettype).CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX;
-    uint64_t integrated_address_prefix = get_config(nettype).CRYPTONOTE_PUBLIC_INTEGRATED_ADDRESS_BASE58_PREFIX;
-    uint64_t subaddress_prefix = get_config(nettype).CRYPTONOTE_PUBLIC_SUBADDRESS_BASE58_PREFIX;
+	return summ;
+}
+//-----------------------------------------------------------------------
+template <network_type NETTYPE>
+std::string get_public_address_as_str(bool subaddress, account_public_address const &adr)
+{
+	uint64_t address_prefix;
+	if(adr.m_spend_public_key == adr.m_view_public_key)
+	{
+		if(subaddress)
+			address_prefix = config<NETTYPE>::RYO_KURZ_SUBADDRESS_BASE58_PREFIX;
+		else
+			address_prefix = config<NETTYPE>::RYO_KURZ_ADDRESS_BASE58_PREFIX;
 
-    if (2 * sizeof(public_address_outer_blob) != str.size())
-    {
-      blobdata data;
-      uint64_t prefix;
-      if (!tools::base58::decode_addr(str, prefix, data))
-      {
-        LOG_PRINT_L2("Invalid address format");
-        return false;
-      }
+		kurz_address kadr = {adr.m_spend_public_key};
+		return tools::base58::encode_addr(address_prefix, t_serializable_object_to_blob(kadr));
+	}
+	else
+	{
+		if(subaddress)
+			address_prefix = config<NETTYPE>::RYO_LONG_SUBADDRESS_BASE58_PREFIX;
+		else
+			address_prefix = config<NETTYPE>::RYO_LONG_ADDRESS_BASE58_PREFIX;
 
-      if (integrated_address_prefix == prefix)
-      {
-        info.is_subaddress = false;
-        info.has_payment_id = true;
-      }
-      else if (address_prefix == prefix)
-      {
-        info.is_subaddress = false;
-        info.has_payment_id = false;
-      }
-      else if (subaddress_prefix == prefix)
-      {
-        info.is_subaddress = true;
-        info.has_payment_id = false;
-      }
-      else {
-        LOG_PRINT_L1("Wrong address prefix: " << prefix << ", expected " << address_prefix 
-          << " or " << integrated_address_prefix
-          << " or " << subaddress_prefix);
-        return false;
-      }
+		return tools::base58::encode_addr(address_prefix, t_serializable_object_to_blob(adr));
+	}
+}
 
-      if (info.has_payment_id)
-      {
-        integrated_address iadr;
-        if (!::serialization::parse_binary(data, iadr))
-        {
-          LOG_PRINT_L1("Account public address keys can't be parsed");
-          return false;
-        }
-        info.address = iadr.adr;
-        info.payment_id = iadr.payment_id;
-      }
-      else
-      {
-        if (!::serialization::parse_binary(data, info.address))
-        {
-          LOG_PRINT_L1("Account public address keys can't be parsed");
-          return false;
-        }
-      }
+template std::string get_public_address_as_str<MAINNET>(bool subaddress, const account_public_address &adr);
+template std::string get_public_address_as_str<TESTNET>(bool subaddress, const account_public_address &adr);
+template std::string get_public_address_as_str<STAGENET>(bool subaddress, const account_public_address &adr);
 
-      if (!crypto::check_key(info.address.m_spend_public_key) || !crypto::check_key(info.address.m_view_public_key))
-      {
-        LOG_PRINT_L1("Failed to validate address keys");
-        return false;
-      }
-    }
-    else
-    {
-      // Old address format
-      std::string buff;
-      if(!string_tools::parse_hexstr_to_binbuff(str, buff))
-        return false;
+//-----------------------------------------------------------------------
+template <network_type NETTYPE>
+std::string get_account_integrated_address_as_str(account_public_address const &adr, crypto::hash8 const &payment_id)
+{
+	uint64_t integrated_address_prefix = config<NETTYPE>::RYO_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX;
 
-      if(buff.size()!=sizeof(public_address_outer_blob))
-      {
-        LOG_PRINT_L1("Wrong public address size: " << buff.size() << ", expected size: " << sizeof(public_address_outer_blob));
-        return false;
-      }
+	integrated_address iadr = {adr, payment_id};
+	return tools::base58::encode_addr(integrated_address_prefix, t_serializable_object_to_blob(iadr));
+}
 
-      public_address_outer_blob blob = *reinterpret_cast<const public_address_outer_blob*>(buff.data());
+template std::string get_account_integrated_address_as_str<MAINNET>(account_public_address const &adr, crypto::hash8 const &payment_id);
+template std::string get_account_integrated_address_as_str<TESTNET>(account_public_address const &adr, crypto::hash8 const &payment_id);
+template std::string get_account_integrated_address_as_str<STAGENET>(account_public_address const &adr, crypto::hash8 const &payment_id);
 
+//-----------------------------------------------------------------------
+bool is_coinbase(const transaction &tx)
+{
+	if(tx.vin.size() != 1)
+		return false;
 
-      if(blob.m_ver > CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER)
-      {
-        LOG_PRINT_L1("Unknown version of public address: " << blob.m_ver << ", expected " << CRYPTONOTE_PUBLIC_ADDRESS_TEXTBLOB_VER);
-        return false;
-      }
+	if(tx.vin[0].type() != typeid(txin_gen))
+		return false;
 
-      if(blob.check_sum != get_account_address_checksum(blob))
-      {
-        LOG_PRINT_L1("Wrong public address checksum");
-        return false;
-      }
+	return true;
+}
+//-----------------------------------------------------------------------
+template <network_type NETTYPE>
+bool get_account_address_from_str(address_parse_info &info, std::string const &str, const bool silent)
+{
+	blobdata data;
+	uint64_t prefix;
+	if(!tools::base58::decode_addr(str, prefix, data))
+	{
+		if(!silent)
+			LOG_PRINT_L2("Invalid address format");
+		return false;
+	}
 
-      //we success
-      info.address = blob.m_address;
-      info.is_subaddress = false;
-      info.has_payment_id = false;
-    }
+	info.has_payment_id = false;
+	info.is_subaddress = false;
+	info.is_kurz = false;
+	switch(prefix)
+	{
+	case config<NETTYPE>::RYO_LONG_ADDRESS_BASE58_PREFIX:
+	case config<NETTYPE>::LEGACY_LONG_ADDRESS_BASE58_PREFIX:
+		break;
+	case config<NETTYPE>::RYO_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX:
+	case config<NETTYPE>::LEGACY_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX:
+		info.has_payment_id = true;
+		break;
+	case config<NETTYPE>::RYO_LONG_SUBADDRESS_BASE58_PREFIX:
+		info.is_subaddress = true;
+		break;
+	case config<NETTYPE>::RYO_KURZ_ADDRESS_BASE58_PREFIX:
+		info.is_kurz = true;
+		break;
+/* Kurz subaddress are impossible to generate yet, so parsig them should error out
+	case config<NETTYPE>::RYO_KURZ_SUBADDRESS_BASE58_PREFIX:
+		info.is_subaddress = true;
+		info.is_kurz = true;
+		break;
+*/
+	default:
+		if(!silent)
+			LOG_PRINT_L1("Wrong address prefix: " << prefix);
+		return false;
+	}
 
-    return true;
-  }
-  //--------------------------------------------------------------------------------
-  bool get_account_address_from_str_or_url(
-      address_parse_info& info
-    , network_type nettype
-    , const std::string& str_or_url
-    , std::function<std::string(const std::string&, const std::vector<std::string>&, bool)> dns_confirm
-    )
-  {
-    if (get_account_address_from_str(info, nettype, str_or_url))
-      return true;
-    bool dnssec_valid;
-    std::string address_str = tools::dns_utils::get_account_address_as_str_from_url(str_or_url, dnssec_valid, dns_confirm);
-    return !address_str.empty() &&
-      get_account_address_from_str(info, nettype, address_str);
-  }
-  //--------------------------------------------------------------------------------
-  bool operator ==(const cryptonote::transaction& a, const cryptonote::transaction& b) {
-    return cryptonote::get_transaction_hash(a) == cryptonote::get_transaction_hash(b);
-  }
+	if(info.has_payment_id)
+	{
+		integrated_address iadr;
+		if(!::serialization::parse_binary(data, iadr))
+		{
+			if(!silent)
+				LOG_PRINT_L1("Account public address keys can't be parsed");
+			return false;
+		}
+		info.address = iadr.adr;
+		info.payment_id = iadr.payment_id;
+	}
+	else if(info.is_kurz)
+	{
+		kurz_address kadr;
+		if(!::serialization::parse_binary(data, kadr))
+		{
+			if(!silent)
+				LOG_PRINT_L1("Account public address keys can't be parsed");
+			return false;
+		}
 
-  bool operator ==(const cryptonote::block& a, const cryptonote::block& b) {
-    return cryptonote::get_block_hash(a) == cryptonote::get_block_hash(b);
-  }
+		info.address.m_spend_public_key = kadr.m_public_key;
+		info.address.m_view_public_key = kadr.m_public_key;
+	}
+	else
+	{
+		if(!::serialization::parse_binary(data, info.address))
+		{
+			if(!silent)
+				LOG_PRINT_L1("Account public address keys can't be parsed");
+			return false;
+		}
+	}
+
+	if(!crypto::check_key(info.address.m_spend_public_key) || !crypto::check_key(info.address.m_view_public_key))
+	{
+		if(!silent)
+			LOG_PRINT_L1("Failed to validate address keys");
+		return false;
+	}
+
+	return true;
+}
+
+template bool get_account_address_from_str<MAINNET>(address_parse_info &, std::string const &, const bool);
+template bool get_account_address_from_str<TESTNET>(address_parse_info &, std::string const &, const bool);
+template bool get_account_address_from_str<STAGENET>(address_parse_info &, std::string const &, const bool);
+
+//--------------------------------------------------------------------------------
+bool operator==(const cryptonote::transaction &a, const cryptonote::transaction &b)
+{
+	return cryptonote::get_transaction_hash(a) == cryptonote::get_transaction_hash(b);
+}
+
+bool operator==(const cryptonote::block &a, const cryptonote::block &b)
+{
+	return cryptonote::get_block_hash(a) == cryptonote::get_block_hash(b);
+}
 }
 
 //--------------------------------------------------------------------------------
-bool parse_hash256(const std::string &str_hash, crypto::hash& hash)
+bool parse_hash256(const std::string str_hash, crypto::hash &hash)
 {
-  std::string buf;
-  bool res = epee::string_tools::parse_hexstr_to_binbuff(str_hash, buf);
-  if (!res || buf.size() != sizeof(crypto::hash))
-  {
-    MERROR("invalid hash format: " << str_hash);
-    return false;
-  }
-  else
-  {
-    buf.copy(reinterpret_cast<char *>(&hash), sizeof(crypto::hash));
-    return true;
-  }
+	std::string buf;
+	bool res = epee::string_tools::parse_hexstr_to_binbuff(str_hash, buf);
+	if(!res || buf.size() != sizeof(crypto::hash))
+	{
+		std::cout << "invalid hash format: <" << str_hash << '>' << std::endl;
+		return false;
+	}
+	else
+	{
+		buf.copy(reinterpret_cast<char *>(&hash), sizeof(crypto::hash));
+		return true;
+	}
 }

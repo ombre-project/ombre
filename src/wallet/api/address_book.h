@@ -1,20 +1,10 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
 //
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-//
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-//
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -31,40 +21,37 @@
 #include "wallet/api/wallet2_api.h"
 #include "wallet/wallet2.h"
 
-namespace Monero {
+namespace Ryo
+{
 
 class WalletImpl;
 
 class AddressBookImpl : public AddressBook
 {
-public:
-    AddressBookImpl(WalletImpl * wallet);
-    ~AddressBookImpl();
-    
-    // Fetches addresses from Wallet2
-    void refresh() override;
-    std::vector<AddressBookRow*> getAll() const override;
-    bool addRow(const std::string &dst_addr , const std::string &payment_id, const std::string &description) override;
-    bool deleteRow(std::size_t rowId) override;
-     
-    // Error codes. See AddressBook:ErrorCode enum in wallet2_api.h
-    std::string errorString() const override {return m_errorString;}
-    int errorCode() const override {return m_errorCode;}
+  public:
+	AddressBookImpl(WalletImpl *wallet);
+	~AddressBookImpl();
 
-    int lookupPaymentID(const std::string &payment_id) const override;
-    
-private:
-    void clearRows();
-    void clearStatus();
-    
-private:
-    WalletImpl *m_wallet;
-    std::vector<AddressBookRow*> m_rows;
-    std::string m_errorString;
-    int m_errorCode;
+	// Fetches addresses from Wallet2
+	void refresh();
+	std::vector<AddressBookRow *> getAll() const;
+	bool addRow(const std::string &dst_addr, const std::string &payment_id, const std::string &description);
+	bool deleteRow(std::size_t rowId);
+
+	// Error codes. See AddressBook:ErrorCode enum in wallet2_api.h
+	std::string errorString() const { return m_errorString; }
+	int errorCode() const { return m_errorCode; }
+
+	int lookupPaymentID(const std::string &payment_id) const;
+
+  private:
+	void clearRows();
+	void clearStatus();
+
+  private:
+	WalletImpl *m_wallet;
+	std::vector<AddressBookRow *> m_rows;
+	std::string m_errorString;
+	int m_errorCode;
 };
-
 }
-
-namespace Bitmonero = Monero;
-

@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2014-2018, The Monero Project
 # 
 # All rights reserved.
 # 
@@ -38,15 +38,14 @@
 find_package(Miniupnpc REQUIRED)
 
 message(STATUS "Using in-tree miniupnpc")
+
 add_subdirectory(miniupnp/miniupnpc)
+
 set_property(TARGET libminiupnpc-static PROPERTY FOLDER "external")
 if(MSVC)
   set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -wd4244 -wd4267")
 elseif(NOT MSVC)
   set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -Wno-undef -Wno-unused-result -Wno-unused-value")
-endif()
-if(CMAKE_SYSTEM_NAME MATCHES "NetBSD")
-	set_property(TARGET libminiupnpc-static APPEND_STRING PROPERTY COMPILE_FLAGS " -D_NETBSD_SOURCE")
 endif()
 
 set(UPNP_LIBRARIES "libminiupnpc-static" PARENT_SCOPE)
@@ -80,3 +79,7 @@ endif()
 
 add_subdirectory(db_drivers)
 add_subdirectory(easylogging++)
+# fmt is shipped as subtree
+add_subdirectory(fmt)
+# activate extended color output for fmt
+add_definitions(-DFMT_EXTENDED_COLORS)

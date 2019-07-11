@@ -26,7 +26,6 @@ OPT = -O2 -g
 CFLAGS	= $(THREADS) $(OPT) $(W) $(XCFLAGS)
 LDLIBS	= 
 SOLIBS	= 
-SOEXT	= .so
 prefix	= /usr/local
 exec_prefix = $(prefix)
 bindir = $(exec_prefix)/bin
@@ -38,7 +37,7 @@ mandir = $(datarootdir)/man
 ########################################################################
 
 IHDRS	= lmdb.h
-ILIBS	= liblmdb.a liblmdb$(SOEXT)
+ILIBS	= liblmdb.a liblmdb.so
 IPROGS	= mdb_stat mdb_copy mdb_dump mdb_load mdb_drop
 IDOCS	= mdb_stat.1 mdb_copy.1 mdb_dump.1 mdb_load.1 mdb_drop.1
 PROGS	= $(IPROGS) mtest mtest2 mtest3 mtest4 mtest5
@@ -64,7 +63,7 @@ test:	all
 liblmdb.a:	mdb.o midl.o
 	$(AR) rs $@ mdb.o midl.o
 
-liblmdb$(SOEXT):	mdb.lo midl.lo
+liblmdb.so:	mdb.lo midl.lo
 #	$(CC) $(LDFLAGS) -pthread -shared -Wl,-Bsymbolic -o $@ mdb.o midl.o $(SOLIBS)
 	$(CC) $(LDFLAGS) -pthread -shared -o $@ mdb.lo midl.lo $(SOLIBS)
 

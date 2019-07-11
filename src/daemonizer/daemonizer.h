@@ -1,21 +1,11 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -34,33 +24,29 @@
 
 namespace daemonizer
 {
-  void init_options(
-      boost::program_options::options_description & hidden_options
-    , boost::program_options::options_description & normal_options
-    );
+void init_options(
+	boost::program_options::options_description &hidden_options, boost::program_options::options_description &normal_options);
 
-  boost::filesystem::path get_default_data_dir();
+boost::filesystem::path get_default_data_dir();
 
-  boost::filesystem::path get_relative_path_base(
-      boost::program_options::variables_map const & vm
-    );
+boost::filesystem::path get_relative_path_base(
+	boost::program_options::variables_map const &vm);
 
-  /**
+/**
    * @arg create_before_detach - this indicates that the daemon should be
    * created before the fork, giving it a chance to report initialization
    * errors.  At the time of this writing, this is not possible in the primary
    * daemon (likely due to the size of the blockchain in memory).
    */
-  template <typename T_executor>
-  bool daemonize(
-      int argc, char const * argv[]
-    , T_executor && executor // universal ref
-    , boost::program_options::variables_map const & vm
-    );
+template <typename T_executor>
+bool daemonize(
+	int argc, char* argv[], T_executor &&executor // universal ref
+	,
+	boost::program_options::variables_map const &vm);
 }
 
 #ifdef WIN32
-#  include "daemonizer/windows_daemonizer.inl"
+#include "daemonizer/windows_daemonizer.inl"
 #else
-#  include "daemonizer/posix_daemonizer.inl"
+#include "daemonizer/posix_daemonizer.inl"
 #endif

@@ -1,21 +1,37 @@
-# Copyright (c) 2014-2019, The Monero Project
+# Copyright (c) 2018, Ryo Currency Project
+# Portions copyright (c) 2014-2018, The Monero Project
 #
+# Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 # All rights reserved.
+# 
+# Authors and copyright holders give permission for following:
 #
-# Redistribution and use in source and binary forms, with or without modification, are
-# permitted provided that the following conditions are met:
+# 1. Redistribution and use in source and binary forms WITHOUT modification.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# 2. Modification of the source form for your own personal use. 
+# 
+# As long as the following conditions are met:
+# 
+# 3. You must not distribute modified copies of the work to third parties. This includes 
+#    posting the work online, or hosting copies of the modified work for download.
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other
-#    materials provided with the distribution.
+# 4. Any derivative version of this work is also covered by this license, including point 8.
 #
-# 3. Neither the name of the copyright holder nor the names of its contributors may be
+# 5. Neither the name of the copyright holders nor the names of the authors may be
 #    used to endorse or promote products derived from this software without specific
 #    prior written permission.
 #
+# 6. You agree that this licence is governed by and shall be construed in accordance 
+#    with the laws of England and Wales.
+#
+# 7. You agree to submit all disputes arising out of or in connection with this licence 
+#    to the exclusive jurisdiction of the Courts of England and Wales.
+#
+# Authors and copyright holders agree that:
+#
+# 8. This licence expires and the work covered by it is released into the 
+#    public domain on 1st of February 2019
+# 
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 # EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 # MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -34,7 +50,12 @@ if (WIN32 OR STATIC)
   add_definitions(-DMINIUPNP_STATICLIB)
 endif ()
 
-function (monero_private_headers group)
+# warnings are cleared only for GCC on Linux
+if (NOT (MINGW OR APPLE OR FREEBSD OR OPENBSD OR DRAGONFLY))
+  add_compile_options("${WARNINGS_AS_ERRORS_FLAG}") # applies only to targets that follow
+endif()
+
+function (ryo_private_headers group)
   source_group("${group}\\Private"
     FILES
       ${ARGN})
@@ -77,31 +98,34 @@ function (monero_add_executable name)
   enable_stack_trace("${name}")
 endfunction ()
 
-function (monero_add_library name)
-    monero_add_library_with_deps(NAME "${name}" SOURCES ${ARGN})
+function (ryo_add_library name)
+    ryo_add_library_with_deps(NAME "${name}" SOURCES ${ARGN})
 endfunction()
 
-function (monero_add_library_with_deps)
-  cmake_parse_arguments(MONERO_ADD_LIBRARY "" "NAME" "DEPENDS;SOURCES" ${ARGN})
-  source_group("${MONERO_ADD_LIBRARY_NAME}" FILES ${MONERO_ADD_LIBRARY_SOURCES})
+function (ryo_add_library_with_deps)
+  cmake_parse_arguments(RYO_ADD_LIBRARY "" "NAME" "DEPENDS;SOURCES" ${ARGN})
+  source_group("${RYO_ADD_LIBRARY_NAME}" FILES ${RYO_ADD_LIBRARY_SOURCES})
 
   # Define a ("virtual") object library and an actual library that links those
   # objects together. The virtual libraries can be arbitrarily combined to link
   # any subset of objects into one library archive. This is used for releasing
   # libwallet, which combines multiple components.
-  set(objlib obj_${MONERO_ADD_LIBRARY_NAME})
-  add_library(${objlib} OBJECT ${MONERO_ADD_LIBRARY_SOURCES})
-  add_library("${MONERO_ADD_LIBRARY_NAME}" $<TARGET_OBJECTS:${objlib}>)
-  if (MONERO_ADD_LIBRARY_DEPENDS)
-    add_dependencies(${objlib} ${MONERO_ADD_LIBRARY_DEPENDS})
+  set(objlib obj_${RYO_ADD_LIBRARY_NAME})
+  add_library(${objlib} OBJECT ${RYO_ADD_LIBRARY_SOURCES})
+  add_library("${RYO_ADD_LIBRARY_NAME}" $<TARGET_OBJECTS:${objlib}>)
+  if (RYO_ADD_LIBRARY_DEPENDS)
+    add_dependencies(${objlib} ${RYO_ADD_LIBRARY_DEPENDS})
   endif()
-  set_property(TARGET "${MONERO_ADD_LIBRARY_NAME}" PROPERTY FOLDER "libs")
+  set_property(TARGET "${RYO_ADD_LIBRARY_NAME}" PROPERTY FOLDER "libs")
   target_compile_definitions(${objlib}
-    PRIVATE $<TARGET_PROPERTY:${MONERO_ADD_LIBRARY_NAME},INTERFACE_COMPILE_DEFINITIONS>)
+    PRIVATE $<TARGET_PROPERTY:${RYO_ADD_LIBRARY_NAME},INTERFACE_COMPILE_DEFINITIONS>)
+  target_include_directories(${objlib}
+    PRIVATE $<TARGET_PROPERTY:${RYO_ADD_LIBRARY_NAME},INTERFACE_INCLUDE_DIRECTORIES>)
 endfunction ()
 
 include(Version)
-monero_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genversion)
+ryo_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genversion)
+ryo_add_library(ccnconfig SOURCES ${CMAKE_SOURCE_DIR}/src/cryptonote_config.cpp)
 
 add_subdirectory(common)
 add_subdirectory(crypto)
@@ -109,9 +133,8 @@ add_subdirectory(ringct)
 add_subdirectory(checkpoints)
 add_subdirectory(cryptonote_basic)
 add_subdirectory(cryptonote_core)
-add_subdirectory(lmdb)
 add_subdirectory(multisig)
-add_subdirectory(net)
+add_subdirectory(address_validator)
 if(NOT IOS)
   add_subdirectory(blockchain_db)
 endif()
@@ -142,4 +165,3 @@ if(PER_BLOCK_CHECKPOINT)
 endif()
 
 add_subdirectory(device)
-add_subdirectory(device_trezor)

@@ -4,7 +4,8 @@
 
 #define PUSH_WARNINGS __pragma(warning(push))
 #define POP_WARNINGS __pragma(warning(pop))
-#define DISABLE_VS_WARNINGS(w) __pragma(warning(disable: w))
+#define DISABLE_VS_WARNINGS(w) __pragma(warning(disable \
+												: w))
 #define DISABLE_GCC_WARNING(w)
 #define DISABLE_CLANG_WARNING(w)
 #define DISABLE_GCC_AND_CLANG_WARNING(w)

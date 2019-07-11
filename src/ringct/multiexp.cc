@@ -1,21 +1,11 @@
-// Copyright (c) 2017, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -28,25 +18,19 @@
 //
 // Adapted from Python code by Sarang Noether
 
-#include "misc_log_ex.h"
 #include "common/perf_timer.h"
-extern "C"
-{
+#include "misc_log_ex.h"
+extern "C" {
 #include "crypto/crypto-ops.h"
 }
-#include "common/aligned.h"
-#include "rctOps.h"
 #include "multiexp.h"
+#include "rctOps.h"
 
 #undef MONERO_DEFAULT_LOG_CATEGORY
 #define MONERO_DEFAULT_LOG_CATEGORY "multiexp"
 
 //#define MULTIEXP_PERF(x) x
 #define MULTIEXP_PERF(x)
-
-#define RAW_MEMORY_BLOCK
-//#define ALTERNATE_LAYOUT
-//#define TRACK_STRAUS_ZERO_IDENTITY
 
 //   per points us for N/B points (B point bands)
 //   raw   alt   128/192  4096/192  4096/4096
@@ -79,633 +63,559 @@ extern "C"
 // Best/cached		Straus	Straus	Straus	Straus	Straus	Straus	Straus	Straus	Pip	Pip	Pip	Pip
 // Best/uncached	Straus	Straus	Straus	Straus	Straus	Straus	Pip	Pip	Pip	Pip	Pip	Pip
 
-// New timings:
-//   Pippenger:
-//     2/1 always
-//     3/2 at ~13
-//     4/3 at ~29
-//     5/4 at ~83
-//     6/5 < 200
-//     7/6 at ~470
-//     8/7 at ~1180
-//     9/8 at ~2290
-//   Cached Pippenger:
-//     6/5 < 200
-//     7/6 at 460
-//     8/7 at 1180
-//     9/8 at 2300
-//
-//     Cached Straus/Pippenger cross at 232
-//
-
 namespace rct
 {
 
-static inline bool operator<(const rct::key &k0, const rct::key&k1)
+static inline bool operator<(const rct::key &k0, const rct::key &k1)
 {
-  for (int n = 31; n >= 0; --n)
-  {
-    if (k0.bytes[n] < k1.bytes[n])
-      return true;
-    if (k0.bytes[n] > k1.bytes[n])
-      return false;
-  }
-  return false;
+	for(int n = 31; n >= 0; --n)
+	{
+		if(k0.bytes[n] < k1.bytes[n])
+			return true;
+		if(k0.bytes[n] > k1.bytes[n])
+			return false;
+	}
+	return false;
 }
 
 static inline rct::key div2(const rct::key &k)
 {
-  rct::key res;
-  int carry = 0;
-  for (int n = 31; n >= 0; --n)
-  {
-    int new_carry = (k.bytes[n] & 1) << 7;
-    res.bytes[n] = k.bytes[n] / 2 + carry;
-    carry = new_carry;
-  }
-  return res;
+	rct::key res;
+	int carry = 0;
+	for(int n = 31; n >= 0; --n)
+	{
+		int new_carry = (k.bytes[n] & 1) << 7;
+		res.bytes[n] = k.bytes[n] / 2 + carry;
+		carry = new_carry;
+	}
+	return res;
 }
 
 static inline rct::key pow2(size_t n)
 {
-  CHECK_AND_ASSERT_THROW_MES(n < 256, "Invalid pow2 argument");
-  rct::key res = rct::zero();
-  res[n >> 3] |= 1<<(n&7);
-  return res;
+	CHECK_AND_ASSERT_THROW_MES(n < 256, "Invalid pow2 argument");
+	rct::key res = rct::zero();
+	res[n >> 3] |= 1 << (n & 7);
+	return res;
 }
 
 static inline int test(const rct::key &k, size_t n)
 {
-  if (n >= 256) return 0;
-  return k[n >> 3] & (1 << (n & 7));
+	if(n >= 256)
+		return 0;
+	return k[n >> 3] & (1 << (n & 7));
 }
 
 static inline void add(ge_p3 &p3, const ge_cached &other)
 {
-  ge_p1p1 p1;
-  ge_add(&p1, &p3, &other);
-  ge_p1p1_to_p3(&p3, &p1);
+	ge_p1p1 p1;
+	ge_add(&p1, &p3, &other);
+	ge_p1p1_to_p3(&p3, &p1);
 }
 
 static inline void add(ge_p3 &p3, const ge_p3 &other)
 {
-  ge_cached cached;
-  ge_p3_to_cached(&cached, &other);
-  add(p3, cached);
+	ge_cached cached;
+	ge_p3_to_cached(&cached, &other);
+	add(p3, cached);
 }
 
 rct::key bos_coster_heap_conv(std::vector<MultiexpData> data)
 {
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(bos_coster, 1000000));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(setup, 1000000));
-  size_t points = data.size();
-  CHECK_AND_ASSERT_THROW_MES(points > 1, "Not enough points");
-  std::vector<size_t> heap(points);
-  for (size_t n = 0; n < points; ++n)
-    heap[n] = n;
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(bos_coster, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(setup, 1000000));
+	size_t points = data.size();
+	CHECK_AND_ASSERT_THROW_MES(points > 1, "Not enough points");
+	std::vector<size_t> heap(points);
+	for(size_t n = 0; n < points; ++n)
+		heap[n] = n;
 
-  auto Comp = [&](size_t e0, size_t e1) { return data[e0].scalar < data[e1].scalar; };
-  std::make_heap(heap.begin(), heap.end(), Comp);
-  MULTIEXP_PERF(PERF_TIMER_STOP(setup));
+	auto Comp = [&](size_t e0, size_t e1) { return data[e0].scalar < data[e1].scalar; };
+	std::make_heap(heap.begin(), heap.end(), Comp);
+	MULTIEXP_PERF(PERF_TIMER_STOP(setup));
 
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(loop, 1000000));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(pop, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(add, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(sub, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(push, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
-  while (heap.size() > 1)
-  {
-    MULTIEXP_PERF(PERF_TIMER_RESUME(pop));
-    std::pop_heap(heap.begin(), heap.end(), Comp);
-    size_t index1 = heap.back();
-    heap.pop_back();
-    std::pop_heap(heap.begin(), heap.end(), Comp);
-    size_t index2 = heap.back();
-    heap.pop_back();
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(loop, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(pop, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(add, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(sub, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(push, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
+	while(heap.size() > 1)
+	{
+		MULTIEXP_PERF(PERF_TIMER_RESUME(pop));
+		std::pop_heap(heap.begin(), heap.end(), Comp);
+		size_t index1 = heap.back();
+		heap.pop_back();
+		std::pop_heap(heap.begin(), heap.end(), Comp);
+		size_t index2 = heap.back();
+		heap.pop_back();
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
 
-    MULTIEXP_PERF(PERF_TIMER_RESUME(add));
-    ge_cached cached;
-    ge_p3_to_cached(&cached, &data[index1].point);
-    ge_p1p1 p1;
-    ge_add(&p1, &data[index2].point, &cached);
-    ge_p1p1_to_p3(&data[index2].point, &p1);
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
+		MULTIEXP_PERF(PERF_TIMER_RESUME(add));
+		ge_cached cached;
+		ge_p3_to_cached(&cached, &data[index1].point);
+		ge_p1p1 p1;
+		ge_add(&p1, &data[index2].point, &cached);
+		ge_p1p1_to_p3(&data[index2].point, &p1);
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
 
-    MULTIEXP_PERF(PERF_TIMER_RESUME(sub));
-    sc_sub(data[index1].scalar.bytes, data[index1].scalar.bytes, data[index2].scalar.bytes);
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
+		MULTIEXP_PERF(PERF_TIMER_RESUME(sub));
+		sc_sub(data[index1].scalar.bytes, data[index1].scalar.bytes, data[index2].scalar.bytes);
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
 
-    MULTIEXP_PERF(PERF_TIMER_RESUME(push));
-    if (!(data[index1].scalar == rct::zero()))
-    {
-      heap.push_back(index1);
-      std::push_heap(heap.begin(), heap.end(), Comp);
-    }
+		MULTIEXP_PERF(PERF_TIMER_RESUME(push));
+		if(!(data[index1].scalar == rct::zero()))
+		{
+			heap.push_back(index1);
+			std::push_heap(heap.begin(), heap.end(), Comp);
+		}
 
-    heap.push_back(index2);
-    std::push_heap(heap.begin(), heap.end(), Comp);
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
-  }
-  MULTIEXP_PERF(PERF_TIMER_STOP(push));
-  MULTIEXP_PERF(PERF_TIMER_STOP(sub));
-  MULTIEXP_PERF(PERF_TIMER_STOP(add));
-  MULTIEXP_PERF(PERF_TIMER_STOP(pop));
-  MULTIEXP_PERF(PERF_TIMER_STOP(loop));
+		heap.push_back(index2);
+		std::push_heap(heap.begin(), heap.end(), Comp);
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
+	}
+	MULTIEXP_PERF(PERF_TIMER_STOP(push));
+	MULTIEXP_PERF(PERF_TIMER_STOP(sub));
+	MULTIEXP_PERF(PERF_TIMER_STOP(add));
+	MULTIEXP_PERF(PERF_TIMER_STOP(pop));
+	MULTIEXP_PERF(PERF_TIMER_STOP(loop));
 
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(end, 1000000));
-  //return rct::scalarmultKey(data[index1].point, data[index1].scalar);
-  std::pop_heap(heap.begin(), heap.end(), Comp);
-  size_t index1 = heap.back();
-  heap.pop_back();
-  ge_p2 p2;
-  ge_scalarmult(&p2, data[index1].scalar.bytes, &data[index1].point);
-  rct::key res;
-  ge_tobytes(res.bytes, &p2);
-  return res;
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(end, 1000000));
+	//return rct::scalarmultKey(data[index1].point, data[index1].scalar);
+	std::pop_heap(heap.begin(), heap.end(), Comp);
+	size_t index1 = heap.back();
+	heap.pop_back();
+	ge_p2 p2;
+	ge_scalarmult(&p2, data[index1].scalar.bytes, &data[index1].point);
+	rct::key res;
+	ge_tobytes(res.bytes, &p2);
+	return res;
 }
 
 rct::key bos_coster_heap_conv_robust(std::vector<MultiexpData> data)
 {
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(bos_coster, 1000000));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(setup, 1000000));
-  size_t points = data.size();
-  CHECK_AND_ASSERT_THROW_MES(points > 0, "Not enough points");
-  std::vector<size_t> heap;
-  heap.reserve(points);
-  for (size_t n = 0; n < points; ++n)
-  {
-    if (!(data[n].scalar == rct::zero()) && !ge_p3_is_point_at_infinity(&data[n].point))
-      heap.push_back(n);
-  }
-  points = heap.size();
-  if (points == 0)
-    return rct::identity();
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(bos_coster, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(setup, 1000000));
+	size_t points = data.size();
+	CHECK_AND_ASSERT_THROW_MES(points > 0, "Not enough points");
+	std::vector<size_t> heap;
+	heap.reserve(points);
+	for(size_t n = 0; n < points; ++n)
+	{
+		if(!(data[n].scalar == rct::zero()) && !ge_p3_is_point_at_infinity(&data[n].point))
+			heap.push_back(n);
+	}
+	points = heap.size();
+	if(points == 0)
+		return rct::identity();
 
-  auto Comp = [&](size_t e0, size_t e1) { return data[e0].scalar < data[e1].scalar; };
-  std::make_heap(heap.begin(), heap.end(), Comp);
+	auto Comp = [&](size_t e0, size_t e1) { return data[e0].scalar < data[e1].scalar; };
+	std::make_heap(heap.begin(), heap.end(), Comp);
 
-  if (points < 2)
-  {
-    std::pop_heap(heap.begin(), heap.end(), Comp);
-    size_t index1 = heap.back();
-    ge_p2 p2;
-    ge_scalarmult(&p2, data[index1].scalar.bytes, &data[index1].point);
-    rct::key res;
-    ge_tobytes(res.bytes, &p2);
-    return res;
-  }
+	if(points < 2)
+	{
+		std::pop_heap(heap.begin(), heap.end(), Comp);
+		size_t index1 = heap.back();
+		ge_p2 p2;
+		ge_scalarmult(&p2, data[index1].scalar.bytes, &data[index1].point);
+		rct::key res;
+		ge_tobytes(res.bytes, &p2);
+		return res;
+	}
 
-  MULTIEXP_PERF(PERF_TIMER_STOP(setup));
+	MULTIEXP_PERF(PERF_TIMER_STOP(setup));
 
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(loop, 1000000));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(pop, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(div, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(div));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(add, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(sub, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(push, 1000000)); MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
-  while (heap.size() > 1)
-  {
-    MULTIEXP_PERF(PERF_TIMER_RESUME(pop));
-    std::pop_heap(heap.begin(), heap.end(), Comp);
-    size_t index1 = heap.back();
-    heap.pop_back();
-    std::pop_heap(heap.begin(), heap.end(), Comp);
-    size_t index2 = heap.back();
-    heap.pop_back();
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(loop, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(pop, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(div, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(div));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(add, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(sub, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(push, 1000000));
+	MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
+	while(heap.size() > 1)
+	{
+		MULTIEXP_PERF(PERF_TIMER_RESUME(pop));
+		std::pop_heap(heap.begin(), heap.end(), Comp);
+		size_t index1 = heap.back();
+		heap.pop_back();
+		std::pop_heap(heap.begin(), heap.end(), Comp);
+		size_t index2 = heap.back();
+		heap.pop_back();
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(pop));
 
-    ge_cached cached;
-    ge_p1p1 p1;
-    ge_p2 p2;
+		ge_cached cached;
+		ge_p1p1 p1;
+		ge_p2 p2;
 
-    MULTIEXP_PERF(PERF_TIMER_RESUME(div));
-    while (1)
-    {
-      rct::key s1_2 = div2(data[index1].scalar);
-      if (!(data[index2].scalar < s1_2))
-       break;
-      if (data[index1].scalar.bytes[0] & 1)
-      {
-        data.resize(data.size()+1);
-        data.back().scalar = rct::identity();
-        data.back().point = data[index1].point;
-        heap.push_back(data.size() - 1);
-        std::push_heap(heap.begin(), heap.end(), Comp);
-      }
-      data[index1].scalar = div2(data[index1].scalar);
-      ge_p3_to_p2(&p2, &data[index1].point);
-      ge_p2_dbl(&p1, &p2);
-      ge_p1p1_to_p3(&data[index1].point, &p1);
-    }
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(div));
+		MULTIEXP_PERF(PERF_TIMER_RESUME(div));
+		while(1)
+		{
+			rct::key s1_2 = div2(data[index1].scalar);
+			if(!(data[index2].scalar < s1_2))
+				break;
+			if(data[index1].scalar.bytes[0] & 1)
+			{
+				data.resize(data.size() + 1);
+				data.back().scalar = rct::identity();
+				data.back().point = data[index1].point;
+				heap.push_back(data.size() - 1);
+				std::push_heap(heap.begin(), heap.end(), Comp);
+			}
+			data[index1].scalar = div2(data[index1].scalar);
+			ge_p3_to_p2(&p2, &data[index1].point);
+			ge_p2_dbl(&p1, &p2);
+			ge_p1p1_to_p3(&data[index1].point, &p1);
+		}
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(div));
 
-    MULTIEXP_PERF(PERF_TIMER_RESUME(add));
-    ge_p3_to_cached(&cached, &data[index1].point);
-    ge_add(&p1, &data[index2].point, &cached);
-    ge_p1p1_to_p3(&data[index2].point, &p1);
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
+		MULTIEXP_PERF(PERF_TIMER_RESUME(add));
+		ge_p3_to_cached(&cached, &data[index1].point);
+		ge_add(&p1, &data[index2].point, &cached);
+		ge_p1p1_to_p3(&data[index2].point, &p1);
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(add));
 
-    MULTIEXP_PERF(PERF_TIMER_RESUME(sub));
-    sc_sub(data[index1].scalar.bytes, data[index1].scalar.bytes, data[index2].scalar.bytes);
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
+		MULTIEXP_PERF(PERF_TIMER_RESUME(sub));
+		sc_sub(data[index1].scalar.bytes, data[index1].scalar.bytes, data[index2].scalar.bytes);
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(sub));
 
-    MULTIEXP_PERF(PERF_TIMER_RESUME(push));
-    if (!(data[index1].scalar == rct::zero()))
-    {
-      heap.push_back(index1);
-      std::push_heap(heap.begin(), heap.end(), Comp);
-    }
+		MULTIEXP_PERF(PERF_TIMER_RESUME(push));
+		if(!(data[index1].scalar == rct::zero()))
+		{
+			heap.push_back(index1);
+			std::push_heap(heap.begin(), heap.end(), Comp);
+		}
 
-    heap.push_back(index2);
-    std::push_heap(heap.begin(), heap.end(), Comp);
-    MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
-  }
-  MULTIEXP_PERF(PERF_TIMER_STOP(push));
-  MULTIEXP_PERF(PERF_TIMER_STOP(sub));
-  MULTIEXP_PERF(PERF_TIMER_STOP(add));
-  MULTIEXP_PERF(PERF_TIMER_STOP(pop));
-  MULTIEXP_PERF(PERF_TIMER_STOP(loop));
+		heap.push_back(index2);
+		std::push_heap(heap.begin(), heap.end(), Comp);
+		MULTIEXP_PERF(PERF_TIMER_PAUSE(push));
+	}
+	MULTIEXP_PERF(PERF_TIMER_STOP(push));
+	MULTIEXP_PERF(PERF_TIMER_STOP(sub));
+	MULTIEXP_PERF(PERF_TIMER_STOP(add));
+	MULTIEXP_PERF(PERF_TIMER_STOP(pop));
+	MULTIEXP_PERF(PERF_TIMER_STOP(loop));
 
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(end, 1000000));
-  //return rct::scalarmultKey(data[index1].point, data[index1].scalar);
-  std::pop_heap(heap.begin(), heap.end(), Comp);
-  size_t index1 = heap.back();
-  heap.pop_back();
-  ge_p2 p2;
-  ge_scalarmult(&p2, data[index1].scalar.bytes, &data[index1].point);
-  rct::key res;
-  ge_tobytes(res.bytes, &p2);
-  return res;
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(end, 1000000));
+	//return rct::scalarmultKey(data[index1].point, data[index1].scalar);
+	std::pop_heap(heap.begin(), heap.end(), Comp);
+	size_t index1 = heap.back();
+	heap.pop_back();
+	ge_p2 p2;
+	ge_scalarmult(&p2, data[index1].scalar.bytes, &data[index1].point);
+	rct::key res;
+	ge_tobytes(res.bytes, &p2);
+	return res;
 }
 
-#define STRAUS_C 4
-
-struct straus_cached_data
+static rct::key get_exponent(const rct::key &base, size_t idx)
 {
-#ifdef RAW_MEMORY_BLOCK
-  size_t size;
-  ge_cached *multiples;
-  straus_cached_data(): size(0), multiples(NULL) {}
-  ~straus_cached_data() { aligned_free(multiples); }
-#else
-  std::vector<std::vector<ge_cached>> multiples;
-#endif
-};
-#ifdef RAW_MEMORY_BLOCK
-#ifdef ALTERNATE_LAYOUT
-#define CACHE_OFFSET(cache,point,digit) cache->multiples[(point)*((1<<STRAUS_C)-1)+((digit)-1)]
-#else
-#define CACHE_OFFSET(cache,point,digit) cache->multiples[(point)+cache->size*((digit)-1)]
-#endif
-#else
-#ifdef ALTERNATE_LAYOUT
-#define CACHE_OFFSET(cache,point,digit) local_cache->multiples[j][digit-1]
-#else
-#define CACHE_OFFSET(cache,point,digit) local_cache->multiples[digit][j]
-#endif
-#endif
-
-std::shared_ptr<straus_cached_data> straus_init_cache(const std::vector<MultiexpData> &data, size_t N)
-{
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(multiples, 1000000));
-  if (N == 0)
-    N = data.size();
-  CHECK_AND_ASSERT_THROW_MES(N <= data.size(), "Bad cache base data");
-  ge_cached cached;
-  ge_p1p1 p1;
-  ge_p3 p3;
-  std::shared_ptr<straus_cached_data> cache(new straus_cached_data());
-
-#ifdef RAW_MEMORY_BLOCK
-  const size_t offset = cache->size;
-  cache->multiples = (ge_cached*)aligned_realloc(cache->multiples, sizeof(ge_cached) * ((1<<STRAUS_C)-1) * std::max(offset, N), 4096);
-  CHECK_AND_ASSERT_THROW_MES(cache->multiples, "Out of memory");
-  cache->size = N;
-  for (size_t j=offset;j<N;++j)
-  {
-    ge_p3_to_cached(&CACHE_OFFSET(cache, j, 1), &data[j].point);
-    for (size_t i=2;i<1<<STRAUS_C;++i)
-    {
-      ge_add(&p1, &data[j].point, &CACHE_OFFSET(cache, j, i-1));
-      ge_p1p1_to_p3(&p3, &p1);
-      ge_p3_to_cached(&CACHE_OFFSET(cache, j, i), &p3);
-    }
-  }
-#else
-#ifdef ALTERNATE_LAYOUT
-  const size_t offset = cache->multiples.size();
-  cache->multiples.resize(std::max(offset, N));
-  for (size_t i = offset; i < N; ++i)
-  {
-    cache->multiples[i].resize((1<<STRAUS_C)-1);
-    ge_p3_to_cached(&cache->multiples[i][0], &data[i].point);
-    for (size_t j=2;j<1<<STRAUS_C;++j)
-    {
-      ge_add(&p1, &data[i].point, &cache->multiples[i][j-2]);
-      ge_p1p1_to_p3(&p3, &p1);
-      ge_p3_to_cached(&cache->multiples[i][j-1], &p3);
-    }
-  }
-#else
-  cache->multiples.resize(1<<STRAUS_C);
-  size_t offset = cache->multiples[1].size();
-  cache->multiples[1].resize(std::max(offset, N));
-  for (size_t i = offset; i < N; ++i)
-    ge_p3_to_cached(&cache->multiples[1][i], &data[i].point);
-  for (size_t i=2;i<1<<STRAUS_C;++i)
-    cache->multiples[i].resize(std::max(offset, N));
-  for (size_t j=offset;j<N;++j)
-  {
-    for (size_t i=2;i<1<<STRAUS_C;++i)
-    {
-      ge_add(&p1, &data[j].point, &cache->multiples[i-1][j]);
-      ge_p1p1_to_p3(&p3, &p1);
-      ge_p3_to_cached(&cache->multiples[i][j], &p3);
-    }
-  }
-#endif
-#endif
-  MULTIEXP_PERF(PERF_TIMER_STOP(multiples));
-
-  return cache;
+	static const std::string salt("bulletproof");
+	std::string hashed = std::string((const char *)base.bytes, sizeof(base)) + salt + tools::get_varint_data(idx);
+	const rct::key e = rct::hashToPoint(rct::hash2rct(crypto::cn_fast_hash(hashed.data(), hashed.size())));
+	CHECK_AND_ASSERT_THROW_MES(!(e == rct::identity()), "Exponent is point at infinity");
+	return e;
 }
 
-size_t straus_get_cache_size(const std::shared_ptr<straus_cached_data> &cache)
+multiexp_cache::multiexp_cache()
 {
-  size_t sz = 0;
-#ifdef RAW_MEMORY_BLOCK
-  sz += cache->size * sizeof(ge_cached) * ((1<<STRAUS_C)-1);
-#else
-  for (const auto &e0: cache->multiples)
-    sz += e0.size() * sizeof(ge_cached);
-#endif
-  return sz;
+	std::vector<MultiexpData> data;
+	for(size_t i = 0; i < maxN * maxM; ++i)
+	{
+		Hi_cache[i] = get_exponent(rct::H, i * 2);
+		CHECK_AND_ASSERT_THROW_MES(ge_frombytes_vartime(&Hi_p3_cache[i], Hi_cache[i].bytes) == 0, "ge_frombytes_vartime failed");
+		Gi_cache[i] = get_exponent(rct::H, i * 2 + 1);
+		CHECK_AND_ASSERT_THROW_MES(ge_frombytes_vartime(&Gi_p3_cache[i], Gi_cache[i].bytes) == 0, "ge_frombytes_vartime failed");
+
+		data.push_back({rct::zero(), Gi_cache[i]});
+		data.push_back({rct::zero(), Hi_cache[i]});
+	}
+
+	s_cache.init_cache(data, STRAUS_SIZE_LIMIT);
+	p_cache.init_cache(data, 0, false);
+
+	MINFO("Hi/Gi cache size: " << (sizeof(Hi_cache) + sizeof(Gi_cache)) / 1024 << " kB");
+	MINFO("Hi_p3/Gi_p3 cache size: " << (sizeof(Hi_p3_cache) + sizeof(Gi_p3_cache)) / 1024 << " kB");
+	MINFO("Straus cache size: " << sizeof(straus_cache) / 1024 << " kB");
+	MINFO("Pippenger cache size: " << sizeof(pippenger_cache) / 1024 << " kB");
+	size_t cache_size = (sizeof(Hi_cache) + sizeof(Hi_p3_cache)) * 2 + sizeof(straus_cache) + sizeof(pippenger_cache);
+	MINFO("Total cache size: " << cache_size / 1024 << "kB");
 }
 
-rct::key straus(const std::vector<MultiexpData> &data, const std::shared_ptr<straus_cached_data> &cache, size_t STEP)
+void straus_cache::init_cache(const std::vector<MultiexpData> &data, size_t N)
 {
-  CHECK_AND_ASSERT_THROW_MES(cache == NULL || cache->size >= data.size(), "Cache is too small");
-  MULTIEXP_PERF(PERF_TIMER_UNIT(straus, 1000000));
-  bool HiGi = cache != NULL;
-  STEP = STEP ? STEP : 192;
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(multiples, 1000000));
+	if (N == 0)
+		N = data.size();
+	CHECK_AND_ASSERT_THROW_MES(N <= data.size(), "Bad cache base data");
+	ge_p1p1 p1;
+	ge_p3 p3;
 
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(setup, 1000000));
-  static constexpr unsigned int mask = (1<<STRAUS_C)-1;
-  std::shared_ptr<straus_cached_data> local_cache = cache == NULL ? straus_init_cache(data) : cache;
-  ge_cached cached;
-  ge_p1p1 p1;
-  ge_p3 p3;
+	size = N;
+	if(cache == nullptr || alloc_size < N)
+	{
+		alloc_size = std::max<size_t>(N, 64);
+		cache = make_aligned_array<ge_cached_pad>(4096, ((1<<STRAUS_C)-1) * alloc_size);
+	}
+
+	for (size_t j=0;j<N;++j)
+	{
+		ge_p3_to_cached(st_offset(j, 1), &data[j].point);
+		for (size_t i=2;i<1<<STRAUS_C;++i)
+		{
+			ge_add(&p1, &data[j].point, st_offset(j, i-1));
+			ge_p1p1_to_p3(&p3, &p1);
+			ge_p3_to_cached(st_offset(j, i), &p3);
+		}
+	}
+	MULTIEXP_PERF(PERF_TIMER_STOP(multiples));
+}
+
+rct::key straus_cache::straus(const std::vector<MultiexpData> &data, size_t STEP) const
+{
+	CHECK_AND_ASSERT_THROW_MES(cache != nullptr, "null cache");
+	CHECK_AND_ASSERT_THROW_MES(cache == NULL || size >= data.size(), "Cache is too small");
+	MULTIEXP_PERF(PERF_TIMER_UNIT(straus, 1000000));
+	STEP = STEP ? STEP : 192;
+
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(setup, 1000000));
+	static constexpr unsigned int mask = (1 << STRAUS_C) - 1;
+	
+	ge_cached cached;
+	ge_p1p1 p1;
+	ge_p3 p3;
 
 #ifdef TRACK_STRAUS_ZERO_IDENTITY
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(skip, 1000000));
-  std::vector<uint8_t> skip(data.size());
-  for (size_t i = 0; i < data.size(); ++i)
-    skip[i] = data[i].scalar == rct::zero() || ge_p3_is_point_at_infinity(&data[i].point);
-  MULTIEXP_PERF(PERF_TIMER_STOP(skip));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(skip, 1000000));
+	std::vector<uint8_t> skip(data.size());
+	for(size_t i = 0; i < data.size(); ++i)
+		skip[i] = data[i].scalar == rct::zero() || ge_p3_is_point_at_infinity(&data[i].point);
+	MULTIEXP_PERF(PERF_TIMER_STOP(skip));
 #endif
 
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(digits, 1000000));
-#if STRAUS_C==4
-  std::unique_ptr<uint8_t[]> digits{new uint8_t[64 * data.size()]};
-#else
-  std::unique_ptr<uint8_t[]> digits{new uint8_t[256 * data.size()]};
-#endif
-  for (size_t j = 0; j < data.size(); ++j)
-  {
-    const unsigned char *bytes = data[j].scalar.bytes;
-#if STRAUS_C==4
-    unsigned int i;
-    for (i = 0; i < 64; i += 2, bytes++)
-    {
-      digits[j*64+i] = bytes[0] & 0xf;
-      digits[j*64+i+1] = bytes[0] >> 4;
-    }
-#elif 1
-    unsigned char bytes33[33];
-    memcpy(bytes33,  data[j].scalar.bytes, 32);
-    bytes33[32] = 0;
-    bytes = bytes33;
-    for (size_t i = 0; i < 256; ++i)
-      digits[j*256+i] = ((bytes[i>>3] | (bytes[(i>>3)+1]<<8)) >> (i&7)) & mask;
-#else
-    rct::key shifted = data[j].scalar;
-    for (size_t i = 0; i < 256; ++i)
-    {
-      digits[j*256+i] = shifted.bytes[0] & 0xf;
-      shifted = div2(shifted, (256-i)>>3);
-    }
-#endif
-  }
-  MULTIEXP_PERF(PERF_TIMER_STOP(digits));
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(digits, 1000000));
+	std::unique_ptr<uint8_t[]> digits{new uint8_t[256 * data.size()]};
+	for(size_t j = 0; j < data.size(); ++j)
+	{
+		unsigned char bytes33[33];
+		memcpy(bytes33, data[j].scalar.bytes, 32);
+		bytes33[32] = 0;
+		const unsigned char *bytes = bytes33;
+		static_assert(STRAUS_C == 4, "optimized version needs STRAUS_C == 4");
+		unsigned int i;
+		for(i = 0; i < 256; i += 8, bytes++)
+		{
+			digits[j * 256 + i] = bytes[0] & 0xf;
+			digits[j * 256 + i + 1] = (bytes[0] >> 1) & 0xf;
+			digits[j * 256 + i + 2] = (bytes[0] >> 2) & 0xf;
+			digits[j * 256 + i + 3] = (bytes[0] >> 3) & 0xf;
+			digits[j * 256 + i + 4] = ((bytes[0] >> 4) | (bytes[1] << 4)) & 0xf;
+			digits[j * 256 + i + 5] = ((bytes[0] >> 5) | (bytes[1] << 3)) & 0xf;
+			digits[j * 256 + i + 6] = ((bytes[0] >> 6) | (bytes[1] << 2)) & 0xf;
+			digits[j * 256 + i + 7] = ((bytes[0] >> 7) | (bytes[1] << 1)) & 0xf;
+		}
+	}
+	MULTIEXP_PERF(PERF_TIMER_STOP(digits));
 
-  rct::key maxscalar = rct::zero();
-  for (size_t i = 0; i < data.size(); ++i)
-    if (maxscalar < data[i].scalar)
-      maxscalar = data[i].scalar;
-  size_t start_i = 0;
-  while (start_i < 256 && !(maxscalar < pow2(start_i)))
-    start_i += STRAUS_C;
-  MULTIEXP_PERF(PERF_TIMER_STOP(setup));
+	rct::key maxscalar = rct::zero();
+	for(size_t i = 0; i < data.size(); ++i)
+		if(maxscalar < data[i].scalar)
+			maxscalar = data[i].scalar;
+	size_t start_i = 0;
+	while(start_i < 256 && !(maxscalar < pow2(start_i)))
+		start_i += STRAUS_C;
+	MULTIEXP_PERF(PERF_TIMER_STOP(setup));
 
-  ge_p3 res_p3 = ge_p3_identity;
+	ge_p3 res_p3 = ge_p3_identity;
 
-  for (size_t start_offset = 0; start_offset < data.size(); start_offset += STEP)
-  {
-    const size_t num_points = std::min(data.size() - start_offset, STEP);
+	for(size_t start_offset = 0; start_offset < data.size(); start_offset += STEP)
+	{
+		const size_t num_points = std::min(data.size() - start_offset, STEP);
 
-    ge_p3 band_p3 = ge_p3_identity;
-    size_t i = start_i;
-    if (!(i < STRAUS_C))
-      goto skipfirst;
-    while (!(i < STRAUS_C))
-    {
-      ge_p2 p2;
-      ge_p3_to_p2(&p2, &band_p3);
-      for (size_t j = 0; j < STRAUS_C; ++j)
-      {
-        ge_p2_dbl(&p1, &p2);
-        if (j == STRAUS_C - 1)
-          ge_p1p1_to_p3(&band_p3, &p1);
-        else
-          ge_p1p1_to_p2(&p2, &p1);
-      }
-skipfirst:
-      i -= STRAUS_C;
-      for (size_t j = start_offset; j < start_offset + num_points; ++j)
-      {
+		ge_p3 band_p3 = ge_p3_identity;
+		size_t i = start_i;
+		if(!(i < STRAUS_C))
+			goto skipfirst;
+		while(!(i < STRAUS_C))
+		{
+			ge_p2 p2;
+			ge_p3_to_p2(&p2, &band_p3);
+			for(size_t j = 0; j < STRAUS_C; ++j)
+			{
+				ge_p2_dbl(&p1, &p2);
+				if(j == STRAUS_C - 1)
+					ge_p1p1_to_p3(&band_p3, &p1);
+				else
+					ge_p1p1_to_p2(&p2, &p1);
+			}
+		skipfirst:
+			i -= STRAUS_C;
+			for(size_t j = start_offset; j < start_offset + num_points; ++j)
+			{
 #ifdef TRACK_STRAUS_ZERO_IDENTITY
-        if (skip[j])
-          continue;
+				if(skip[j])
+					continue;
 #endif
-#if STRAUS_C==4
-        const uint8_t digit = digits[j*64+i/4];
-#else
-        const uint8_t digit = digits[j*256+i];
-#endif
-        if (digit)
-        {
-          ge_add(&p1, &band_p3, &CACHE_OFFSET(local_cache, j, digit));
-          ge_p1p1_to_p3(&band_p3, &p1);
-        }
-      }
-    }
+				const uint8_t digit = digits[j * 256 + i];
+				if(digit)
+				{
+					ge_add(&p1, &band_p3, &st_offset(j, digit));
+					ge_p1p1_to_p3(&band_p3, &p1);
+				}
+			}
+		}
 
-    ge_p3_to_cached(&cached, &band_p3);
-    ge_add(&p1, &res_p3, &cached);
-    ge_p1p1_to_p3(&res_p3, &p1);
-  }
+		ge_p3_to_cached(&cached, &band_p3);
+		ge_add(&p1, &res_p3, &cached);
+		ge_p1p1_to_p3(&res_p3, &p1);
+	}
 
-  rct::key res;
-  ge_p3_tobytes(res.bytes, &res_p3);
-  return res;
+	rct::key res;
+	ge_p3_tobytes(res.bytes, &res_p3);
+	return res;
 }
 
-size_t get_pippenger_c(size_t N)
+void pippenger_cache::init_cache(const std::vector<MultiexpData> &data, size_t N, bool over_alloc)
 {
-  if (N <= 13) return 2;
-  if (N <= 29) return 3;
-  if (N <= 83) return 4;
-  if (N <= 185) return 5;
-  if (N <= 465) return 6;
-  if (N <= 1180) return 7;
-  if (N <= 2295) return 8;
-  return 9;
+	MULTIEXP_PERF(PERF_TIMER_START_UNIT(pippenger_init_cache, 1000000));
+	if(N == 0)
+		N = data.size();
+	CHECK_AND_ASSERT_THROW_MES(N <= data.size(), "Bad cache base data");
+
+	size = N;
+	if(cache == nullptr || alloc_size < N)
+	{
+		if(over_alloc)
+			alloc_size = 2*N;
+		else
+			alloc_size = N;
+
+		cache = make_aligned_array<ge_cached_pad>(4096, alloc_size);
+	}
+
+	for(size_t i = 0; i < N; ++i)
+		ge_p3_to_cached(pp_offset(i), &data[i].point);
+
+	MULTIEXP_PERF(PERF_TIMER_STOP(pippenger_init_cache));
 }
 
-struct pippenger_cached_data
+rct::key pippenger_cache::pippenger(const std::vector<MultiexpData> &data, aligned_ptr<ge_p3[]>& buckets, size_t c) const
 {
-  size_t size;
-  ge_cached *cached;
-  pippenger_cached_data(): size(0), cached(NULL) {}
-  ~pippenger_cached_data() { aligned_free(cached); }
-};
+	CHECK_AND_ASSERT_THROW_MES(cache != nullptr, "null cache");
+	CHECK_AND_ASSERT_THROW_MES(size >= data.size(), "Cache is too small");
 
-std::shared_ptr<pippenger_cached_data> pippenger_init_cache(const std::vector<MultiexpData> &data, size_t start_offset, size_t N)
-{
-  MULTIEXP_PERF(PERF_TIMER_START_UNIT(pippenger_init_cache, 1000000));
-  CHECK_AND_ASSERT_THROW_MES(start_offset <= data.size(), "Bad cache base data");
-  if (N == 0)
-    N = data.size() - start_offset;
-  CHECK_AND_ASSERT_THROW_MES(N <= data.size() - start_offset, "Bad cache base data");
-  ge_cached cached;
-  std::shared_ptr<pippenger_cached_data> cache(new pippenger_cached_data());
+	if(c == 0)
+		c = get_pippenger_c(data.size());
 
-  cache->size = N;
-  cache->cached = (ge_cached*)aligned_realloc(cache->cached, N * sizeof(ge_cached), 4096);
-  CHECK_AND_ASSERT_THROW_MES(cache->cached, "Out of memory");
-  for (size_t i = 0; i < N; ++i)
-    ge_p3_to_cached(&cache->cached[i], &data[i+start_offset].point);
+	CHECK_AND_ASSERT_THROW_MES(c <= 9, "c is too large");
 
-  MULTIEXP_PERF(PERF_TIMER_STOP(pippenger_init_cache));
-  return cache;
+	ge_p3 result = ge_p3_identity;
+
+	if(buckets == nullptr)
+		buckets = make_aligned_array<ge_p3>(4096, 1 << 9);
+
+	rct::key maxscalar = rct::zero();
+	for(size_t i = 0; i < data.size(); ++i)
+	{
+		if(maxscalar < data[i].scalar)
+			maxscalar = data[i].scalar;
+	}
+
+	size_t groups = 0;
+	while(groups < 256 && !(maxscalar < pow2(groups)))
+		++groups;
+	groups = (groups + c - 1) / c;
+
+	for(size_t k = groups; k-- > 0;)
+	{
+		if(!ge_p3_is_point_at_infinity(&result))
+		{
+			ge_p2 p2;
+			ge_p3_to_p2(&p2, &result);
+			for(size_t i = 0; i < c; ++i)
+			{
+				ge_p1p1 p1;
+				ge_p2_dbl(&p1, &p2);
+				if(i == c - 1)
+					ge_p1p1_to_p3(&result, &p1);
+				else
+					ge_p1p1_to_p2(&p2, &p1);
+			}
+		}
+		for(size_t i = 0; i < (1u << c); ++i)
+			buckets[i] = ge_p3_identity;
+
+		// partition scalars into buckets
+		for(size_t i = 0; i < data.size(); ++i)
+		{
+			unsigned int bucket = 0;
+			for(size_t j = 0; j < c; ++j)
+				if(test(data[i].scalar, k * c + j))
+					bucket |= 1 << j;
+			if(bucket == 0)
+				continue;
+			CHECK_AND_ASSERT_THROW_MES(bucket < (1u << c), "bucket overflow");
+			if(!ge_p3_is_point_at_infinity(&buckets[bucket]))
+			{
+				add(buckets[bucket], pp_offset(i));
+			}
+			else
+				buckets[bucket] = data[i].point;
+		}
+
+		// sum the buckets
+		ge_p3 pail = ge_p3_identity;
+		for(size_t i = (1 << c) - 1; i > 0; --i)
+		{
+			if(!ge_p3_is_point_at_infinity(&buckets[i]))
+				add(pail, buckets[i]);
+			if(!ge_p3_is_point_at_infinity(&pail))
+				add(result, pail);
+		}
+	}
+
+	rct::key res;
+	ge_p3_tobytes(res.bytes, &result);
+	return res;
 }
 
-size_t pippenger_get_cache_size(const std::shared_ptr<pippenger_cached_data> &cache)
+/* Given two scalar arrays, construct a vector commitment */
+rct::key bp_cache::vector_exponent(const rct::keyV &a, const rct::keyV &b)
 {
-  return cache->size * sizeof(*cache->cached);
+	CHECK_AND_ASSERT_THROW_MES(a.size() == b.size(), "Incompatible sizes of a and b");
+	CHECK_AND_ASSERT_THROW_MES(a.size() <= maxN * maxM, "Incompatible sizes of a and maxN");
+
+	clear_pad(a.size()*2);
+	for(size_t i = 0; i < a.size(); ++i)
+	{
+		me_pad.emplace_back(a[i], multiexp_cache::Gi_p3(i));
+		me_pad.emplace_back(b[i], multiexp_cache::Hi_p3(i));
+	}
+
+	return multiexp_higi();
 }
 
-rct::key pippenger(const std::vector<MultiexpData> &data, const std::shared_ptr<pippenger_cached_data> &cache, size_t cache_size, size_t c)
+/* Compute a custom vector-scalar commitment */
+rct::key bp_cache::vector_exponent_custom(const rct::keyV &A, const rct::keyV &B, const rct::keyV &a, const rct::keyV &b)
 {
-  if (cache != NULL && cache_size == 0)
-    cache_size = cache->size;
-  CHECK_AND_ASSERT_THROW_MES(cache == NULL || cache_size <= cache->size, "Cache is too small");
-  if (c == 0)
-    c = get_pippenger_c(data.size());
-  CHECK_AND_ASSERT_THROW_MES(c <= 9, "c is too large");
+	CHECK_AND_ASSERT_THROW_MES(A.size() == B.size(), "Incompatible sizes of A and B");
+	CHECK_AND_ASSERT_THROW_MES(a.size() == b.size(), "Incompatible sizes of a and b");
+	CHECK_AND_ASSERT_THROW_MES(a.size() == A.size(), "Incompatible sizes of a and A");
+	CHECK_AND_ASSERT_THROW_MES(a.size() <= maxN * maxM, "Incompatible sizes of a and maxN");
 
-  ge_p3 result = ge_p3_identity;
-  bool result_init = false;
-  std::unique_ptr<ge_p3[]> buckets{new ge_p3[1<<c]};
-  bool buckets_init[1<<9];
-  std::shared_ptr<pippenger_cached_data> local_cache = cache == NULL ? pippenger_init_cache(data) : cache;
-  std::shared_ptr<pippenger_cached_data> local_cache_2 = data.size() > cache_size ? pippenger_init_cache(data, cache_size) : NULL;
+	clear_pad(a.size()*2);
+	for(size_t i = 0; i < a.size(); ++i)
+	{
+		me_pad.emplace_back(a[i], A[i]);
+		me_pad.emplace_back(b[i], B[i]);
+	}
 
-  rct::key maxscalar = rct::zero();
-  for (size_t i = 0; i < data.size(); ++i)
-  {
-    if (maxscalar < data[i].scalar)
-      maxscalar = data[i].scalar;
-  }
-  size_t groups = 0;
-  while (groups < 256 && !(maxscalar < pow2(groups)))
-    ++groups;
-  groups = (groups + c - 1) / c;
-
-  for (size_t k = groups; k-- > 0; )
-  {
-    if (result_init)
-    {
-      ge_p2 p2;
-      ge_p3_to_p2(&p2, &result);
-      for (size_t i = 0; i < c; ++i)
-      {
-        ge_p1p1 p1;
-        ge_p2_dbl(&p1, &p2);
-        if (i == c - 1)
-          ge_p1p1_to_p3(&result, &p1);
-        else
-          ge_p1p1_to_p2(&p2, &p1);
-      }
-    }
-    memset(buckets_init, 0, 1u<<c);
-
-    // partition scalars into buckets
-    for (size_t i = 0; i < data.size(); ++i)
-    {
-      unsigned int bucket = 0;
-      for (size_t j = 0; j < c; ++j)
-        if (test(data[i].scalar, k*c+j))
-          bucket |= 1<<j;
-      if (bucket == 0)
-        continue;
-      CHECK_AND_ASSERT_THROW_MES(bucket < (1u<<c), "bucket overflow");
-      if (buckets_init[bucket])
-      {
-        if (i < cache_size)
-          add(buckets[bucket], local_cache->cached[i]);
-        else
-          add(buckets[bucket], local_cache_2->cached[i - cache_size]);
-      }
-      else
-      {
-        buckets[bucket] = data[i].point;
-        buckets_init[bucket] = true;
-      }
-    }
-
-    // sum the buckets
-    ge_p3 pail;
-    bool pail_init = false;
-    for (size_t i = (1<<c)-1; i > 0; --i)
-    {
-      if (buckets_init[i])
-      {
-        if (pail_init)
-          add(pail, buckets[i]);
-        else
-        {
-          pail = buckets[i];
-          pail_init = true;
-        }
-      }
-      if (pail_init)
-      {
-        if (result_init)
-          add(result, pail);
-        else
-        {
-          result = pail;
-          result_init = true;
-        }
-      }
-    }
-  }
-
-  rct::key res;
-  ge_p3_tobytes(res.bytes, &result);
-  return res;
+	return multiexp();
 }
-
 }

@@ -1,21 +1,11 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,7 +15,7 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
@@ -36,37 +26,42 @@ typedef int32_t fe[10];
 
 /* From ge.h */
 
-typedef struct {
-  fe X;
-  fe Y;
-  fe Z;
+typedef struct
+{
+	fe X;
+	fe Y;
+	fe Z;
 } ge_p2;
 
-typedef struct {
-  fe X;
-  fe Y;
-  fe Z;
-  fe T;
+typedef struct
+{
+	fe X;
+	fe Y;
+	fe Z;
+	fe T;
 } ge_p3;
 
-typedef struct {
-  fe X;
-  fe Y;
-  fe Z;
-  fe T;
+typedef struct
+{
+	fe X;
+	fe Y;
+	fe Z;
+	fe T;
 } ge_p1p1;
 
-typedef struct {
-  fe yplusx;
-  fe yminusx;
-  fe xy2d;
+typedef struct
+{
+	fe yplusx;
+	fe yminusx;
+	fe xy2d;
 } ge_precomp;
 
-typedef struct {
-  fe YplusX;
-  fe YminusX;
-  fe Z;
-  fe T2d;
+typedef struct
+{
+	fe YplusX;
+	fe YminusX;
+	fe Z;
+	fe T2d;
 } ge_cached;
 
 /* From ge_add.c */
@@ -151,6 +146,7 @@ void sc_mul(unsigned char *, const unsigned char *, const unsigned char *);
 void sc_muladd(unsigned char *s, const unsigned char *a, const unsigned char *b, const unsigned char *c);
 int sc_check(const unsigned char *);
 int sc_isnonzero(const unsigned char *); /* Doesn't normalize */
+int ge_p3_is_point_at_infinity(const ge_p3 *p);
 
 // internal
 uint64_t load_3(const unsigned char *in);
@@ -159,5 +155,3 @@ void ge_sub(ge_p1p1 *r, const ge_p3 *p, const ge_cached *q);
 void fe_add(fe h, const fe f, const fe g);
 void fe_tobytes(unsigned char *, const fe);
 void fe_invert(fe out, const fe z);
-
-int ge_p3_is_point_at_infinity(const ge_p3 *p);

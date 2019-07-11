@@ -1,21 +1,11 @@
-// Copyright (c) 2014-2019, The Monero Project
-// 
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
+//
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-// 
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-// 
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-// 
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
-// 
+//
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+//
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 // MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
@@ -25,101 +15,118 @@
 // INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
 // STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 // THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-// 
+//
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
 #pragma once
 
-#include "cryptonote_basic.h"
 #include "crypto/crypto.h"
+#include "cryptonote_basic.h"
 #include "serialization/keyvalue_serialization.h"
 
 namespace cryptonote
 {
+static constexpr uint8_t ACC_OPT_UNKNOWN = 0;
+static constexpr uint8_t ACC_OPT_KURZ_ADDRESS = 1;
+static constexpr uint8_t ACC_OPT_LONG_ADDRESS = 2;
 
-  struct account_keys
-  {
-    account_public_address m_account_address;
-    crypto::secret_key   m_spend_secret_key;
-    crypto::secret_key   m_view_secret_key;
-    std::vector<crypto::secret_key> m_multisig_keys;
-    hw::device *m_device = &hw::get_device("default");
-    crypto::chacha_iv m_encryption_iv;
+struct account_keys
+{
+	account_public_address m_account_address;
+	crypto::secret_key m_spend_secret_key;
+	crypto::secret_key m_view_secret_key;
+	std::vector<crypto::secret_key> m_multisig_keys;
+	crypto::secret_key_16 m_short_seed;
+	hw::device *m_device = &hw::get_device("default");
 
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(m_account_address)
-      KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_spend_secret_key)
-      KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_view_secret_key)
-      KV_SERIALIZE_CONTAINER_POD_AS_BLOB(m_multisig_keys)
-      const crypto::chacha_iv default_iv{{0, 0, 0, 0, 0, 0, 0, 0}};
-      KV_SERIALIZE_VAL_POD_AS_BLOB_OPT(m_encryption_iv, default_iv)
-    END_KV_SERIALIZE_MAP()
+	BEGIN_KV_SERIALIZE_MAP()
+	KV_SERIALIZE(m_account_address)
+	KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_spend_secret_key)
+	KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_view_secret_key)
+	KV_SERIALIZE_CONTAINER_POD_AS_BLOB(m_multisig_keys)
+	KV_SERIALIZE_VAL_POD_AS_BLOB_FORCE(m_short_seed)
+	END_KV_SERIALIZE_MAP()
 
-    account_keys& operator=(account_keys const&) = default;
+	account_keys &operator=(account_keys const &) = default;
 
-    void encrypt(const crypto::chacha_key &key);
-    void decrypt(const crypto::chacha_key &key);
-    void encrypt_viewkey(const crypto::chacha_key &key);
-    void decrypt_viewkey(const crypto::chacha_key &key);
+	hw::device &get_device() const;
+	void set_device(hw::device &hwdev);
+};
 
-    hw::device& get_device()  const ;
-    void set_device( hw::device &hwdev) ;
-
-  private:
-    void xor_with_key_stream(const crypto::chacha_key &key);
-  };
-
-  /************************************************************************/
-  /*                                                                      */
-  /************************************************************************/
-  class account_base
-  {
+/************************************************************************/
+/*                                                                      */
+/************************************************************************/
+class account_base
+{
   public:
-    account_base();
-    crypto::secret_key generate(const crypto::secret_key& recovery_key = crypto::secret_key(), bool recover = false, bool two_random = false);
-    void create_from_device(const std::string &device_name);
-    void create_from_device(hw::device &hwdev);
-    void create_from_keys(const cryptonote::account_public_address& address, const crypto::secret_key& spendkey, const crypto::secret_key& viewkey);
-    void create_from_viewkey(const cryptonote::account_public_address& address, const crypto::secret_key& viewkey);
-    bool make_multisig(const crypto::secret_key &view_secret_key, const crypto::secret_key &spend_secret_key, const crypto::public_key &spend_public_key, const std::vector<crypto::secret_key> &multisig_keys);
-    void finalize_multisig(const crypto::public_key &spend_public_key);
-    const account_keys& get_keys() const;
-    std::string get_public_address_str(network_type nettype) const;
-    std::string get_public_integrated_address_str(const crypto::hash8 &payment_id, network_type nettype) const;
+	account_base();
 
-    hw::device& get_device() const  {return m_keys.get_device();}
-    void set_device( hw::device &hwdev) {m_keys.set_device(hwdev);}
-    void deinit();
+	inline crypto::secret_key_16 generate_new(uint8_t acc_opt)
+	{
+		crypto::generate_wallet_secret(m_keys.m_short_seed);
+		m_acc_opt = acc_opt;
+		m_creation_timestamp = time(NULL);
+		return generate();
+	}
 
-    uint64_t get_createtime() const { return m_creation_timestamp; }
-    void set_createtime(uint64_t val) { m_creation_timestamp = val; }
+	inline void recover(const crypto::secret_key_16 &recovery_seed, uint8_t acc_opt)
+	{
+		m_keys.m_short_seed = recovery_seed;
+		m_acc_opt = acc_opt;
+		m_creation_timestamp = EARLIEST_TIMESTAMP;
+		generate();
+	}
 
-    bool load(const std::string& file_path);
-    bool store(const std::string& file_path);
+	void recover_legacy(const crypto::secret_key &recovery_seed);
 
-    void forget_spend_key();
-    const std::vector<crypto::secret_key> &get_multisig_keys() const { return m_keys.m_multisig_keys; }
+	void create_from_device(const std::string &device_name);
+	void create_from_keys(const cryptonote::account_public_address &address, const crypto::secret_key &spendkey, const crypto::secret_key &viewkey);
+	void create_from_viewkey(const cryptonote::account_public_address &address, const crypto::secret_key &viewkey);
+	bool make_multisig(const crypto::secret_key &view_secret_key, const crypto::secret_key &spend_secret_key, const crypto::public_key &spend_public_key, const std::vector<crypto::secret_key> &multisig_keys);
+	void finalize_multisig(const crypto::public_key &spend_public_key);
+	const account_keys &get_keys() const;
+	std::string get_public_address_str(network_type nettype) const;
+	std::string get_public_integrated_address_str(const crypto::hash8 &payment_id, network_type nettype) const;
 
-    void encrypt_keys(const crypto::chacha_key &key) { m_keys.encrypt(key); }
-    void decrypt_keys(const crypto::chacha_key &key) { m_keys.decrypt(key); }
-    void encrypt_viewkey(const crypto::chacha_key &key) { m_keys.encrypt_viewkey(key); }
-    void decrypt_viewkey(const crypto::chacha_key &key) { m_keys.decrypt_viewkey(key); }
+	hw::device &get_device() const { return m_keys.get_device(); }
+	void set_device(hw::device &hwdev) { m_keys.set_device(hwdev); }
 
-    template <class t_archive>
-    inline void serialize(t_archive &a, const unsigned int /*ver*/)
-    {
-      a & m_keys;
-      a & m_creation_timestamp;
-    }
+	uint64_t get_createtime() const { return m_creation_timestamp; }
+	void set_createtime(uint64_t val) { m_creation_timestamp = val; }
 
-    BEGIN_KV_SERIALIZE_MAP()
-      KV_SERIALIZE(m_keys)
-      KV_SERIALIZE(m_creation_timestamp)
-    END_KV_SERIALIZE_MAP()
+	uint8_t get_account_options() const { return m_acc_opt; }
+	bool is_kurz() const { return m_keys.m_spend_secret_key == m_keys.m_view_secret_key; }
+
+	bool has_25word_seed() const;
+	bool has_14word_seed() const;
+
+	bool load(const std::string &file_path);
+	bool store(const std::string &file_path);
+
+	void forget_spend_key();
+	const std::vector<crypto::secret_key> &get_multisig_keys() const { return m_keys.m_multisig_keys; }
+
+	template <class t_archive>
+	inline void serialize(t_archive &a, const unsigned int /*ver*/)
+	{
+		a &m_keys;
+		a &m_creation_timestamp;
+	}
+
+	static constexpr uint64_t EARLIEST_TIMESTAMP = 1483228800; // 01-01-2017 00:00
+
+	BEGIN_KV_SERIALIZE_MAP()
+	KV_SERIALIZE(m_keys)
+	KV_SERIALIZE(m_creation_timestamp)
+	KV_SERIALIZE(m_acc_opt)
+	END_KV_SERIALIZE_MAP()
 
   private:
-    void set_null();
-    account_keys m_keys;
-    uint64_t m_creation_timestamp;
-  };
+	crypto::secret_key_16 generate();
+	void set_null();
+
+	account_keys m_keys;
+	uint64_t m_creation_timestamp;
+	uint8_t m_acc_opt;
+};
 }

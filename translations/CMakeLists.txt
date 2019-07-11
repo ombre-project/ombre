@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2019, The Monero Project
+# Copyright (c) 2017-2018, The Monero Project
 #
 # All rights reserved.
 #
@@ -30,24 +30,9 @@ cmake_minimum_required(VERSION 2.8.7)
 
 project(translations)
 
-# when crosscompiling import the executable targets from a file
-IF(CMAKE_CROSSCOMPILING)
-  message(WARNING "CrossCompiling")
-  SET(IMPORT_EXECUTABLES "${CMAKE_CURRENT_BINARY_DIR}/ImportExecutables.cmake" CACHE FILEPATH "Point it to the export file from a native build")
-  INCLUDE(${IMPORT_EXECUTABLES})
-ENDIF(CMAKE_CROSSCOMPILING)
+add_executable(generate_translations_header generate_translations_header.c)
 
-# only build the generator if not crosscompiling
-IF(NOT CMAKE_CROSSCOMPILING)
-  add_executable(generate_translations_header generate_translations_header.c)
-ENDIF(NOT CMAKE_CROSSCOMPILING)
-
-if(LRELEASE_PATH STREQUAL "")
-  find_program(LRELEASE lrelease)
-else()
-  set(LRELEASE ${LRELEASE_PATH}/lrelease)
-endif()
-
+find_program(LRELEASE lrelease)
 if(LRELEASE STREQUAL "LRELEASE-NOTFOUND")
   set(ts_files "")
   message(WARNING "lrelease program not found, translation files not built")
@@ -73,11 +58,6 @@ string(REPLACE ".ts" ".qm" qm_files "${ts_files}")
 
 add_custom_command(TARGET generate_translations_header
   POST_BUILD
-  COMMAND ./generate_translations_header ${qm_files}
+  COMMAND generate_translations_header ${qm_files}
   WORKING_DIRECTORY "${CMAKE_CURRENT_BIN_DIR}"
   COMMENT "Generating embedded translations header")
-
-# export the generator target to a file, so it can be imported (see above) by another build
-IF(NOT CMAKE_CROSSCOMPILING)
-  EXPORT(TARGETS generate_translations_header FILE ${CMAKE_CURRENT_BINARY_DIR}/ImportExecutables.cmake )
-ENDIF(NOT CMAKE_CROSSCOMPILING)

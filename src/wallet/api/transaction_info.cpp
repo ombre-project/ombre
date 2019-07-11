@@ -1,20 +1,10 @@
-// Copyright (c) 2014-2019, The Monero Project
+// Copyright (c) 2018, Ryo Currency Project
+// Portions copyright (c) 2014-2018, The Monero Project
 //
+// Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Redistribution and use in source and binary forms, with or without modification, are
-// permitted provided that the following conditions are met:
-//
-// 1. Redistributions of source code must retain the above copyright notice, this list of
-//    conditions and the following disclaimer.
-//
-// 2. Redistributions in binary form must reproduce the above copyright notice, this list
-//    of conditions and the following disclaimer in the documentation and/or other
-//    materials provided with the distribution.
-//
-// 3. Neither the name of the copyright holder nor the names of its contributors may be
-//    used to endorse or promote products derived from this software without specific
-//    prior written permission.
+// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -30,114 +20,98 @@
 
 #include "transaction_info.h"
 
-
 using namespace std;
 
-namespace Monero {
+namespace Ryo
+{
 
 TransactionInfo::~TransactionInfo() {}
 
 TransactionInfo::Transfer::Transfer(uint64_t _amount, const string &_address)
-    : amount(_amount), address(_address) {}
-
+	: amount(_amount), address(_address) {}
 
 TransactionInfoImpl::TransactionInfoImpl()
-    : m_direction(Direction_Out)
-      , m_pending(false)
-      , m_failed(false)
-      , m_amount(0)
-      , m_fee(0)
-      , m_blockheight(0)
-      , m_subaddrAccount(0)
-      , m_timestamp(0)
-      , m_confirmations(0)
-      , m_unlock_time(0)
+	: m_direction(Direction_Out), m_pending(false), m_failed(false), m_amount(0), m_fee(0), m_blockheight(0), m_subaddrAccount(0), m_timestamp(0), m_confirmations(0), m_unlock_time(0)
 {
-
 }
 
 TransactionInfoImpl::~TransactionInfoImpl()
 {
-
 }
 
 int TransactionInfoImpl::direction() const
 {
-    return m_direction;
+	return m_direction;
 }
-
 
 bool TransactionInfoImpl::isPending() const
 {
-    return m_pending;
+	return m_pending;
 }
 
 bool TransactionInfoImpl::isFailed() const
 {
-    return m_failed;
+	return m_failed;
 }
 
 uint64_t TransactionInfoImpl::amount() const
 {
-    return m_amount;
+	return m_amount;
 }
 
 uint64_t TransactionInfoImpl::fee() const
 {
-    return m_fee;
+	return m_fee;
 }
 
 uint64_t TransactionInfoImpl::blockHeight() const
 {
-    return m_blockheight;
+	return m_blockheight;
 }
 
 std::set<uint32_t> TransactionInfoImpl::subaddrIndex() const
 {
-    return m_subaddrIndex;
+	return m_subaddrIndex;
 }
 
 uint32_t TransactionInfoImpl::subaddrAccount() const
 {
-    return m_subaddrAccount;
+	return m_subaddrAccount;
 }
 
 string TransactionInfoImpl::label() const
 {
-    return m_label;
+	return m_label;
 }
-
 
 string TransactionInfoImpl::hash() const
 {
-    return m_hash;
+	return m_hash;
 }
 
 std::time_t TransactionInfoImpl::timestamp() const
 {
-    return m_timestamp;
+	return m_timestamp;
 }
 
 string TransactionInfoImpl::paymentId() const
 {
-    return m_paymentid;
+	return m_paymentid;
 }
 
 const std::vector<TransactionInfo::Transfer> &TransactionInfoImpl::transfers() const
 {
-    return m_transfers;
+	return m_transfers;
 }
 
 uint64_t TransactionInfoImpl::confirmations() const
 {
-    return m_confirmations;
+	return m_confirmations;
 }
 
 uint64_t TransactionInfoImpl::unlockTime() const
 {
-    return m_unlock_time;
+	return m_unlock_time;
 }
 
 } // namespace
-
-namespace Bitmonero = Monero;
