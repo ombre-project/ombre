@@ -32,8 +32,8 @@
 #include "ringct/rctOps.h"
 #include "string_tools.h"
 
-//#undef OMBRE_DEFAULT_LOG_CATEGORY
-//#define OMBRE_DEFAULT_LOG_CATEGORY "blockchain.db.lmdb"
+//#undef RYO_DEFAULT_LOG_CATEGORY
+//#define RYO_DEFAULT_LOG_CATEGORY "blockchain.db.lmdb"
 
 #if defined(__i386) || defined(__x86_64)
 #define MISALIGNED_OK 1
@@ -3343,7 +3343,7 @@ void BlockchainLMDB::fixup()
 	ptr = (char *)k.mv_data;                                                                    \
 	ptr[sizeof(name) - 2] = 's'
 
-#define LOGIF(y) if(ELPP->vRegistry()->allowed(y, OMBRE_DEFAULT_LOG_CATEGORY))
+#define LOGIF(y) if(ELPP->vRegistry()->allowed(y, RYO_DEFAULT_LOG_CATEGORY))
 
 void BlockchainLMDB::migrate_0_1()
 {
