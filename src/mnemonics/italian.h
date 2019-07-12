@@ -1,6 +1,7 @@
 // Word list created by Monero contributor Shrikez
 //
 // Copyright (c) 2018, Ombre Currency Project
+// Copyright (c) 2018, Ryo Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
