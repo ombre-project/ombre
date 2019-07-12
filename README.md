@@ -1,5 +1,6 @@
 # Ombre
-Copyright (c) 2019, The Ombre Project
+
+Copyright (c) 2019, Ombre Cryptocurrency Project
 
 Copyright (c) 2018, Ryo Currency Project
 
@@ -8,6 +9,7 @@ Copyright (c) 2017, Sumokoin.org
 Copyright (c) 2014-2017, The Monero Project
 
 Copyright (c) 2012-2013, The Cryptonote developers
+
 ## Development Resources
 
 - Web: [www.ombre.network](http://www.ombre.network)

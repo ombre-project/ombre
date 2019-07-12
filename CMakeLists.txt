@@ -1,3 +1,4 @@
+# Copyright (c) 2018, Ombre Cryptocurrency Project
 # Copyright (c) 2018, Ryo Currency Project
 # Copyright (c) 2014-2018, The Monero Project
 #
