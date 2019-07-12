@@ -1,9 +1,10 @@
-// Copyright (c) 2018, ryo-currency
+// Copyright (c) 2018, Ombre Cryptocurrency Project
+// Copyright (c) 2018, Ryo Currency Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -100,7 +101,7 @@ void address_validator::init_options(
 {
 	namespace po = boost::program_options;
 
-	desc.add_options()("network,n", po::value<std::string>(&m_network)->default_value("auto"), "network type (auto, mainnet, testnet, stagenet)")("filename,f", po::value<std::string>(&m_filename), "json file name, if not set result is printed to terminal")("human", po::value<bool>(&m_human)->zero_tokens()->default_value(false)->default_value(false), "human readable output")("address", po::value<std::vector<std::string>>(&m_address_strs), "ryo-currency address");
+	desc.add_options()("network,n", po::value<std::string>(&m_network)->default_value("auto"), "network type (auto, mainnet, testnet, stagenet)")("filename,f", po::value<std::string>(&m_filename), "json file name, if not set result is printed to terminal")("human", po::value<bool>(&m_human)->zero_tokens()->default_value(false)->default_value(false), "human readable output")("address", po::value<std::vector<std::string>>(&m_address_strs), "ombre-currency address");
 
 	pos_option.add("address", -1);
 }
@@ -174,8 +175,8 @@ int main(int argc, char *argv[])
 
 	namespace po = boost::program_options;
 
-	po::options_description desc("Validate RYO/SUMOKOIN addresses and show properties\n\n"
-								 "ryo-address-validator [OPTIONS] WALLET_ADDRESS [WALLET_ADDRESS...]\n\n"
+	po::options_description desc("Validate OMBRE addresses and show properties\n\n"
+								 "ombre-address-validator [OPTIONS] WALLET_ADDRESS [WALLET_ADDRESS...]\n\n"
 								 "OPTIONS");
 	po::positional_options_description pos_option;
 
