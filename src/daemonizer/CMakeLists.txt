@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -74,9 +74,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_definitions(-DDEBUG_TMPDIR_LOG=1)
 endif()
 
-ryo_private_headers(daemonizer
+ombre_private_headers(daemonizer
   ${daemonizer_private_headers})
-ryo_add_library(daemonizer
+ombre_add_library(daemonizer
   ${daemonizer_sources}
   ${daemonizer_headers}
   ${daemonizer_private_headers})

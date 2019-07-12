@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -45,8 +45,8 @@ using namespace epee;
 #include <csignal>
 #include <unordered_set>
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "cn"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "cn"
 
 DISABLE_VS_WARNINGS(4355)
 
@@ -89,7 +89,7 @@ static const command_line::arg_descriptor<uint64_t> arg_show_time_stats = {
 static const command_line::arg_descriptor<size_t> arg_block_sync_size = {
 	"block-sync-size", "How many blocks to sync at once during chain synchronization (0 = adaptive).", 0};
 static const command_line::arg_descriptor<std::string> arg_check_updates = {
-	"check-updates", "Check for new versions of ryo: [disabled|notify|download|update]", "notify"};
+	"check-updates", "Check for new versions of ombre: [disabled|notify|download|update]", "notify"};
 static const command_line::arg_descriptor<bool> arg_fluffy_blocks = {
 	"fluffy-blocks", "Relay blocks as fluffy blocks (obsolete, now default)", true};
 static const command_line::arg_descriptor<bool> arg_no_fluffy_blocks = {
@@ -1267,7 +1267,7 @@ bool core::on_idle()
 	{
 		std::string main_message;
 		if(m_offline)
-			main_message = "The daemon is running offline and will not attempt to sync to the Ryo network.";
+			main_message = "The daemon is running offline and will not attempt to sync to the Ombre network.";
 		else
 			main_message = "The daemon will start synchronizing with the network. This may take a long time to complete.";
 		MGINFO_YELLOW(ENDL << "**********************************************************************" << ENDL
@@ -1332,7 +1332,7 @@ uint8_t core::get_hard_fork_version(uint64_t height) const
 bool core::check_updates()
 {
 #if 0
-    static const char software[] = "ryo";
+    static const char software[] = "ombre";
 #ifdef BUILD_TAG
     static const char buildtag[] = BOOST_PP_STRINGIZE(BUILD_TAG);
     static const char subdir[] = "cli"; // because it can never be simple
@@ -1352,7 +1352,7 @@ bool core::check_updates()
     if (!tools::check_updates(software, buildtag, version, hash))
       return false;
 
-    if (tools::vercmp(version.c_str(), RYO_VERSION) <= 0)
+    if (tools::vercmp(version.c_str(), OMBRE_VERSION) <= 0)
       return true;
 
     std::string url = tools::get_update_url(software, subdir, buildtag, version, true);

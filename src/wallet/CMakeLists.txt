@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -62,9 +62,9 @@ set(wallet_private_headers
   ringdb.h
   node_rpc_proxy.h)
 
-ryo_private_headers(wallet
+ombre_private_headers(wallet
   ${wallet_private_headers})
-ryo_add_library(wallet
+ombre_add_library(wallet
   ${wallet_sources}
   ${wallet_private_headers})
 target_link_libraries(wallet
@@ -91,7 +91,7 @@ set(wallet_rpc_headers)
 set(wallet_rpc_private_headers
   wallet_rpc_server.h)
 
-ryo_private_headers(wallet_rpc_server
+ombre_private_headers(wallet_rpc_server
   ${wallet_rpc_private_headers})
 monero_add_executable(wallet_rpc_server
   ${wallet_rpc_sources}
@@ -118,7 +118,7 @@ target_link_libraries(wallet_rpc_server
     ${EXTRA_LIBRARIES})
 set_property(TARGET wallet_rpc_server
   PROPERTY
-    OUTPUT_NAME "ryo-wallet-rpc")
+    OUTPUT_NAME "ombre-wallet-rpc")
 install(TARGETS wallet_rpc_server DESTINATION bin)
 
 

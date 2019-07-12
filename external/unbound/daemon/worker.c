@@ -1260,7 +1260,7 @@ worker_handle_request(struct comm_point* c, void* arg, int error,
 			comm_point_drop_reply(repinfo);
 			return 0;
 		}
-		/* set RA for everyone that can have recursion (based on
+		/* set RA for eveombrene that can have recursion (based on
 		 * access control list) */
 		if(LDNS_RD_WIRE(sldns_buffer_begin(c->buffer)) &&
 		   acl != acl_deny_non_local && acl != acl_refuse_non_local)

@@ -74,8 +74,8 @@
 // TODO:
 #include "net/network_throttle-detail.hpp"
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net.throttle"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net.throttle"
 
 // ################################################################################################
 // ################################################################################################

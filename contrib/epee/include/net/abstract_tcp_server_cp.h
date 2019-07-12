@@ -41,8 +41,8 @@
 #include "pragma_comp_defs.h"
 #include "profile_tools.h"
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net"
 
 #define LEVIN_DEFAULT_DATA_BUFF_SIZE 2000
 

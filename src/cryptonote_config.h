@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -217,7 +217,7 @@ struct common_config
 	static constexpr const char* DEV_FUND_VIEWKEY_V1 = "\xbf\xfa\x80\x3b\xb4\x06\x1d\x93\xa8\x3a\x36\x13\xff\x47\x8c\x5b\x5e\x5c\xb0\xb0\x33\x7a\x73\x5e\x1a\x13\x04\xca\x9f\xab\x18\x07";
 	static constexpr const char* DEV_FUND_ADDRESS_V2 = "ShaDowSiNCj5sDzTFeFBea8AehPmcns37jgm7T9sttAiLFFdKppWT8p14Ge7dgAeHGWG4RJLE6wtZJppPLCVVNmcUTGWxA4sgjbHUU";
 	static constexpr const char* DEV_FUND_VIEWKEY_V2 = "\x1b\xc6\x6c\x1b\x5e\x0e\x7f\x32\x7d\x2f\x03\xac\xde\x9e\x73\xf6\xe6\xf9\x66\xb7\x6b\x61\xc9\x54\xf3\x9a\xed\x2f\xee\x8a\xe9\x0e";
-	static constexpr const char* RYO_DONATION_ADDR = "ShaDowSiNCj5sDzTFeFBea8AehPmcns37jgm7T9sttAiLFFdKppWT8p14Ge7dgAeHGWG4RJLE6wtZJppPLCVVNmcUTGWxA4sgjbHUU";
+	static constexpr const char* OMBRE_DONATION_ADDR = "ShaDowSiNCj5sDzTFeFBea8AehPmcns37jgm7T9sttAiLFFdKppWT8p14Ge7dgAeHGWG4RJLE6wtZJppPLCVVNmcUTGWxA4sgjbHUU";
 };
 
 template <network_type type>
@@ -230,11 +230,11 @@ struct config<MAINNET>
 {
 	static constexpr uint64_t LEGACY_LONG_ADDRESS_BASE58_PREFIX = 0xe1f54;            // cash
 	static constexpr uint64_t LEGACY_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0xe9f54; // casi
-	static constexpr uint64_t RYO_KURZ_SUBADDRESS_BASE58_PREFIX = 0xcd18fd299;			// ShaDoW
-	static constexpr uint64_t RYO_KURZ_ADDRESS_BASE58_PREFIX = 0x11cfd299;			// ShaDoe
-	static constexpr uint64_t RYO_LONG_ADDRESS_BASE58_PREFIX = 0x8a20fd299;			// ShaDowS
-	static constexpr uint64_t RYO_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0xf11afd299; // ShaDoeS
-	static constexpr uint64_t RYO_LONG_SUBADDRESS_BASE58_PREFIX = 0x120fd299;			// ShaDos
+	static constexpr uint64_t OMBRE_KURZ_SUBADDRESS_BASE58_PREFIX = 0xcd18fd299;			// ShaDoW
+	static constexpr uint64_t OMBRE_KURZ_ADDRESS_BASE58_PREFIX = 0x11cfd299;			// ShaDoe
+	static constexpr uint64_t OMBRE_LONG_ADDRESS_BASE58_PREFIX = 0x8a20fd299;			// ShaDowS
+	static constexpr uint64_t OMBRE_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0xf11afd299; // ShaDoeS
+	static constexpr uint64_t OMBRE_LONG_SUBADDRESS_BASE58_PREFIX = 0x120fd299;			// ShaDos
 
 	static constexpr uint16_t P2P_DEFAULT_PORT = 19743;
 	static constexpr uint16_t RPC_DEFAULT_PORT = 19744;
@@ -259,11 +259,11 @@ struct config<TESTNET>
 {
 	static constexpr uint64_t LEGACY_LONG_ADDRESS_BASE58_PREFIX = 0x37751a;			   // Suto
 	static constexpr uint64_t LEGACY_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0x34f51a; // Suti
-	static constexpr uint64_t RYO_KURZ_SUBADDRESS_BASE58_PREFIX = 0x3fa0;			  // Tr
-	static constexpr uint64_t RYO_KURZ_ADDRESS_BASE58_PREFIX = 0x7420;			  // Tu
-	static constexpr uint64_t RYO_LONG_ADDRESS_BASE58_PREFIX = 0x7d1f;			  // Tk
-	static constexpr uint64_t RYO_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0x9f; // Tb
-	static constexpr uint64_t RYO_LONG_SUBADDRESS_BASE58_PREFIX = 0x1a1;		  // Tw
+	static constexpr uint64_t OMBRE_KURZ_SUBADDRESS_BASE58_PREFIX = 0x3fa0;			  // Tr
+	static constexpr uint64_t OMBRE_KURZ_ADDRESS_BASE58_PREFIX = 0x7420;			  // Tu
+	static constexpr uint64_t OMBRE_LONG_ADDRESS_BASE58_PREFIX = 0x7d1f;			  // Tk
+	static constexpr uint64_t OMBRE_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0x9f; // Tb
+	static constexpr uint64_t OMBRE_LONG_SUBADDRESS_BASE58_PREFIX = 0x1a1;		  // Tw
 
 	static constexpr uint16_t P2P_DEFAULT_PORT = 29743; 
 	static constexpr uint16_t RPC_DEFAULT_PORT = 29744; 
@@ -290,11 +290,11 @@ struct config<STAGENET>
 	static constexpr uint64_t LEGACY_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0x34f51a; // Suti
 	static constexpr uint64_t LEGACY_LONG_SUBADDRESS_BASE58_PREFIX = 0x1d351a;		   // Susu
 
-	static constexpr uint64_t RYO_KURZ_SUBADDRESS_BASE58_PREFIX = 0xdc2192;			  // RYosG
-	static constexpr uint64_t RYO_KURZ_ADDRESS_BASE58_PREFIX = 0x1fc2192;			  // RYosK
-	static constexpr uint64_t RYO_LONG_ADDRESS_BASE58_PREFIX = 0xd1c2192;			  // RYosT
-	static constexpr uint64_t RYO_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0x1fbbe192; // RYosE
-	static constexpr uint64_t RYO_LONG_SUBADDRESS_BASE58_PREFIX = 0xe3c2192;		  // RYosU
+	static constexpr uint64_t OMBRE_KURZ_SUBADDRESS_BASE58_PREFIX = 0xdc2192;			  // RYosG
+	static constexpr uint64_t OMBRE_KURZ_ADDRESS_BASE58_PREFIX = 0x1fc2192;			  // RYosK
+	static constexpr uint64_t OMBRE_LONG_ADDRESS_BASE58_PREFIX = 0xd1c2192;			  // RYosT
+	static constexpr uint64_t OMBRE_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX = 0x1fbbe192; // RYosE
+	static constexpr uint64_t OMBRE_LONG_SUBADDRESS_BASE58_PREFIX = 0xe3c2192;		  // RYosU
 
 	static constexpr uint16_t P2P_DEFAULT_PORT = 14410; 
 	static constexpr uint16_t RPC_DEFAULT_PORT = 14411; 

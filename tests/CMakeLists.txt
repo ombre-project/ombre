@@ -73,8 +73,8 @@ file(COPY
   data/wallet_9svHk1.keys
   data/wallet_9svHk1
   data/outputs
-  data/unsigned_ryo_tx
-  data/signed_ryo_tx
+  data/unsigned_ombre_tx
+  data/signed_ombre_tx
   DESTINATION data)
 
 add_subdirectory(core_tests)

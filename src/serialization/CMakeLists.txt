@@ -49,9 +49,9 @@ set(serialization_headers)
 set(serialization_private_headers
   json_object.h)
 
-ryo_private_headers(serialization
+ombre_private_headers(serialization
   ${serialization_private_headers})
-ryo_add_library(serialization
+ombre_add_library(serialization
   ${serialization_sources}
   ${serialization_headers}
   ${serialization_private_headers})

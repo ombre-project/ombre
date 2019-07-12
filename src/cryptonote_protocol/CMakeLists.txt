@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -43,13 +43,13 @@
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required (VERSION 3.1.0)
-project (ryo CXX)
+project (ombre CXX)
 
 file(GLOB CRYPTONOTE_PROTOCOL *)
 source_group(cryptonote_protocol FILES ${CRYPTONOTE_PROTOCOL})
 
-#ryo_private_headers(cryptonote_protocol ${CRYPTONOTE_PROTOCOL})
-ryo_add_library(cryptonote_protocol ${CRYPTONOTE_PROTOCOL})
+#ombre_private_headers(cryptonote_protocol ${CRYPTONOTE_PROTOCOL})
+ombre_add_library(cryptonote_protocol ${CRYPTONOTE_PROTOCOL})
 target_link_libraries(cryptonote_protocol
   PUBLIC
     p2p

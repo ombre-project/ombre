@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -43,15 +43,15 @@
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cmake_minimum_required (VERSION 3.1.0)
-project (ryo CXX)
+project (ombre CXX)
 
 file(GLOB P2P *)
 source_group(p2p FILES ${P2P})
 
 #add_library(p2p ${P2P})
 
-#ryo_private_headers(p2p ${P2P})
-ryo_add_library(p2p ${P2P})
+#ombre_private_headers(p2p ${P2P})
+ombre_add_library(p2p ${P2P})
 target_link_libraries(p2p
   PUBLIC
     epee

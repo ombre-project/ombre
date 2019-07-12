@@ -55,7 +55,7 @@ class fee : public ::testing::Test
 
 // try with blocks ~ 1GB. Passing 2 GB will break on 32 bit systems
 
-TEST_F(fee, 10ryo)
+TEST_F(fee, 10ombre)
 {
 	// common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE and lower are clamped
 	ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(10000000000, common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE), clamp_fee(500000));
@@ -73,7 +73,7 @@ TEST_F(fee, 10ryo)
 	ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(10000000000, common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 20000ull), clamp_fee(500000 * 4 / 20000));
 }
 
-TEST_F(fee, 1ryo)
+TEST_F(fee, 1ombre)
 {
 	// common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE and lower are clamped
 	ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(1000000000, common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE), clamp_fee(500000));
@@ -91,7 +91,7 @@ TEST_F(fee, 1ryo)
 	ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(1000000000, common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE * 20000ull), clamp_fee(500000 * 4 / 20000));
 }
 
-TEST_F(fee, dot3ryo)
+TEST_F(fee, dot3ombre)
 {
 	// common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE and lower are clamped
 	ASSERT_EQ(Blockchain::get_dynamic_per_kb_fee(300000000, common_config::CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE), clamp_fee(500000));
@@ -112,11 +112,11 @@ TEST_F(fee, dot3ryo)
 TEST_F(fee, double_at_full)
 {
 	static const uint64_t block_rewards[] = {
-		20000000000ull, // 20 ryo
+		20000000000ull, // 20 ombre
 		13000000000ull,
 		1000000000ull,
-		600000000ull, // .6 ryo, minimum reward per block at 2min
-		300000000ull, // .3 ryo, minimum reward per block at 1min
+		600000000ull, // .6 ombre, minimum reward per block at 2min
+		300000000ull, // .3 ombre, minimum reward per block at 1min
 	};
 	static const uint64_t increase_factors[] = {
 		5,

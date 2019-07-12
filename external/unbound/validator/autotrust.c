@@ -2206,7 +2206,7 @@ int autr_process_prime(struct module_env* env, struct val_env* ve,
 	}
 
 	/* - for every SEP key do the 5011 statetable.
-	 * - remove missing trustanchors (if veryold and we have new anchors).
+	 * - remove missing trustanchors (if veombreld and we have new anchors).
 	 */
 	if(!do_statetable(env, tp, &changed)) {
 		log_err("malloc failure in autotrust do_statetable. "

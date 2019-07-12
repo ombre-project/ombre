@@ -36,8 +36,8 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net"
 
 namespace epee
 {

@@ -189,7 +189,7 @@ script:
     if [ "$COMPILE" == "main" ] ; then
         mkdir linux-x64-build
         cd linux-x64-build
-        cmake -DCMAKE_INSTALL_PREFIX=$HOME/ryo-linux-x64-release -DARCH="x86-64" -DBUILD_64=ON -DCMAKE_BUILD_TYPE=Debug -DBUILD_TAG="linux-x64-release" $TRAVIS_BUILD_DIR
+        cmake -DCMAKE_INSTALL_PREFIX=$HOME/ombre-linux-x64-release -DARCH="x86-64" -DBUILD_64=ON -DCMAKE_BUILD_TYPE=Debug -DBUILD_TAG="linux-x64-release" $TRAVIS_BUILD_DIR
         make -j "$NUMBER_OF_CPUS"
         make install
         cd bin

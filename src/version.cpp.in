@@ -1,20 +1,20 @@
-#define DEF_RYO_VERSION "0.3.2.0"
+#define DEF_OMBRE_VERSION "0.3.2.0"
 
 //! git will put "#define GIT_ARCHIVE 1" on the next line inside archives. $Format:%n#define GIT_ARCHIVE 1$
 #if defined(GIT_ARCHIVE)
-#   define DEF_RYO_VERSION_TAG "$Format:%h$"
-#   define DEF_RYO_BRANCH "unknown"
+#   define DEF_OMBRE_VERSION_TAG "$Format:%h$"
+#   define DEF_OMBRE_BRANCH "unknown"
 #else
-#   define DEF_RYO_VERSION_TAG "@VERSIONTAG@"
-#   define DEF_RYO_BRANCH "@GIT_BRANCH@"
+#   define DEF_OMBRE_VERSION_TAG "@VERSIONTAG@"
+#   define DEF_OMBRE_BRANCH "@GIT_BRANCH@"
 #endif
 
-#define DEF_RYO_RELEASE_NAME "Pie Orbital"
-#define DEF_RYO_VERSION_FULL DEF_RYO_VERSION "-" DEF_RYO_VERSION_TAG "/" DEF_RYO_BRANCH
+#define DEF_OMBRE_RELEASE_NAME "Pie Orbital"
+#define DEF_OMBRE_VERSION_FULL DEF_OMBRE_VERSION "-" DEF_OMBRE_VERSION_TAG "/" DEF_OMBRE_BRANCH
 
 #include "version.h"
 
-const char* const RYO_VERSION_TAG = DEF_RYO_VERSION_TAG;
-const char* const RYO_VERSION = DEF_RYO_VERSION;
-const char* const RYO_RELEASE_NAME = DEF_RYO_RELEASE_NAME;
-const char* const RYO_VERSION_FULL = DEF_RYO_VERSION_FULL;
+const char* const OMBRE_VERSION_TAG = DEF_OMBRE_VERSION_TAG;
+const char* const OMBRE_VERSION = DEF_OMBRE_VERSION;
+const char* const OMBRE_RELEASE_NAME = DEF_OMBRE_RELEASE_NAME;
+const char* const OMBRE_VERSION_FULL = DEF_OMBRE_VERSION_FULL;

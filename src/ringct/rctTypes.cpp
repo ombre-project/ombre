@@ -5,7 +5,7 @@
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -23,8 +23,8 @@
 using namespace crypto;
 using namespace std;
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "ringct"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "ringct"
 
 namespace rct
 {
@@ -92,7 +92,7 @@ void dp(keyM a)
 	printf("]");
 	printf("\n");
 }
-void dp(ryo_amount vali)
+void dp(ombre_amount vali)
 {
 	printf("x: ");
 	std::cout << vali;
@@ -121,37 +121,37 @@ void dp(const char *st)
 //Various Conversions
 
 //uint long long to 32 byte key
-void d2h(key &amounth, const ryo_amount in)
+void d2h(key &amounth, const ombre_amount in)
 {
 	sc_0(amounth.bytes);
-	ryo_amount val = in;
+	ombre_amount val = in;
 	int i = 0;
 	while(val != 0)
 	{
 		amounth[i] = (unsigned char)(val & 0xFF);
 		i++;
-		val /= (ryo_amount)256;
+		val /= (ombre_amount)256;
 	}
 }
 
 //uint long long to 32 byte key
-key d2h(const ryo_amount in)
+key d2h(const ombre_amount in)
 {
 	key amounth;
 	sc_0(amounth.bytes);
-	ryo_amount val = in;
+	ombre_amount val = in;
 	int i = 0;
 	while(val != 0)
 	{
 		amounth[i] = (unsigned char)(val & 0xFF);
 		i++;
-		val /= (ryo_amount)256;
+		val /= (ombre_amount)256;
 	}
 	return amounth;
 }
 
 //uint long long to int[64]
-void d2b(bits amountb, ryo_amount val)
+void d2b(bits amountb, ombre_amount val)
 {
 	int i = 0;
 	while(val != 0)
@@ -170,13 +170,13 @@ void d2b(bits amountb, ryo_amount val)
 //32 byte key to uint long long
 // if the key holds a value > 2^64
 // then the value in the first 8 bytes is returned
-ryo_amount h2d(const key &test)
+ombre_amount h2d(const key &test)
 {
-	ryo_amount vali = 0;
+	ombre_amount vali = 0;
 	int j = 0;
 	for(j = 7; j >= 0; j--)
 	{
-		vali = (ryo_amount)(vali * 256 + (unsigned char)test.bytes[j]);
+		vali = (ombre_amount)(vali * 256 + (unsigned char)test.bytes[j]);
 	}
 	return vali;
 }
@@ -224,13 +224,13 @@ void b2h(key &amountdh, const bits amountb2)
 }
 
 //int[64] to uint long long
-ryo_amount b2d(bits amountb)
+ombre_amount b2d(bits amountb)
 {
-	ryo_amount vali = 0;
+	ombre_amount vali = 0;
 	int j = 0;
 	for(j = 63; j >= 0; j--)
 	{
-		vali = (ryo_amount)(vali * 2 + amountb[j]);
+		vali = (ombre_amount)(vali * 2 + amountb[j]);
 	}
 	return vali;
 }

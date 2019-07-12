@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -64,9 +64,9 @@ set(mnemonics_private_headers
   esperanto.h
   lojban.h)
 
-ryo_private_headers(mnemonics
+ombre_private_headers(mnemonics
   ${mnemonics_private_headers})
-ryo_add_library(mnemonics
+ombre_add_library(mnemonics
   ${mnemonics_sources}
   ${mnemonics_headers}
   ${mnemonics_private_headers})

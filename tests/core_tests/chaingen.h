@@ -52,8 +52,8 @@
 #include "cryptonote_core/cryptonote_core.h"
 #include "misc_language.h"
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "tests.core"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "tests.core"
 
 struct callback_entry
 {

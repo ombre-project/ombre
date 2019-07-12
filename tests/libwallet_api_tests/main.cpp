@@ -66,7 +66,7 @@ const char *WALLET_PASS = "password";
 const char *WALLET_PASS2 = "password22";
 const char *WALLET_LANG = "English";
 
-std::string WALLETS_ROOT_DIR = "/var/ryo/testnet_pvt";
+std::string WALLETS_ROOT_DIR = "/var/ombre/testnet_pvt";
 std::string TESTNET_WALLET1_NAME;
 std::string TESTNET_WALLET2_NAME;
 std::string TESTNET_WALLET3_NAME;
@@ -107,15 +107,15 @@ struct Utils
 		boost::filesystem::remove_all(path);
 	}
 
-	static void print_transaction(Ryo::TransactionInfo *t)
+	static void print_transaction(Ombre::TransactionInfo *t)
 	{
 
 		std::cout << "d: "
-				  << (t->direction() == Ryo::TransactionInfo::Direction_In ? "in" : "out")
+				  << (t->direction() == Ombre::TransactionInfo::Direction_In ? "in" : "out")
 				  << ", pe: " << (t->isPending() ? "true" : "false")
 				  << ", bh: " << t->blockHeight()
-				  << ", a: " << Ryo::Wallet::displayAmount(t->amount())
-				  << ", f: " << Ryo::Wallet::displayAmount(t->fee())
+				  << ", a: " << Ombre::Wallet::displayAmount(t->amount())
+				  << ", f: " << Ombre::Wallet::displayAmount(t->fee())
 				  << ", h: " << t->hash()
 				  << ", pid: " << t->paymentId()
 				  << std::endl;
@@ -123,8 +123,8 @@ struct Utils
 
 	static std::string get_wallet_address(const std::string &filename, const std::string &password)
 	{
-		Ryo::WalletManager *wmgr = Ryo::WalletManagerFactory::getWalletManager();
-		Ryo::Wallet *w = wmgr->openWallet(filename, password, Ryo::NetworkType::TESTNET);
+		Ombre::WalletManager *wmgr = Ombre::WalletManagerFactory::getWalletManager();
+		Ombre::Wallet *w = wmgr->openWallet(filename, password, Ombre::NetworkType::TESTNET);
 		std::string result = w->mainAddress();
 		wmgr->closeWallet(w);
 		return result;
@@ -133,13 +133,13 @@ struct Utils
 
 struct WalletManagerTest : public testing::Test
 {
-	Ryo::WalletManager *wmgr;
+	Ombre::WalletManager *wmgr;
 
 	WalletManagerTest()
 	{
 		std::cout << __FUNCTION__ << std::endl;
-		wmgr = Ryo::WalletManagerFactory::getWalletManager();
-		// Ryo::WalletManagerFactory::setLogLevel(Ryo::WalletManagerFactory::LogLevel_4);
+		wmgr = Ombre::WalletManagerFactory::getWalletManager();
+		// Ombre::WalletManagerFactory::setLogLevel(Ombre::WalletManagerFactory::LogLevel_4);
 		Utils::deleteWallet(WALLET_NAME);
 		Utils::deleteDir(boost::filesystem::path(WALLET_NAME_WITH_DIR).parent_path().string());
 	}
@@ -153,12 +153,12 @@ struct WalletManagerTest : public testing::Test
 
 struct WalletManagerMainnetTest : public testing::Test
 {
-	Ryo::WalletManager *wmgr;
+	Ombre::WalletManager *wmgr;
 
 	WalletManagerMainnetTest()
 	{
 		std::cout << __FUNCTION__ << std::endl;
-		wmgr = Ryo::WalletManagerFactory::getWalletManager();
+		wmgr = Ombre::WalletManagerFactory::getWalletManager();
 		Utils::deleteWallet(WALLET_NAME_MAINNET);
 	}
 
@@ -170,29 +170,29 @@ struct WalletManagerMainnetTest : public testing::Test
 
 struct WalletTest1 : public testing::Test
 {
-	Ryo::WalletManager *wmgr;
+	Ombre::WalletManager *wmgr;
 
 	WalletTest1()
 	{
-		wmgr = Ryo::WalletManagerFactory::getWalletManager();
+		wmgr = Ombre::WalletManagerFactory::getWalletManager();
 	}
 };
 
 struct WalletTest2 : public testing::Test
 {
-	Ryo::WalletManager *wmgr;
+	Ombre::WalletManager *wmgr;
 
 	WalletTest2()
 	{
-		wmgr = Ryo::WalletManagerFactory::getWalletManager();
+		wmgr = Ombre::WalletManagerFactory::getWalletManager();
 	}
 };
 
 TEST_F(WalletManagerTest, WalletManagerCreatesWallet)
 {
 
-	Ryo::Wallet *wallet = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet->status() == Ryo::Wallet::Status_Ok);
+	Ombre::Wallet *wallet = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(!wallet->seed().empty());
 	std::vector<std::string> words;
 	std::string seed = wallet->seed();
@@ -207,39 +207,39 @@ TEST_F(WalletManagerTest, WalletManagerCreatesWallet)
 TEST_F(WalletManagerTest, WalletManagerOpensWallet)
 {
 
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
-	Ryo::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet2->status() == Ryo::Wallet::Status_Ok);
+	Ombre::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet2->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet2->seed() == seed1);
 	std::cout << "** seed: " << wallet2->seed() << std::endl;
 }
 
 TEST_F(WalletManagerTest, WalletMaxAmountAsString)
 {
-	LOG_PRINT_L3("max amount: " << Ryo::Wallet::displayAmount(
-					 Ryo::Wallet::maximumAllowedAmount()));
+	LOG_PRINT_L3("max amount: " << Ombre::Wallet::displayAmount(
+					 Ombre::Wallet::maximumAllowedAmount()));
 }
 
 TEST_F(WalletManagerTest, WalletAmountFromString)
 {
-	uint64_t amount = Ryo::Wallet::amountFromString("18446740");
+	uint64_t amount = Ombre::Wallet::amountFromString("18446740");
 	ASSERT_TRUE(amount > 0);
-	amount = Ryo::Wallet::amountFromString("11000000000000");
+	amount = Ombre::Wallet::amountFromString("11000000000000");
 	ASSERT_FALSE(amount > 0);
-	amount = Ryo::Wallet::amountFromString("0.0");
+	amount = Ombre::Wallet::amountFromString("0.0");
 	ASSERT_FALSE(amount > 0);
-	amount = Ryo::Wallet::amountFromString("10.1");
+	amount = Ombre::Wallet::amountFromString("10.1");
 	ASSERT_TRUE(amount > 0);
 }
 
-void open_wallet_helper(Ryo::WalletManager *wmgr, Ryo::Wallet **wallet, const std::string &pass, boost::mutex *mutex)
+void open_wallet_helper(Ombre::WalletManager *wmgr, Ombre::Wallet **wallet, const std::string &pass, boost::mutex *mutex)
 {
 	if(mutex)
 		mutex->lock();
 	LOG_PRINT_L3("opening wallet in thread: " << boost::this_thread::get_id());
-	*wallet = wmgr->openWallet(WALLET_NAME, pass, Ryo::NetworkType::TESTNET);
+	*wallet = wmgr->openWallet(WALLET_NAME, pass, Ombre::NetworkType::TESTNET);
 	LOG_PRINT_L3("wallet address: " << (*wallet)->mainAddress());
 	LOG_PRINT_L3("wallet status: " << (*wallet)->status());
 	LOG_PRINT_L3("closing wallet in thread: " << boost::this_thread::get_id());
@@ -252,23 +252,23 @@ void open_wallet_helper(Ryo::WalletManager *wmgr, Ryo::Wallet **wallet, const st
 //    // create password protected wallet
 //    std::string wallet_pass = "password";
 //    std::string wrong_wallet_pass = "1111";
-//    Ryo::Wallet * wallet1 = wmgr->createWallet(WALLET_NAME, wallet_pass, WALLET_LANG, Ryo::NetworkType::TESTNET);
+//    Ombre::Wallet * wallet1 = wmgr->createWallet(WALLET_NAME, wallet_pass, WALLET_LANG, Ombre::NetworkType::TESTNET);
 //    std::string seed1 = wallet1->seed();
 //    ASSERT_TRUE(wmgr->closeWallet(wallet1));
 
-//    Ryo::Wallet *wallet2 = nullptr;
-//    Ryo::Wallet *wallet3 = nullptr;
+//    Ombre::Wallet *wallet2 = nullptr;
+//    Ombre::Wallet *wallet3 = nullptr;
 
 //    std::mutex mutex;
 //    std::thread thread1(open_wallet, wmgr, &wallet2, wrong_wallet_pass, &mutex);
 //    thread1.join();
-//    ASSERT_TRUE(wallet2->status() != Ryo::Wallet::Status_Ok);
+//    ASSERT_TRUE(wallet2->status() != Ombre::Wallet::Status_Ok);
 //    ASSERT_TRUE(wmgr->closeWallet(wallet2));
 
 //    std::thread thread2(open_wallet, wmgr, &wallet3, wallet_pass, &mutex);
 //    thread2.join();
 
-//    ASSERT_TRUE(wallet3->status() == Ryo::Wallet::Status_Ok);
+//    ASSERT_TRUE(wallet3->status() == Ombre::Wallet::Status_Ok);
 //    ASSERT_TRUE(wmgr->closeWallet(wallet3));
 //}
 
@@ -277,76 +277,76 @@ TEST_F(WalletManagerTest, WalletManagerOpensWalletWithPasswordAndReopen)
 	// create password protected wallet
 	std::string wallet_pass = "password";
 	std::string wrong_wallet_pass = "1111";
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, wallet_pass, WALLET_LANG, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, wallet_pass, WALLET_LANG, Ombre::NetworkType::TESTNET);
 	std::string seed1 = wallet1->seed();
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
 
-	Ryo::Wallet *wallet2 = nullptr;
-	Ryo::Wallet *wallet3 = nullptr;
+	Ombre::Wallet *wallet2 = nullptr;
+	Ombre::Wallet *wallet3 = nullptr;
 	boost::mutex mutex;
 
 	open_wallet_helper(wmgr, &wallet2, wrong_wallet_pass, nullptr);
 	ASSERT_TRUE(wallet2 != nullptr);
-	ASSERT_TRUE(wallet2->status() != Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet2->status() != Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wmgr->closeWallet(wallet2));
 
 	open_wallet_helper(wmgr, &wallet3, wallet_pass, nullptr);
 	ASSERT_TRUE(wallet3 != nullptr);
-	ASSERT_TRUE(wallet3->status() == Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet3->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wmgr->closeWallet(wallet3));
 }
 
 TEST_F(WalletManagerTest, WalletManagerStoresWallet)
 {
 
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	wallet1->store("");
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
-	Ryo::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet2->status() == Ryo::Wallet::Status_Ok);
+	Ombre::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet2->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet2->seed() == seed1);
 }
 
 TEST_F(WalletManagerTest, WalletManagerMovesWallet)
 {
 
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string WALLET_NAME_MOVED = std::string("/tmp/") + WALLET_NAME + ".moved";
 	std::string seed1 = wallet1->seed();
 	ASSERT_TRUE(wallet1->store(WALLET_NAME_MOVED));
 
-	Ryo::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME_MOVED, WALLET_PASS, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME_MOVED, WALLET_PASS, Ombre::NetworkType::MAINNET);
 	ASSERT_TRUE(wallet2->filename() == WALLET_NAME_MOVED);
 	ASSERT_TRUE(wallet2->keysFilename() == WALLET_NAME_MOVED + ".keys");
-	ASSERT_TRUE(wallet2->status() == Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet2->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet2->seed() == seed1);
 }
 
 TEST_F(WalletManagerTest, WalletManagerChangesPassword)
 {
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	ASSERT_TRUE(wallet1->setPassword(WALLET_PASS2));
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
-	Ryo::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME, WALLET_PASS2, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet2->status() == Ryo::Wallet::Status_Ok);
+	Ombre::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME, WALLET_PASS2, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet2->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet2->seed() == seed1);
 	ASSERT_TRUE(wmgr->closeWallet(wallet2));
-	Ryo::Wallet *wallet3 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_FALSE(wallet3->status() == Ryo::Wallet::Status_Ok);
+	Ombre::Wallet *wallet3 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_FALSE(wallet3->status() == Ombre::Wallet::Status_Ok);
 }
 
 TEST_F(WalletManagerTest, WalletManagerRecoversWallet)
 {
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	std::string address1 = wallet1->mainAddress();
 	ASSERT_FALSE(address1.empty());
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
 	Utils::deleteWallet(WALLET_NAME);
-	Ryo::Wallet *wallet2 = wmgr->recoveryWallet(WALLET_NAME, seed1, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet2->status() == Ryo::Wallet::Status_Ok);
+	Ombre::Wallet *wallet2 = wmgr->recoveryWallet(WALLET_NAME, seed1, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet2->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet2->seed() == seed1);
 	ASSERT_TRUE(wallet2->mainAddress() == address1);
 	ASSERT_TRUE(wmgr->closeWallet(wallet2));
@@ -354,15 +354,15 @@ TEST_F(WalletManagerTest, WalletManagerRecoversWallet)
 
 TEST_F(WalletManagerTest, WalletManagerStoresWallet1)
 {
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	std::string address1 = wallet1->mainAddress();
 
 	ASSERT_TRUE(wallet1->store(""));
 	ASSERT_TRUE(wallet1->store(WALLET_NAME_COPY));
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
-	Ryo::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME_COPY, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet2->status() == Ryo::Wallet::Status_Ok);
+	Ombre::Wallet *wallet2 = wmgr->openWallet(WALLET_NAME_COPY, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet2->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet2->seed() == seed1);
 	ASSERT_TRUE(wallet2->mainAddress() == address1);
 	ASSERT_TRUE(wmgr->closeWallet(wallet2));
@@ -370,15 +370,15 @@ TEST_F(WalletManagerTest, WalletManagerStoresWallet1)
 
 TEST_F(WalletManagerTest, WalletManagerStoresWallet2)
 {
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	std::string address1 = wallet1->mainAddress();
 
 	ASSERT_TRUE(wallet1->store(WALLET_NAME_WITH_DIR));
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
 
-	wallet1 = wmgr->openWallet(WALLET_NAME_WITH_DIR, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet1->status() == Ryo::Wallet::Status_Ok);
+	wallet1 = wmgr->openWallet(WALLET_NAME_WITH_DIR, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet1->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet1->seed() == seed1);
 	ASSERT_TRUE(wallet1->mainAddress() == address1);
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
@@ -386,21 +386,21 @@ TEST_F(WalletManagerTest, WalletManagerStoresWallet2)
 
 TEST_F(WalletManagerTest, WalletManagerStoresWallet3)
 {
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	std::string address1 = wallet1->mainAddress();
 
 	ASSERT_FALSE(wallet1->store(WALLET_NAME_WITH_DIR_NON_WRITABLE));
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
 
-	wallet1 = wmgr->openWallet(WALLET_NAME_WITH_DIR_NON_WRITABLE, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_FALSE(wallet1->status() == Ryo::Wallet::Status_Ok);
+	wallet1 = wmgr->openWallet(WALLET_NAME_WITH_DIR_NON_WRITABLE, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_FALSE(wallet1->status() == Ombre::Wallet::Status_Ok);
 
 	// "close" always returns true;
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
 
-	wallet1 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet1->status() == Ryo::Wallet::Status_Ok);
+	wallet1 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet1->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet1->seed() == seed1);
 	ASSERT_TRUE(wallet1->mainAddress() == address1);
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
@@ -408,20 +408,20 @@ TEST_F(WalletManagerTest, WalletManagerStoresWallet3)
 
 TEST_F(WalletManagerTest, WalletManagerStoresWallet4)
 {
-	Ryo::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet1 = wmgr->createWallet(WALLET_NAME, WALLET_PASS, WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed1 = wallet1->seed();
 	std::string address1 = wallet1->mainAddress();
 
 	ASSERT_TRUE(wallet1->store(""));
-	ASSERT_TRUE(wallet1->status() == Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet1->status() == Ombre::Wallet::Status_Ok);
 
 	ASSERT_TRUE(wallet1->store(""));
-	ASSERT_TRUE(wallet1->status() == Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet1->status() == Ombre::Wallet::Status_Ok);
 
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
 
-	wallet1 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet1->status() == Ryo::Wallet::Status_Ok);
+	wallet1 = wmgr->openWallet(WALLET_NAME, WALLET_PASS, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet1->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet1->seed() == seed1);
 	ASSERT_TRUE(wallet1->mainAddress() == address1);
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
@@ -440,29 +440,29 @@ TEST_F(WalletManagerTest, WalletManagerFindsWallet)
 
 TEST_F(WalletTest1, WalletGeneratesPaymentId)
 {
-	std::string payment_id = Ryo::Wallet::genPaymentId();
+	std::string payment_id = Ombre::Wallet::genPaymentId();
 	ASSERT_TRUE(payment_id.length() == 16);
 }
 
 TEST_F(WalletTest1, WalletGeneratesIntegratedAddress)
 {
-	std::string payment_id = Ryo::Wallet::genPaymentId();
+	std::string payment_id = Ombre::Wallet::genPaymentId();
 
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	std::string integrated_address = wallet1->integratedAddress(payment_id);
 	ASSERT_TRUE(integrated_address.length() == 106);
 }
 
 TEST_F(WalletTest1, WalletShowsBalance)
 {
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	ASSERT_TRUE(wallet1->balance(0) > 0);
 	ASSERT_TRUE(wallet1->unlockedBalance(0) > 0);
 
 	uint64_t balance1 = wallet1->balance(0);
 	uint64_t unlockedBalance1 = wallet1->unlockedBalance(0);
 	ASSERT_TRUE(wmgr->closeWallet(wallet1));
-	Ryo::Wallet *wallet2 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet2 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 
 	ASSERT_TRUE(balance1 == wallet2->balance(0));
 	std::cout << "wallet balance: " << wallet2->balance(0) << std::endl;
@@ -473,21 +473,21 @@ TEST_F(WalletTest1, WalletShowsBalance)
 
 TEST_F(WalletTest1, WalletReturnsCurrentBlockHeight)
 {
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	ASSERT_TRUE(wallet1->blockChainHeight() > 0);
 	wmgr->closeWallet(wallet1);
 }
 
 TEST_F(WalletTest1, WalletReturnsDaemonBlockHeight)
 {
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// wallet not connected to daemon
 	ASSERT_TRUE(wallet1->daemonBlockChainHeight() == 0);
-	ASSERT_TRUE(wallet1->status() != Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet1->status() != Ombre::Wallet::Status_Ok);
 	ASSERT_FALSE(wallet1->errorString().empty());
 	wmgr->closeWallet(wallet1);
 
-	wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// wallet connected to daemon
 	wallet1->init(TESTNET_DAEMON_ADDRESS, 0);
 	ASSERT_TRUE(wallet1->daemonBlockChainHeight() > 0);
@@ -499,7 +499,7 @@ TEST_F(WalletTest1, WalletRefresh)
 {
 
 	std::cout << "Opening wallet: " << CURRENT_SRC_WALLET << std::endl;
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	std::cout << "connecting to daemon: " << TESTNET_DAEMON_ADDRESS << std::endl;
 	ASSERT_TRUE(wallet1->init(TESTNET_DAEMON_ADDRESS, 0));
@@ -509,35 +509,35 @@ TEST_F(WalletTest1, WalletRefresh)
 
 TEST_F(WalletTest1, WalletConvertsToString)
 {
-	std::string strAmount = Ryo::Wallet::displayAmount(AMOUNT_5XMR);
-	ASSERT_TRUE(AMOUNT_5XMR == Ryo::Wallet::amountFromString(strAmount));
+	std::string strAmount = Ombre::Wallet::displayAmount(AMOUNT_5XMR);
+	ASSERT_TRUE(AMOUNT_5XMR == Ombre::Wallet::amountFromString(strAmount));
 
-	ASSERT_TRUE(AMOUNT_5XMR == Ryo::Wallet::amountFromDouble(5.0));
-	ASSERT_TRUE(AMOUNT_10XMR == Ryo::Wallet::amountFromDouble(10.0));
-	ASSERT_TRUE(AMOUNT_1XMR == Ryo::Wallet::amountFromDouble(1.0));
+	ASSERT_TRUE(AMOUNT_5XMR == Ombre::Wallet::amountFromDouble(5.0));
+	ASSERT_TRUE(AMOUNT_10XMR == Ombre::Wallet::amountFromDouble(10.0));
+	ASSERT_TRUE(AMOUNT_1XMR == Ombre::Wallet::amountFromDouble(1.0));
 }
 
 TEST_F(WalletTest1, WalletTransaction)
 
 {
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet1->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet1->refresh());
 	uint64_t balance = wallet1->balance(0);
-	ASSERT_TRUE(wallet1->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(wallet1->status() == Ombre::PendingTransaction::Status_Ok);
 
 	std::string recepient_address = Utils::get_wallet_address(CURRENT_DST_WALLET, TESTNET_WALLET_PASS);
 	const int MIXIN_COUNT = 4;
 
-	Ryo::PendingTransaction *transaction = wallet1->createTransaction(recepient_address,
+	Ombre::PendingTransaction *transaction = wallet1->createTransaction(recepient_address,
 																		 PAYMENT_ID_EMPTY,
 																		 AMOUNT_10XMR,
 																		 MIXIN_COUNT,
-																		 Ryo::PendingTransaction::Priority_Medium,
+																		 Ombre::PendingTransaction::Priority_Medium,
 																		 0,
 																		 std::set<uint32_t>{});
-	ASSERT_TRUE(transaction->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(transaction->status() == Ombre::PendingTransaction::Status_Ok);
 	wallet1->refresh();
 
 	ASSERT_TRUE(wallet1->balance(0) == balance);
@@ -567,26 +567,26 @@ TEST_F(WalletTest1, WalletTransactionWithMixin)
 
 	std::string payment_id = "";
 
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet1->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet1->refresh());
 	uint64_t balance = wallet1->balance(0);
-	ASSERT_TRUE(wallet1->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(wallet1->status() == Ombre::PendingTransaction::Status_Ok);
 
 	std::string recepient_address = Utils::get_wallet_address(CURRENT_DST_WALLET, TESTNET_WALLET_PASS);
 	for(auto mixin : mixins)
 	{
 		std::cerr << "Transaction mixin count: " << mixin << std::endl;
 
-		Ryo::PendingTransaction *transaction = wallet1->createTransaction(
-			recepient_address, payment_id, AMOUNT_5XMR, mixin, Ryo::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
+		Ombre::PendingTransaction *transaction = wallet1->createTransaction(
+			recepient_address, payment_id, AMOUNT_5XMR, mixin, Ombre::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
 
 		std::cerr << "Transaction status: " << transaction->status() << std::endl;
-		std::cerr << "Transaction fee: " << Ryo::Wallet::displayAmount(transaction->fee()) << std::endl;
+		std::cerr << "Transaction fee: " << Ombre::Wallet::displayAmount(transaction->fee()) << std::endl;
 		std::cerr << "Transaction error: " << transaction->errorString() << std::endl;
-		ASSERT_TRUE(transaction->status() == Ryo::PendingTransaction::Status_Ok);
+		ASSERT_TRUE(transaction->status() == Ombre::PendingTransaction::Status_Ok);
 		wallet1->disposeTransaction(transaction);
 	}
 
@@ -601,34 +601,34 @@ TEST_F(WalletTest1, WalletTransactionWithPriority)
 
 	std::string payment_id = "";
 
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet1->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet1->refresh());
 	uint64_t balance = wallet1->balance(0);
-	ASSERT_TRUE(wallet1->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(wallet1->status() == Ombre::PendingTransaction::Status_Ok);
 
 	std::string recepient_address = Utils::get_wallet_address(CURRENT_DST_WALLET, TESTNET_WALLET_PASS);
 	uint32_t mixin = 2;
 	uint64_t fee = 0;
 
-	std::vector<Ryo::PendingTransaction::Priority> priorities = {
-		Ryo::PendingTransaction::Priority_Low,
-		Ryo::PendingTransaction::Priority_Medium,
-		Ryo::PendingTransaction::Priority_High};
+	std::vector<Ombre::PendingTransaction::Priority> priorities = {
+		Ombre::PendingTransaction::Priority_Low,
+		Ombre::PendingTransaction::Priority_Medium,
+		Ombre::PendingTransaction::Priority_High};
 
 	for(auto it = priorities.begin(); it != priorities.end(); ++it)
 	{
 		std::cerr << "Transaction priority: " << *it << std::endl;
 
-		Ryo::PendingTransaction *transaction = wallet1->createTransaction(
+		Ombre::PendingTransaction *transaction = wallet1->createTransaction(
 			recepient_address, payment_id, AMOUNT_5XMR, mixin, *it, 0, std::set<uint32_t>{});
 		std::cerr << "Transaction status: " << transaction->status() << std::endl;
-		std::cerr << "Transaction fee: " << Ryo::Wallet::displayAmount(transaction->fee()) << std::endl;
+		std::cerr << "Transaction fee: " << Ombre::Wallet::displayAmount(transaction->fee()) << std::endl;
 		std::cerr << "Transaction error: " << transaction->errorString() << std::endl;
 		ASSERT_TRUE(transaction->fee() > fee);
-		ASSERT_TRUE(transaction->status() == Ryo::PendingTransaction::Status_Ok);
+		ASSERT_TRUE(transaction->status() == Ombre::PendingTransaction::Status_Ok);
 		fee = transaction->fee();
 		wallet1->disposeTransaction(transaction);
 	}
@@ -639,11 +639,11 @@ TEST_F(WalletTest1, WalletTransactionWithPriority)
 
 TEST_F(WalletTest1, WalletHistory)
 {
-	Ryo::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet1 = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet1->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet1->refresh());
-	Ryo::TransactionHistory *history = wallet1->history();
+	Ombre::TransactionHistory *history = wallet1->history();
 	history->refresh();
 	ASSERT_TRUE(history->count() > 0);
 
@@ -657,11 +657,11 @@ TEST_F(WalletTest1, WalletHistory)
 TEST_F(WalletTest1, WalletTransactionAndHistory)
 {
 	return;
-	Ryo::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet_src->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet_src->refresh());
-	Ryo::TransactionHistory *history = wallet_src->history();
+	Ombre::TransactionHistory *history = wallet_src->history();
 	history->refresh();
 	ASSERT_TRUE(history->count() > 0);
 	size_t count1 = history->count();
@@ -675,11 +675,11 @@ TEST_F(WalletTest1, WalletTransactionAndHistory)
 
 	std::string wallet4_addr = Utils::get_wallet_address(CURRENT_DST_WALLET, TESTNET_WALLET_PASS);
 
-	Ryo::PendingTransaction *tx = wallet_src->createTransaction(wallet4_addr,
+	Ombre::PendingTransaction *tx = wallet_src->createTransaction(wallet4_addr,
 																   PAYMENT_ID_EMPTY,
-																   AMOUNT_10XMR * 5, 1, Ryo::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
+																   AMOUNT_10XMR * 5, 1, Ombre::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
 
-	ASSERT_TRUE(tx->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(tx->status() == Ombre::PendingTransaction::Status_Ok);
 	ASSERT_TRUE(tx->commit());
 	history = wallet_src->history();
 	history->refresh();
@@ -696,11 +696,11 @@ TEST_F(WalletTest1, WalletTransactionAndHistory)
 TEST_F(WalletTest1, WalletTransactionWithPaymentId)
 {
 
-	Ryo::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet_src->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet_src->refresh());
-	Ryo::TransactionHistory *history = wallet_src->history();
+	Ombre::TransactionHistory *history = wallet_src->history();
 	history->refresh();
 	ASSERT_TRUE(history->count() > 0);
 	size_t count1 = history->count();
@@ -714,14 +714,14 @@ TEST_F(WalletTest1, WalletTransactionWithPaymentId)
 
 	std::string wallet4_addr = Utils::get_wallet_address(CURRENT_DST_WALLET, TESTNET_WALLET_PASS);
 
-	std::string payment_id = Ryo::Wallet::genPaymentId();
+	std::string payment_id = Ombre::Wallet::genPaymentId();
 	ASSERT_TRUE(payment_id.length() == 16);
 
-	Ryo::PendingTransaction *tx = wallet_src->createTransaction(wallet4_addr,
+	Ombre::PendingTransaction *tx = wallet_src->createTransaction(wallet4_addr,
 																   payment_id,
-																   AMOUNT_1XMR, 1, Ryo::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
+																   AMOUNT_1XMR, 1, Ombre::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
 
-	ASSERT_TRUE(tx->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(tx->status() == Ombre::PendingTransaction::Status_Ok);
 	ASSERT_TRUE(tx->commit());
 	history = wallet_src->history();
 	history->refresh();
@@ -743,10 +743,10 @@ TEST_F(WalletTest1, WalletTransactionWithPaymentId)
 	ASSERT_TRUE(payment_id_in_history);
 }
 
-struct MyWalletListener : public Ryo::WalletListener
+struct MyWalletListener : public Ombre::WalletListener
 {
 
-	Ryo::Wallet *wallet;
+	Ombre::Wallet *wallet;
 	uint64_t total_tx;
 	uint64_t total_rx;
 	boost::mutex mutex;
@@ -761,7 +761,7 @@ struct MyWalletListener : public Ryo::WalletListener
 	bool update_triggered;
 	bool refresh_triggered;
 
-	MyWalletListener(Ryo::Wallet *wallet)
+	MyWalletListener(Ombre::Wallet *wallet)
 		: total_tx(0), total_rx(0)
 	{
 		reset();
@@ -833,7 +833,7 @@ struct MyWalletListener : public Ryo::WalletListener
 TEST_F(WalletTest2, WalletCallBackRefreshedSync)
 {
 
-	Ryo::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	MyWalletListener *wallet_src_listener = new MyWalletListener(wallet_src);
 	ASSERT_TRUE(wallet_src->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet_src_listener->refresh_triggered);
@@ -847,7 +847,7 @@ TEST_F(WalletTest2, WalletCallBackRefreshedSync)
 TEST_F(WalletTest2, WalletCallBackRefreshedAsync)
 {
 
-	Ryo::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	MyWalletListener *wallet_src_listener = new MyWalletListener(wallet_src);
 
 	boost::chrono::seconds wait_for = boost::chrono::seconds(20);
@@ -866,25 +866,25 @@ TEST_F(WalletTest2, WalletCallBackRefreshedAsync)
 TEST_F(WalletTest2, WalletCallbackSent)
 {
 
-	Ryo::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet_src->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet_src->refresh());
 	MyWalletListener *wallet_src_listener = new MyWalletListener(wallet_src);
 	uint64_t balance = wallet_src->balance(0);
 	std::cout << "** Balance: " << wallet_src->displayAmount(wallet_src->balance(0)) << std::endl;
-	Ryo::Wallet *wallet_dst = wmgr->openWallet(CURRENT_DST_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_dst = wmgr->openWallet(CURRENT_DST_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 
 	uint64_t amount = AMOUNT_1XMR * 5;
-	std::cout << "** Sending " << Ryo::Wallet::displayAmount(amount) << " to " << wallet_dst->mainAddress();
+	std::cout << "** Sending " << Ombre::Wallet::displayAmount(amount) << " to " << wallet_dst->mainAddress();
 
-	Ryo::PendingTransaction *tx = wallet_src->createTransaction(wallet_dst->mainAddress(),
+	Ombre::PendingTransaction *tx = wallet_src->createTransaction(wallet_dst->mainAddress(),
 																   PAYMENT_ID_EMPTY,
-																   amount, 1, Ryo::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
-	std::cout << "** Committing transaction: " << Ryo::Wallet::displayAmount(tx->amount())
-			  << " with fee: " << Ryo::Wallet::displayAmount(tx->fee());
+																   amount, 1, Ombre::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
+	std::cout << "** Committing transaction: " << Ombre::Wallet::displayAmount(tx->amount())
+			  << " with fee: " << Ombre::Wallet::displayAmount(tx->fee());
 
-	ASSERT_TRUE(tx->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(tx->status() == Ombre::PendingTransaction::Status_Ok);
 	ASSERT_TRUE(tx->commit());
 
 	boost::chrono::seconds wait_for = boost::chrono::seconds(60 * 3);
@@ -903,13 +903,13 @@ TEST_F(WalletTest2, WalletCallbackSent)
 TEST_F(WalletTest2, WalletCallbackReceived)
 {
 
-	Ryo::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_src = wmgr->openWallet(CURRENT_SRC_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet_src->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet_src->refresh());
 	std::cout << "** Balance src1: " << wallet_src->displayAmount(wallet_src->balance(0)) << std::endl;
 
-	Ryo::Wallet *wallet_dst = wmgr->openWallet(CURRENT_DST_WALLET, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_dst = wmgr->openWallet(CURRENT_DST_WALLET, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	ASSERT_TRUE(wallet_dst->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet_dst->refresh());
 	uint64_t balance = wallet_dst->balance(0);
@@ -917,15 +917,15 @@ TEST_F(WalletTest2, WalletCallbackReceived)
 	std::unique_ptr<MyWalletListener> wallet_dst_listener(new MyWalletListener(wallet_dst));
 
 	uint64_t amount = AMOUNT_1XMR * 5;
-	std::cout << "** Sending " << Ryo::Wallet::displayAmount(amount) << " to " << wallet_dst->mainAddress();
-	Ryo::PendingTransaction *tx = wallet_src->createTransaction(wallet_dst->mainAddress(),
+	std::cout << "** Sending " << Ombre::Wallet::displayAmount(amount) << " to " << wallet_dst->mainAddress();
+	Ombre::PendingTransaction *tx = wallet_src->createTransaction(wallet_dst->mainAddress(),
 																   PAYMENT_ID_EMPTY,
-																   amount, 1, Ryo::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
+																   amount, 1, Ombre::PendingTransaction::Priority_Medium, 0, std::set<uint32_t>{});
 
-	std::cout << "** Committing transaction: " << Ryo::Wallet::displayAmount(tx->amount())
-			  << " with fee: " << Ryo::Wallet::displayAmount(tx->fee());
+	std::cout << "** Committing transaction: " << Ombre::Wallet::displayAmount(tx->amount())
+			  << " with fee: " << Ombre::Wallet::displayAmount(tx->fee());
 
-	ASSERT_TRUE(tx->status() == Ryo::PendingTransaction::Status_Ok);
+	ASSERT_TRUE(tx->status() == Ombre::PendingTransaction::Status_Ok);
 	ASSERT_TRUE(tx->commit());
 
 	boost::chrono::seconds wait_for = boost::chrono::seconds(60 * 4);
@@ -948,7 +948,7 @@ TEST_F(WalletTest2, WalletCallbackReceived)
 TEST_F(WalletTest2, WalletCallbackNewBlock)
 {
 
-	Ryo::Wallet *wallet_src = wmgr->openWallet(TESTNET_WALLET5_NAME, TESTNET_WALLET_PASS, Ryo::NetworkType::TESTNET);
+	Ombre::Wallet *wallet_src = wmgr->openWallet(TESTNET_WALLET5_NAME, TESTNET_WALLET_PASS, Ombre::NetworkType::TESTNET);
 	// make sure testnet daemon is running
 	ASSERT_TRUE(wallet_src->init(TESTNET_DAEMON_ADDRESS, 0));
 	ASSERT_TRUE(wallet_src->refresh());
@@ -973,7 +973,7 @@ TEST_F(WalletTest2, WalletCallbackNewBlock)
 TEST_F(WalletManagerMainnetTest, CreateOpenAndRefreshWalletMainNetSync)
 {
 
-	Ryo::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::unique_ptr<MyWalletListener> wallet_listener(new MyWalletListener(wallet));
 	wallet->init(MAINNET_DAEMON_ADDRESS, 0);
 	std::cerr << "TEST: waiting on refresh lock...\n";
@@ -991,7 +991,7 @@ TEST_F(WalletManagerMainnetTest, CreateAndRefreshWalletMainNetAsync)
 	// supposing 120 seconds should be enough for fast refresh
 	int SECONDS_TO_REFRESH = 120;
 
-	Ryo::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::unique_ptr<MyWalletListener> wallet_listener(new MyWalletListener(wallet));
 
 	boost::chrono::seconds wait_for = boost::chrono::seconds(SECONDS_TO_REFRESH);
@@ -1001,7 +1001,7 @@ TEST_F(WalletManagerMainnetTest, CreateAndRefreshWalletMainNetAsync)
 	std::cerr << "TEST: waiting on refresh lock...\n";
 	wallet_listener->cv_refresh.wait_for(lock, wait_for);
 	std::cerr << "TEST: refresh lock acquired...\n";
-	ASSERT_TRUE(wallet->status() == Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet_listener->refresh_triggered);
 	ASSERT_TRUE(wallet->connected());
 	ASSERT_TRUE(wallet->blockChainHeight() == wallet->daemonBlockChainHeight());
@@ -1014,9 +1014,9 @@ TEST_F(WalletManagerMainnetTest, OpenAndRefreshWalletMainNetAsync)
 
 	// supposing 120 seconds should be enough for fast refresh
 	int SECONDS_TO_REFRESH = 120;
-	Ryo::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ombre::NetworkType::MAINNET);
 	wmgr->closeWallet(wallet);
-	wallet = wmgr->openWallet(WALLET_NAME_MAINNET, "", Ryo::NetworkType::MAINNET);
+	wallet = wmgr->openWallet(WALLET_NAME_MAINNET, "", Ombre::NetworkType::MAINNET);
 
 	std::unique_ptr<MyWalletListener> wallet_listener(new MyWalletListener(wallet));
 
@@ -1027,7 +1027,7 @@ TEST_F(WalletManagerMainnetTest, OpenAndRefreshWalletMainNetAsync)
 	std::cerr << "TEST: waiting on refresh lock...\n";
 	wallet_listener->cv_refresh.wait_for(lock, wait_for);
 	std::cerr << "TEST: refresh lock acquired...\n";
-	ASSERT_TRUE(wallet->status() == Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet_listener->refresh_triggered);
 	ASSERT_TRUE(wallet->connected());
 	ASSERT_TRUE(wallet->blockChainHeight() == wallet->daemonBlockChainHeight());
@@ -1040,7 +1040,7 @@ TEST_F(WalletManagerMainnetTest, RecoverAndRefreshWalletMainNetAsync)
 
 	// supposing 120 seconds should be enough for fast refresh
 	int SECONDS_TO_REFRESH = 120;
-	Ryo::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ryo::NetworkType::MAINNET);
+	Ombre::Wallet *wallet = wmgr->createWallet(WALLET_NAME_MAINNET, "", WALLET_LANG, Ombre::NetworkType::MAINNET);
 	std::string seed = wallet->seed();
 	std::string address = wallet->mainAddress();
 	wmgr->closeWallet(wallet);
@@ -1049,8 +1049,8 @@ TEST_F(WalletManagerMainnetTest, RecoverAndRefreshWalletMainNetAsync)
 	Utils::deleteWallet(WALLET_NAME_MAINNET);
 	// ..and recovering wallet from seed
 
-	wallet = wmgr->recoveryWallet(WALLET_NAME_MAINNET, seed, Ryo::NetworkType::MAINNET);
-	ASSERT_TRUE(wallet->status() == Ryo::Wallet::Status_Ok);
+	wallet = wmgr->recoveryWallet(WALLET_NAME_MAINNET, seed, Ombre::NetworkType::MAINNET);
+	ASSERT_TRUE(wallet->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_TRUE(wallet->mainAddress() == address);
 	std::unique_ptr<MyWalletListener> wallet_listener(new MyWalletListener(wallet));
 	boost::chrono::seconds wait_for = boost::chrono::seconds(SECONDS_TO_REFRESH);
@@ -1063,7 +1063,7 @@ TEST_F(WalletManagerMainnetTest, RecoverAndRefreshWalletMainNetAsync)
 	// as it needs much more than 120 seconds for mainnet
 
 	wallet_listener->cv_refresh.wait_for(lock, wait_for);
-	ASSERT_TRUE(wallet->status() == Ryo::Wallet::Status_Ok);
+	ASSERT_TRUE(wallet->status() == Ombre::Wallet::Status_Ok);
 	ASSERT_FALSE(wallet_listener->refresh_triggered);
 	ASSERT_TRUE(wallet->connected());
 	ASSERT_FALSE(wallet->blockChainHeight() == wallet->daemonBlockChainHeight());
@@ -1106,6 +1106,6 @@ int main(int argc, char **argv)
 	CURRENT_DST_WALLET = TESTNET_WALLET1_NAME;
 
 	::testing::InitGoogleTest(&argc, argv);
-	Ryo::WalletManagerFactory::setLogLevel(Ryo::WalletManagerFactory::LogLevel_Max);
+	Ombre::WalletManagerFactory::setLogLevel(Ombre::WalletManagerFactory::LogLevel_Max);
 	return RUN_ALL_TESTS();
 }

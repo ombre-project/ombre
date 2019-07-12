@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Copyright (c) 2014-2018, The Monero Project
 #
 # All rights reserved.
@@ -56,7 +56,7 @@ endif()
 
 cmake_minimum_required(VERSION 3.1.0)
 
-project(ryo)
+project(ombre)
 
 function (die msg)
   if (NOT WIN32)

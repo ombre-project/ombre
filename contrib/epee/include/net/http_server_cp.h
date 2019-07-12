@@ -30,8 +30,8 @@
 #include "abstract_tcp_server_cp.h"
 #include "http_server.h"
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net.http"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net.http"
 
 namespace epee
 {

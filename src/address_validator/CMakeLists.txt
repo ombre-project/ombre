@@ -1,4 +1,4 @@
-# Copyright (c) 2018, ryo-currency
+# Copyright (c) 2018, ombre-currency
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 # All rights reserved.
@@ -50,7 +50,7 @@ set(address_validator_private_headers
   address_validator.h
   writer.h)
 
-ryo_private_headers(address_validator
+ombre_private_headers(address_validator
   ${address_validator_private_headers})
 monero_add_executable(address_validator
   ${address_validator_sources}
@@ -62,5 +62,5 @@ target_link_libraries(address_validator
     fmt::fmt-header-only)
 set_property(TARGET address_validator
   PROPERTY
-    OUTPUT_NAME "ryo-address-validator")
+    OUTPUT_NAME "ombre-address-validator")
 install(TARGETS address_validator DESTINATION bin)

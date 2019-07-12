@@ -41,8 +41,8 @@
 #include <chrono>
 #include <random>
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net"
 
 #ifndef MIN_BYTES_WANTED
 #define MIN_BYTES_WANTED 512

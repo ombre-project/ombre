@@ -2,13 +2,13 @@
 /// @author rfree (current maintainer/user in monero.cc project - most of code is from CryptoNote)
 /// @brief This is the original cryptonote protocol network-events handler, modified by us
 
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -34,8 +34,8 @@
 #include "net/network_throttle-detail.hpp"
 #include "profile_tools.h"
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "net.cn"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "net.cn"
 
 #define MLOG_P2P_MESSAGE(x) MCINFO("net.p2p.msg", context << x)
 
@@ -1532,7 +1532,7 @@ bool t_cryptonote_protocol_handler<t_core>::on_connection_synchronized()
 	if(m_synchronized.compare_exchange_strong(val_expected, true))
 	{
 		MGINFO_YELLOW(ENDL << "**********************************************************************" << ENDL
-						   << "You are now synchronized with the network. You may now start ryo-wallet-cli." << ENDL
+						   << "You are now synchronized with the network. You may now start ombre-wallet-cli." << ENDL
 						   << ENDL
 						   << "Use the \"help\" command to see the list of available commands." << ENDL
 						   << "**********************************************************************");

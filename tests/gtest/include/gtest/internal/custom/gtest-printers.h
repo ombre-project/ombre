@@ -30,7 +30,7 @@
 // This file provides an injection point for custom printers in a local
 // installation of gTest.
 // It will be included from gtest-printers.h and the overrides in this file
-// will be visible to everyone.
+// will be visible to eveombrene.
 // See documentation at gtest/gtest-printers.h for details on how to define a
 // custom printer.
 //

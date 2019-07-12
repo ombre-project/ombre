@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -25,7 +25,7 @@
 
 namespace daemon_args
 {
-std::string const WINDOWS_SERVICE_NAME = "Ryo Daemon";
+std::string const WINDOWS_SERVICE_NAME = "Ombre Daemon";
 
 const command_line::arg_descriptor<std::string, false, true, 2> arg_config_file = {
 	"config-file", "Specify configuration file", (daemonizer::get_default_data_dir() / std::string(CRYPTONOTE_NAME ".conf")).string(), {{&cryptonote::arg_testnet_on, &cryptonote::arg_stagenet_on}}, [](std::array<bool, 2> testnet_stagenet, bool defaulted, std::string val) -> std::string {

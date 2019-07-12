@@ -38,7 +38,7 @@ static const struct
 	const char *spendkey;
 } test_addresses[] =
 	{
-		// working with legacy address because new ryo addresses can not be recreated out of the spendkey
+		// working with legacy address because new ombre addresses can not be recreated out of the spendkey
 		{"RYoTr1KP7tgJFQ4bTWto4MhM3qT4YA8gV3smuJyxucJgBDdCWehV4btgcyNb11MAUC7t9yPDUCwAoREVdyVNankWERkEddsUix3",
 		 "ee0085dbecc26a02415b0b7abab1ce0ef2b18a393d35e39ef5720dd5ba058806"},
 		{"RYoTr2S1o1efcYh16gDXipgq2zypYd6pBJ6iofYemM9P3YUy815iS5ujDfmmNhbWGJPs17nNjxYTNh8LkJdvP7Y4QrD3xC5Xhxy",

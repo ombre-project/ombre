@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -64,7 +64,7 @@ set(blockchain_import_private_headers
   bootstrap_serialization.h
   )
 
-ryo_private_headers(blockchain_import
+ombre_private_headers(blockchain_import
 	  ${blockchain_import_private_headers})
 
 set(blockchain_export_sources
@@ -79,7 +79,7 @@ set(blockchain_export_private_headers
   bootstrap_serialization.h
   )
 
-ryo_private_headers(blockchain_export
+ombre_private_headers(blockchain_export
 	  ${blockchain_export_private_headers})
 
 
@@ -93,7 +93,7 @@ set(blockchain_blackball_private_headers
   bootstrap_serialization.h
   )
 
-ryo_private_headers(blockchain_blackball
+ombre_private_headers(blockchain_blackball
 	  ${blockchain_blackball_private_headers})
 
 set(blockchain_usage_sources
@@ -102,7 +102,7 @@ set(blockchain_usage_sources
 
 set(blockchain_usage_private_headers)
 
-ryo_private_headers(blockchain_usage
+ombre_private_headers(blockchain_usage
 	  ${blockchain_usage_private_headers})
 
 
@@ -133,7 +133,7 @@ endif()
 
 set_property(TARGET blockchain_import
 	PROPERTY
-	OUTPUT_NAME "ryo-blockchain-import")
+	OUTPUT_NAME "ombre-blockchain-import")
 install(TARGETS blockchain_import DESTINATION bin)
 
 monero_add_executable(blockchain_export
@@ -156,7 +156,7 @@ target_link_libraries(blockchain_export
 
 set_property(TARGET blockchain_export
 	PROPERTY
-	OUTPUT_NAME "ryo-blockchain-export")
+	OUTPUT_NAME "ombre-blockchain-export")
 install(TARGETS blockchain_export DESTINATION bin)
 
 monero_add_executable(blockchain_blackball
@@ -181,7 +181,7 @@ target_link_libraries(blockchain_blackball
 
 set_property(TARGET blockchain_blackball
 	PROPERTY
-	OUTPUT_NAME "ryo-blockchain-blackball")
+	OUTPUT_NAME "ombre-blockchain-blackball")
 install(TARGETS blockchain_blackball DESTINATION bin)
 
 
@@ -205,6 +205,6 @@ target_link_libraries(blockchain_usage
 
 set_property(TARGET blockchain_usage
 	PROPERTY
-	OUTPUT_NAME "ryo-blockchain-usage")
+	OUTPUT_NAME "ombre-blockchain-usage")
 install(TARGETS blockchain_usage DESTINATION bin)
 

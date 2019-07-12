@@ -57,7 +57,7 @@ TEST(ringct, Borromean)
 
 	for(j = 0; j < N; j++)
 	{
-		indi[j] = (int)randRyoAmount(2);
+		indi[j] = (int)randOmbreAmount(2);
 
 		xv[j] = skGen();
 		if((int)indi[j] == 0)
@@ -158,7 +158,7 @@ TEST(ringct, range_proofs)
 	tie(sctmp, pctmp) = ctskpkGen(7000);
 	sc.push_back(sctmp);
 	pc.push_back(pctmp);
-	vector<ryo_amount> amounts;
+	vector<ombre_amount> amounts;
 	rct::keyV amount_keys;
 	key mask;
 
@@ -216,7 +216,7 @@ TEST(ringct, range_proofs_with_fee)
 	tie(sctmp, pctmp) = ctskpkGen(7000);
 	sc.push_back(sctmp);
 	pc.push_back(pctmp);
-	vector<ryo_amount> amounts;
+	vector<ombre_amount> amounts;
 	keyV amount_keys;
 	key mask;
 
@@ -269,9 +269,9 @@ TEST(ringct, simple)
 	ctkeyV sc, pc;
 	ctkey sctmp, pctmp;
 	//this vector corresponds to output amounts
-	vector<ryo_amount> outamounts;
+	vector<ombre_amount> outamounts;
 	//this vector corresponds to input amounts
-	vector<ryo_amount> inamounts;
+	vector<ombre_amount> inamounts;
 	//this keyV corresponds to destination pubkeys
 	keyV destinations;
 	keyV amount_keys;
@@ -311,7 +311,7 @@ TEST(ringct, simple)
 	key message = skGen(); //real message later (hash of txn..)
 
 	//compute sig with mixin 2
-	ryo_amount txnfee = 1;
+	ombre_amount txnfee = 1;
 
 	rctSig s = genRctSimple(message, sc, pc, destinations, inamounts, outamounts, amount_keys, NULL, NULL, txnfee, 2, hw::get_device("default"));
 
@@ -326,7 +326,7 @@ static rct::rctSig make_sample_rct_sig(int n_inputs, const uint64_t input_amount
 {
 	ctkeyV sc, pc;
 	ctkey sctmp, pctmp;
-	vector<ryo_amount> amounts;
+	vector<ombre_amount> amounts;
 	keyV destinations;
 	keyV amount_keys;
 	key Sk, Pk;
@@ -356,7 +356,7 @@ static rct::rctSig make_sample_simple_rct_sig(int n_inputs, const uint64_t input
 {
 	ctkeyV sc, pc;
 	ctkey sctmp, pctmp;
-	vector<ryo_amount> inamounts, outamounts;
+	vector<ombre_amount> inamounts, outamounts;
 	keyV destinations;
 	keyV amount_keys;
 	key Sk, Pk;
@@ -837,7 +837,7 @@ TEST(ringct, HPow2)
 	}
 }
 
-static const ryo_amount test_amounts[] = {0, 1, 2, 3, 4, 5, 10000, 10000000000000000000ull, 10203040506070809000ull, 123456789123456789};
+static const ombre_amount test_amounts[] = {0, 1, 2, 3, 4, 5, 10000, 10000000000000000000ull, 10203040506070809000ull, 123456789123456789};
 
 TEST(ringct, ecdh_roundtrip)
 {

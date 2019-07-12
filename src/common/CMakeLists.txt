@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -86,9 +86,9 @@ set(common_private_headers
   updates.h
   boost_locale.hpp)
 
-ryo_private_headers(common
+ombre_private_headers(common
   ${common_private_headers})
-ryo_add_library(common
+ombre_add_library(common
   ${common_sources}
   ${common_headers}
   ${common_private_headers}

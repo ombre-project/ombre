@@ -5,7 +5,7 @@
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -23,8 +23,8 @@
 using namespace crypto;
 using namespace std;
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "ringct"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "ringct"
 
 #define CHECK_AND_ASSERT_THROW_MES_L1(expr, message) \
 	{                                                \
@@ -105,14 +105,14 @@ tuple<key, key> skpkGen()
 }
 
 //generates C =aG + bH from b, a is given..
-void genC(key &C, const key &a, ryo_amount amount)
+void genC(key &C, const key &a, ombre_amount amount)
 {
 	key bH = scalarmultH(d2h(amount));
 	addKeys1(C, a, bH);
 }
 
 //generates a <secret , public> / Pedersen commitment to the amount
-tuple<ctkey, ctkey> ctskpkGen(ryo_amount amount)
+tuple<ctkey, ctkey> ctskpkGen(ombre_amount amount)
 {
 	ctkey sk, pk;
 	skpkGen(sk.dest, pk.dest);
@@ -133,14 +133,14 @@ tuple<ctkey, ctkey> ctskpkGen(const key &bH)
 	return make_tuple(sk, pk);
 }
 
-key zeroCommit(ryo_amount amount)
+key zeroCommit(ombre_amount amount)
 {
 	key am = d2h(amount);
 	key bH = scalarmultH(am);
 	return addKeys(G, bH);
 }
 
-key commit(ryo_amount amount, const key &mask)
+key commit(ombre_amount amount, const key &mask)
 {
 	key c = scalarmultBase(mask);
 	key am = d2h(amount);
@@ -150,7 +150,7 @@ key commit(ryo_amount amount, const key &mask)
 }
 
 //generates a random uint long long (for testing)
-ryo_amount randRyoAmount(ryo_amount upperlimit)
+ombre_amount randOmbreAmount(ombre_amount upperlimit)
 {
 	return h2d(skGen()) % (upperlimit);
 }

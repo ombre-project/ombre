@@ -29,8 +29,8 @@
 #include <wininet.h>
 #pragma comment(lib, "Wininet.lib")
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net.http"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net.http"
 
 namespace epee
 {

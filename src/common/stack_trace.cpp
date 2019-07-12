@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -36,10 +36,10 @@
 #include "misc_log_ex.h"
 #include <boost/algorithm/string.hpp>
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "stacktrace"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "stacktrace"
 
-#define ST_LOG(x) CINFO(el::base::Writer, el::base::DispatchAction::FileOnlyLog, RYO_DEFAULT_LOG_CATEGORY) << x
+#define ST_LOG(x) CINFO(el::base::Writer, el::base::DispatchAction::FileOnlyLog, OMBRE_DEFAULT_LOG_CATEGORY) << x
 
 // from http://stackoverflow.com/questions/11665829/how-can-i-print-stack-trace-for-caught-exceptions-in-c-code-injection-in-c
 

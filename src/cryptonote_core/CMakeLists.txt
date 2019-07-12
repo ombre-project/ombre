@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -63,9 +63,9 @@ else()
   set(Blocks "")
 endif()
 
-ryo_private_headers(cryptonote_core
+ombre_private_headers(cryptonote_core
   ${cryptonote_core_private_headers})
-ryo_add_library(cryptonote_core
+ombre_add_library(cryptonote_core
   ${cryptonote_core_sources}
   ${cryptonote_core_headers}
   ${cryptonote_core_private_headers})

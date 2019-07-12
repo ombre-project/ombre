@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -31,8 +31,8 @@
 #include <boost/locale.hpp>
 #endif
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "wallet.wallet2"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "wallet.wallet2"
 
 // workaround for a suspected bug in pthread/kernel on MacOS X
 #ifdef __APPLE__
@@ -124,7 +124,7 @@ boost::optional<boost::program_options::variables_map> main(
 	command_line::add_arg(desc_params, arg_max_concurrency);
 	command_line::add_arg(desc_params, arg_config_file);
 
-	i18n_set_language("translations", "ryo", lang);
+	i18n_set_language("translations", "ombre", lang);
 
 	po::options_description desc_all;
 	desc_all.add(desc_general).add(desc_params);
@@ -135,8 +135,8 @@ boost::optional<boost::program_options::variables_map> main(
 
 		if(command_line::get_arg(vm, command_line::arg_help))
 		{
-			Print(print) << "Ryo '" << RYO_RELEASE_NAME << "' (" << RYO_VERSION_FULL << ")" << ENDL;
-			Print(print) << wallet_args::tr("This is the command line ryo wallet. It needs to connect to a ryo daemon to work correctly.") << ENDL;
+			Print(print) << "Ombre '" << OMBRE_RELEASE_NAME << "' (" << OMBRE_VERSION_FULL << ")" << ENDL;
+			Print(print) << wallet_args::tr("This is the command line ombre wallet. It needs to connect to a ombre daemon to work correctly.") << ENDL;
 			Print(print) << wallet_args::tr("Usage:") << ENDL << "  " << usage;
 			Print(print) << desc_all;
 			error_code = 0;
@@ -144,7 +144,7 @@ boost::optional<boost::program_options::variables_map> main(
 		}
 		else if(command_line::get_arg(vm, command_line::arg_version))
 		{
-			Print(print) << "Ryo '" << RYO_RELEASE_NAME << "' (" << RYO_VERSION_FULL << ")";
+			Print(print) << "Ombre '" << OMBRE_RELEASE_NAME << "' (" << OMBRE_VERSION_FULL << ")";
 			error_code = 0;
 			return false;
 		}
@@ -189,12 +189,12 @@ boost::optional<boost::program_options::variables_map> main(
 	if(!command_line::is_arg_defaulted(vm, arg_max_concurrency))
 		tools::set_max_concurrency(command_line::get_arg(vm, arg_max_concurrency));
 
-	Print(print) << "Ryo '" << RYO_RELEASE_NAME << "' (" << RYO_VERSION_FULL << ")";
+	Print(print) << "Ombre '" << OMBRE_RELEASE_NAME << "' (" << OMBRE_VERSION_FULL << ")";
 
 	if(!command_line::is_arg_defaulted(vm, arg_log_level))
 		MINFO("Setting log level = " << command_line::get_arg(vm, arg_log_level));
 	else
-		MINFO("Setting log levels = " << getenv("RYO_LOGS"));
+		MINFO("Setting log levels = " << getenv("OMBRE_LOGS"));
 	MINFO(wallet_args::tr("Logging to: ") << log_path);
 
 	Print(print) << boost::format(wallet_args::tr("Logging to %s")) % log_path;

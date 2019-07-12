@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -25,8 +25,8 @@
 #include "cryptonote_core/tx_pool.h"
 #include "version.h"
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "bcutil"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "bcutil"
 
 namespace po = boost::program_options;
 using namespace epee;
@@ -94,12 +94,12 @@ int main(int argc, char *argv[])
 
 	if(command_line::get_arg(vm, command_line::arg_help))
 	{
-		std::cout << "Ryo '" << RYO_RELEASE_NAME << "' (" << RYO_VERSION_FULL << ")" << ENDL << ENDL;
+		std::cout << "Ombre '" << OMBRE_RELEASE_NAME << "' (" << OMBRE_VERSION_FULL << ")" << ENDL << ENDL;
 		std::cout << desc_options << std::endl;
 		return 0;
 	}
 
-	mlog_configure(mlog_get_default_log_path("ryo-blockchain-export.log"), true);
+	mlog_configure(mlog_get_default_log_path("ombre-blockchain-export.log"), true);
 	if(!command_line::is_arg_defaulted(vm, arg_log_level))
 		mlog_set_log(command_line::get_arg(vm, arg_log_level).c_str());
 	else

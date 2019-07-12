@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -73,9 +73,9 @@ set(wallet_api_private_headers
   subaddress_account.h
   unsigned_transaction.h)
 
-ryo_private_headers(wallet_api
+ombre_private_headers(wallet_api
   ${wallet_api_private_headers})
-ryo_add_library(wallet_api
+ombre_add_library(wallet_api
   ${wallet_api_sources}
   ${wallet_api_headers}
   ${wallet_api_private_headers})

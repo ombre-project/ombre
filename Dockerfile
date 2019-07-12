@@ -88,7 +88,7 @@ RUN git clone https://github.com/jedisct1/libsodium.git -b ${SODIUM_VERSION} \
 
 # ncurses 
 # Needed for readline find module in cmake. Why is it not documented?
-# WARNING: ncurses 6.1 is not working correctly with RYO so we stay with the common 5.X
+# WARNING: ncurses 6.1 is not working correctly with OMBRE so we stay with the common 5.X
 ARG NCURSES_VERSION=5.9
 ARG NCURSES_HASH=9046298fb440324c9d4135ecea7879ffed8546dd1b58e59430ea07a4633f563b
 RUN curl -s -O ftp://ftp.gnu.org/pub/gnu/ncurses/ncurses-${NCURSES_VERSION}.tar.gz \
@@ -116,14 +116,14 @@ RUN apt-get update && \
 COPY --from=builder /src/build/release/bin/* /usr/local/bin/
 
 # Contains the blockchain
-VOLUME /root/.ryo
+VOLUME /root/.ombre
 
 # Generate your wallet via accessing the container and run:
 # cd /wallet
-# ryo-wallet-cli
+# ombre-wallet-cli
 VOLUME /wallet
 
 EXPOSE 18080
 EXPOSE 18081
 
-ENTRYPOINT ["ryod", "--p2p-bind-ip=0.0.0.0", "--p2p-bind-port=18080", "--rpc-bind-ip=0.0.0.0", "--rpc-bind-port=18081", "--non-interactive", "--confirm-external-bind"] 
+ENTRYPOINT ["ombred", "--p2p-bind-ip=0.0.0.0", "--p2p-bind-port=18080", "--rpc-bind-ip=0.0.0.0", "--rpc-bind-port=18081", "--non-interactive", "--confirm-external-bind"] 

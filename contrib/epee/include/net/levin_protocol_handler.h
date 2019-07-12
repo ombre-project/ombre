@@ -30,8 +30,8 @@
 #include "levin_base.h"
 #include <boost/uuid/uuid_generators.hpp>
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net"
 
 namespace epee
 {

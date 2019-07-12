@@ -51,8 +51,8 @@
 
 #include "../../../../src/cryptonote_core/cryptonote_core.h" // e.g. for the send_stop_signal()
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net"
 
 #define DEFAULT_TIMEOUT_MS_LOCAL boost::posix_time::milliseconds(120000) // 2 minutes
 #define DEFAULT_TIMEOUT_MS_REMOTE boost::posix_time::milliseconds(10000) // 10 seconds
@@ -452,7 +452,7 @@ bool connection<t_protocol_handler>::do_send(const void *ptr, size_t cb)
 				{
 					MDEBUG("do_send() DONE ***FAILED*** from packet=" << cb << " B for ptr=" << ptr);
 					MDEBUG("do_send() SEND was aborted in middle of big package - this is mostly harmless "
-						   << " (e.g. peer closed connection) but if it causes trouble tell us at https://github.com/ryo-currency/ryo. " << cb);
+						   << " (e.g. peer closed connection) but if it causes trouble tell us at https://github.com/ombre-currency/ombre. " << cb);
 					return false; // partial failure in sending
 				}
 				pos = pos + len;

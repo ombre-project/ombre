@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -88,7 +88,7 @@ set(daemon_private_headers
   ../p2p/p2p_protocol_defs.h
   ../p2p/stdafx.h)
 
-ryo_private_headers(daemon
+ombre_private_headers(daemon
   ${daemon_private_headers})
 monero_add_executable(daemon
   ${daemon_sources}
@@ -123,5 +123,5 @@ target_link_libraries(daemon
     ${EXTRA_LIBRARIES})
 set_property(TARGET daemon
   PROPERTY
-    OUTPUT_NAME "ryod")
+    OUTPUT_NAME "ombred")
 install(TARGETS daemon DESTINATION bin)

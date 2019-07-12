@@ -173,7 +173,7 @@ www.sub.example.com. IN	CNAME	www.example.net.
 SECTION AUTHORITY
 ; prove original does not exist
 ns.example.com.	IN	NSEC	www.example.com. A RRSIG NSEC
-ns.example.com. 3600    IN      RRSIG   NSEC 3 3 3600 20070926134150 20070829134150 2854 example.com. MC0CFQCCqvDUT+jMCvfm7OHL2IDY75JDmQIUfOtDiiyeSiwjuq3i3OuLnVRyoJ8= ;{id = 2854}
+ns.example.com. 3600    IN      RRSIG   NSEC 3 3 3600 20070926134150 20070829134150 2854 example.com. MC0CFQCCqvDUT+jMCvfm7OHL2IDY75JDmQIUfOtDiiyeSiwjuq3i3OuLnVOmbreJ8= ;{id = 2854}
 SECTION ADDITIONAL
 ENTRY_END
 RANGE_END

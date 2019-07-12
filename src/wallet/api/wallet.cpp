@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -42,10 +42,10 @@
 using namespace std;
 using namespace cryptonote;
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "WalletAPI"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "WalletAPI"
 
-namespace Ryo
+namespace Ombre
 {
 
 namespace
@@ -62,7 +62,7 @@ static const int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 1000 * 30;
 std::string get_default_ringdb_path()
 {
 	boost::filesystem::path dir = tools::get_default_data_dir();
-	// remove .ryo, replace with .shared-ringdb
+	// remove .ombre, replace with .shared-ringdb
 	dir = dir.remove_filename();
 	dir /= ".shared-ringdb";
 	return dir.string();
@@ -315,22 +315,22 @@ void Wallet::init(const char *argv0, const char *default_log_base_name, const st
 
 void Wallet::debug(const std::string &category, const std::string &str)
 {
-	MCDEBUG(category.empty() ? RYO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
+	MCDEBUG(category.empty() ? OMBRE_DEFAULT_LOG_CATEGORY : category.c_str(), str);
 }
 
 void Wallet::info(const std::string &category, const std::string &str)
 {
-	MCINFO(category.empty() ? RYO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
+	MCINFO(category.empty() ? OMBRE_DEFAULT_LOG_CATEGORY : category.c_str(), str);
 }
 
 void Wallet::warning(const std::string &category, const std::string &str)
 {
-	MCWARNING(category.empty() ? RYO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
+	MCWARNING(category.empty() ? OMBRE_DEFAULT_LOG_CATEGORY : category.c_str(), str);
 }
 
 void Wallet::error(const std::string &category, const std::string &str)
 {
-	MCERROR(category.empty() ? RYO_DEFAULT_LOG_CATEGORY : category.c_str(), str);
+	MCERROR(category.empty() ? OMBRE_DEFAULT_LOG_CATEGORY : category.c_str(), str);
 }
 
 ///////////////////////// WalletImpl implementation ////////////////////////

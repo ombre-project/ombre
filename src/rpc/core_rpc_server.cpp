@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -40,8 +40,8 @@ using namespace epee;
 #include "storages/http_abstract_invoke.h"
 #include "version.h"
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "daemon.rpc"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "daemon.rpc"
 
 #define MAX_RESTRICTED_FAKE_OUTS_COUNT 40
 #define MAX_RESTRICTED_GLOBAL_FAKE_OUTS_COUNT 5000
@@ -1869,7 +1869,7 @@ bool core_rpc_server::on_update(const COMMAND_RPC_UPDATE::request &req, COMMAND_
 {
 #if 0
     PERF_TIMER(on_update);
-    static const char software[] = "ryo";
+    static const char software[] = "ombre";
 #ifdef BUILD_TAG
     static const char buildtag[] = BOOST_PP_STRINGIZE(BUILD_TAG);
     static const char subdir[] = "cli";
@@ -1890,7 +1890,7 @@ bool core_rpc_server::on_update(const COMMAND_RPC_UPDATE::request &req, COMMAND_
       res.status = "Error checking for updates";
       return true;
     }
-    if (tools::vercmp(version.c_str(), RYO_VERSION) <= 0)
+    if (tools::vercmp(version.c_str(), OMBRE_VERSION) <= 0)
     {
       res.update = false;
       res.status = CORE_RPC_STATUS_OK;

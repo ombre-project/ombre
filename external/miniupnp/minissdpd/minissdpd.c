@@ -837,7 +837,7 @@ OpenUnixSocket(const char * path)
 		close(s);
 		return -1;
 	}
-	/* Change rights so everyone can communicate with us */
+	/* Change rights so eveombrene can communicate with us */
 	if(chmod(path, 0666) < 0)
 	{
 		syslog(LOG_WARNING, "chmod(\"%s\"): %m", path);

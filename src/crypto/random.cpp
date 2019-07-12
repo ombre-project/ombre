@@ -1,8 +1,8 @@
-// Copyright (c) 2018, Ryo Currency Project 
+// Copyright (c) 2018, Ombre Currency Project 
 //
 // All rights reserved. 
 // 
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file. 
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file. 
 // 
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY 
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF 

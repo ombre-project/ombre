@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -33,8 +33,8 @@ using namespace epee;
 #include "serialization/container.h"
 #include "string_tools.h"
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "cn"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "cn"
 
 namespace cryptonote
 {
@@ -202,9 +202,9 @@ std::string get_public_address_as_str(bool subaddress, account_public_address co
 	if(adr.m_spend_public_key == adr.m_view_public_key)
 	{
 		if(subaddress)
-			address_prefix = config<NETTYPE>::RYO_KURZ_SUBADDRESS_BASE58_PREFIX;
+			address_prefix = config<NETTYPE>::OMBRE_KURZ_SUBADDRESS_BASE58_PREFIX;
 		else
-			address_prefix = config<NETTYPE>::RYO_KURZ_ADDRESS_BASE58_PREFIX;
+			address_prefix = config<NETTYPE>::OMBRE_KURZ_ADDRESS_BASE58_PREFIX;
 
 		kurz_address kadr = {adr.m_spend_public_key};
 		return tools::base58::encode_addr(address_prefix, t_serializable_object_to_blob(kadr));
@@ -212,9 +212,9 @@ std::string get_public_address_as_str(bool subaddress, account_public_address co
 	else
 	{
 		if(subaddress)
-			address_prefix = config<NETTYPE>::RYO_LONG_SUBADDRESS_BASE58_PREFIX;
+			address_prefix = config<NETTYPE>::OMBRE_LONG_SUBADDRESS_BASE58_PREFIX;
 		else
-			address_prefix = config<NETTYPE>::RYO_LONG_ADDRESS_BASE58_PREFIX;
+			address_prefix = config<NETTYPE>::OMBRE_LONG_ADDRESS_BASE58_PREFIX;
 
 		return tools::base58::encode_addr(address_prefix, t_serializable_object_to_blob(adr));
 	}
@@ -228,7 +228,7 @@ template std::string get_public_address_as_str<STAGENET>(bool subaddress, const 
 template <network_type NETTYPE>
 std::string get_account_integrated_address_as_str(account_public_address const &adr, crypto::hash8 const &payment_id)
 {
-	uint64_t integrated_address_prefix = config<NETTYPE>::RYO_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX;
+	uint64_t integrated_address_prefix = config<NETTYPE>::OMBRE_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX;
 
 	integrated_address iadr = {adr, payment_id};
 	return tools::base58::encode_addr(integrated_address_prefix, t_serializable_object_to_blob(iadr));
@@ -267,21 +267,21 @@ bool get_account_address_from_str(address_parse_info &info, std::string const &s
 	info.is_kurz = false;
 	switch(prefix)
 	{
-	case config<NETTYPE>::RYO_LONG_ADDRESS_BASE58_PREFIX:
+	case config<NETTYPE>::OMBRE_LONG_ADDRESS_BASE58_PREFIX:
 	case config<NETTYPE>::LEGACY_LONG_ADDRESS_BASE58_PREFIX:
 		break;
-	case config<NETTYPE>::RYO_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX:
+	case config<NETTYPE>::OMBRE_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX:
 	case config<NETTYPE>::LEGACY_LONG_INTEGRATED_ADDRESS_BASE58_PREFIX:
 		info.has_payment_id = true;
 		break;
-	case config<NETTYPE>::RYO_LONG_SUBADDRESS_BASE58_PREFIX:
+	case config<NETTYPE>::OMBRE_LONG_SUBADDRESS_BASE58_PREFIX:
 		info.is_subaddress = true;
 		break;
-	case config<NETTYPE>::RYO_KURZ_ADDRESS_BASE58_PREFIX:
+	case config<NETTYPE>::OMBRE_KURZ_ADDRESS_BASE58_PREFIX:
 		info.is_kurz = true;
 		break;
 /* Kurz subaddress are impossible to generate yet, so parsig them should error out
-	case config<NETTYPE>::RYO_KURZ_SUBADDRESS_BASE58_PREFIX:
+	case config<NETTYPE>::OMBRE_KURZ_SUBADDRESS_BASE58_PREFIX:
 		info.is_subaddress = true;
 		info.is_kurz = true;
 		break;

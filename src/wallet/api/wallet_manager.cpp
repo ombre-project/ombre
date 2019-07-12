@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -29,15 +29,15 @@
 #include <boost/filesystem.hpp>
 #include <boost/regex.hpp>
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "WalletAPI"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "WalletAPI"
 
 namespace epee
 {
 unsigned int g_test_dbg_lock_sleep = 0;
 }
 
-namespace Ryo
+namespace Ombre
 {
 
 Wallet *WalletManagerImpl::createWallet(const std::string &path, const std::string &password,
@@ -308,7 +308,7 @@ std::tuple<bool, std::string, std::string, std::string, std::string> WalletManag
 	if(!tools::check_updates(software, buildtag, version, hash))
 		return std::make_tuple(false, "", "", "", "");
 
-	if(tools::vercmp(version.c_str(), RYO_VERSION) > 0)
+	if(tools::vercmp(version.c_str(), OMBRE_VERSION) > 0)
 	{
 		std::string user_url = tools::get_update_url(software, subdir, buildtag, version, true);
 		std::string auto_url = tools::get_update_url(software, subdir, buildtag, version, false);

@@ -1,4 +1,4 @@
-# Copyright (c) 2018, Ryo Currency Project
+# Copyright (c) 2018, Ombre Currency Project
 # Portions copyright (c) 2014-2018, The Monero Project
 #
 # Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
@@ -55,7 +55,7 @@ if (NOT (MINGW OR APPLE OR FREEBSD OR OPENBSD OR DRAGONFLY))
   add_compile_options("${WARNINGS_AS_ERRORS_FLAG}") # applies only to targets that follow
 endif()
 
-function (ryo_private_headers group)
+function (ombre_private_headers group)
   source_group("${group}\\Private"
     FILES
       ${ARGN})
@@ -98,34 +98,34 @@ function (monero_add_executable name)
   enable_stack_trace("${name}")
 endfunction ()
 
-function (ryo_add_library name)
-    ryo_add_library_with_deps(NAME "${name}" SOURCES ${ARGN})
+function (ombre_add_library name)
+    ombre_add_library_with_deps(NAME "${name}" SOURCES ${ARGN})
 endfunction()
 
-function (ryo_add_library_with_deps)
-  cmake_parse_arguments(RYO_ADD_LIBRARY "" "NAME" "DEPENDS;SOURCES" ${ARGN})
-  source_group("${RYO_ADD_LIBRARY_NAME}" FILES ${RYO_ADD_LIBRARY_SOURCES})
+function (ombre_add_library_with_deps)
+  cmake_parse_arguments(OMBRE_ADD_LIBRARY "" "NAME" "DEPENDS;SOURCES" ${ARGN})
+  source_group("${OMBRE_ADD_LIBRARY_NAME}" FILES ${OMBRE_ADD_LIBRARY_SOURCES})
 
   # Define a ("virtual") object library and an actual library that links those
   # objects together. The virtual libraries can be arbitrarily combined to link
   # any subset of objects into one library archive. This is used for releasing
   # libwallet, which combines multiple components.
-  set(objlib obj_${RYO_ADD_LIBRARY_NAME})
-  add_library(${objlib} OBJECT ${RYO_ADD_LIBRARY_SOURCES})
-  add_library("${RYO_ADD_LIBRARY_NAME}" $<TARGET_OBJECTS:${objlib}>)
-  if (RYO_ADD_LIBRARY_DEPENDS)
-    add_dependencies(${objlib} ${RYO_ADD_LIBRARY_DEPENDS})
+  set(objlib obj_${OMBRE_ADD_LIBRARY_NAME})
+  add_library(${objlib} OBJECT ${OMBRE_ADD_LIBRARY_SOURCES})
+  add_library("${OMBRE_ADD_LIBRARY_NAME}" $<TARGET_OBJECTS:${objlib}>)
+  if (OMBRE_ADD_LIBRARY_DEPENDS)
+    add_dependencies(${objlib} ${OMBRE_ADD_LIBRARY_DEPENDS})
   endif()
-  set_property(TARGET "${RYO_ADD_LIBRARY_NAME}" PROPERTY FOLDER "libs")
+  set_property(TARGET "${OMBRE_ADD_LIBRARY_NAME}" PROPERTY FOLDER "libs")
   target_compile_definitions(${objlib}
-    PRIVATE $<TARGET_PROPERTY:${RYO_ADD_LIBRARY_NAME},INTERFACE_COMPILE_DEFINITIONS>)
+    PRIVATE $<TARGET_PROPERTY:${OMBRE_ADD_LIBRARY_NAME},INTERFACE_COMPILE_DEFINITIONS>)
   target_include_directories(${objlib}
-    PRIVATE $<TARGET_PROPERTY:${RYO_ADD_LIBRARY_NAME},INTERFACE_INCLUDE_DIRECTORIES>)
+    PRIVATE $<TARGET_PROPERTY:${OMBRE_ADD_LIBRARY_NAME},INTERFACE_INCLUDE_DIRECTORIES>)
 endfunction ()
 
 include(Version)
-ryo_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genversion)
-ryo_add_library(ccnconfig SOURCES ${CMAKE_SOURCE_DIR}/src/cryptonote_config.cpp)
+ombre_add_library(version SOURCES ${CMAKE_BINARY_DIR}/version.cpp DEPENDS genversion)
+ombre_add_library(ccnconfig SOURCES ${CMAKE_SOURCE_DIR}/src/cryptonote_config.cpp)
 
 add_subdirectory(common)
 add_subdirectory(crypto)

@@ -6,7 +6,7 @@
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -88,17 +88,17 @@ key pkGen();
 void skpkGen(key &sk, key &pk);
 std::tuple<key, key> skpkGen();
 //generates a <secret , public> / Pedersen commitment to the amount
-std::tuple<ctkey, ctkey> ctskpkGen(ryo_amount amount);
+std::tuple<ctkey, ctkey> ctskpkGen(ombre_amount amount);
 //generates C =aG + bH from b, a is random
-void genC(key &C, const key &a, ryo_amount amount);
+void genC(key &C, const key &a, ombre_amount amount);
 //this one is mainly for testing, can take arbitrary amounts..
 std::tuple<ctkey, ctkey> ctskpkGen(const key &bH);
 // make a pedersen commitment with given key
-key commit(ryo_amount amount, const key &mask);
+key commit(ombre_amount amount, const key &mask);
 // make a pedersen commitment with zero key
-key zeroCommit(ryo_amount amount);
+key zeroCommit(ombre_amount amount);
 //generates a random uint long long
-ryo_amount randRyoAmount(ryo_amount upperlimit);
+ombre_amount randOmbreAmount(ombre_amount upperlimit);
 
 //Scalar multiplications of curve points
 

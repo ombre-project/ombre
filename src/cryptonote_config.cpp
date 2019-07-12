@@ -1,9 +1,9 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -25,4 +25,4 @@ constexpr boost::uuids::uuid cryptonote::config<cryptonote::MAINNET>::NETWORK_ID
 constexpr boost::uuids::uuid cryptonote::config<cryptonote::TESTNET>::NETWORK_ID;
 constexpr boost::uuids::uuid cryptonote::config<cryptonote::STAGENET>::NETWORK_ID;
 
-constexpr const char* cryptonote::common_config::RYO_DONATION_ADDR;
+constexpr const char* cryptonote::common_config::OMBRE_DONATION_ADDR;

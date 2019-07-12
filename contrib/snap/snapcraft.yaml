@@ -9,23 +9,23 @@ grade: devel
 confinement: strict
 
 apps:
-    ryod:
+    ombred:
         daemon: forking
         command: |
-          ryod-wrapper --detach --data-dir ${SNAP_COMMON} --config-file ${SNAP_USER_DATA}/etc/ryod.conf
+          ombred-wrapper --detach --data-dir ${SNAP_COMMON} --config-file ${SNAP_USER_DATA}/etc/ombred.conf
         plugs:
             - network
             - network-bind
-    ryo-wallet-rpc:
+    ombre-wallet-rpc:
         command: |
-          ryo-wallet-rpc --log-file ${SNAP_USER_DATA}
+          ombre-wallet-rpc --log-file ${SNAP_USER_DATA}
         plugs:
             - home
             - network
             - network-bind
-    ryo-wallet-cli:
+    ombre-wallet-cli:
         command: |
-          ryo-wallet-cli --log-file ${SNAP_USER_DATA}
+          ombre-wallet-cli --log-file ${SNAP_USER_DATA}
         plugs:
             - home
             - network
@@ -71,8 +71,8 @@ parts:
         plugin: dump
         source: .
         organize:
-            contrib/snap/ryod.conf: etc/ryod.conf
-            contrib/snap/ryod-wrapper: bin/ryod-wrapper
+            contrib/snap/ombred.conf: etc/ombred.conf
+            contrib/snap/ombred-wrapper: bin/ombred-wrapper
         prime:
             - etc
             - bin

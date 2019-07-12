@@ -3,11 +3,11 @@
 # maintainer (ask me any questions): rfree
 
 if [[ ! -r "Doxyfile" ]] ; then
-	echo "Error, can not read the Doxyfile - make sure to run this script from top of ryo-currency, where the Doxyfile file is located"
+	echo "Error, can not read the Doxyfile - make sure to run this script from top of ombre-currency, where the Doxyfile file is located"
 	exit 1
 fi
 
-wwwdir="$HOME/ryo-www/"
+wwwdir="$HOME/ombre-www/"
 if [[ ! -w "$wwwdir" ]] ; then
 	echo "Error, can not write into wwwdir=$wwwdir. It should be a directory readable/connected to your webserver, or a symlink to such directory"
 	exit 1
@@ -19,7 +19,7 @@ if [[ ! -d "$wwwdir/doc" ]] ; then
 fi
 
 echo "Generating:"
-doxygen Doxyfile && echo "Backup previous version:" && rm -rf ~/ryo-www-previous && mv "$wwwdir/doc" ~/ryo-www-previous && cp -ar doc/ "$wwwdir/" && echo "Done, builded and copied to public - the doxygen docs" && echo "size:" && du -Dsh "$wwwdir/" && echo "files:" && find "$wwwdir/" | wc -l
+doxygen Doxyfile && echo "Backup previous version:" && rm -rf ~/ombre-www-previous && mv "$wwwdir/doc" ~/ombre-www-previous && cp -ar doc/ "$wwwdir/" && echo "Done, builded and copied to public - the doxygen docs" && echo "size:" && du -Dsh "$wwwdir/" && echo "files:" && find "$wwwdir/" | wc -l
 
 
 

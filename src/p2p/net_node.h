@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -129,14 +129,14 @@ class node_server : public epee::levin::levin_commands_handler<p2p_connection_co
 
   private:
 	const std::vector<std::string> m_seed_nodes_list =
-		{"seed1.ryo-currency.com",
-		 "seed2.ryo-currency.com",
-		 "seed3.ryo-currency.com",
-		 "seed1.ryo-currency.org",
-		 "seed2.ryo-currency.org",
-		 "seed3.ryo-currency.org",
-		 "testnet-seed.ryo-currency.com",
-		 "testnet-seed.ryo-currency.org"};
+		{"seed1.ombre-currency.com",
+		 "seed2.ombre-currency.com",
+		 "seed3.ombre-currency.com",
+		 "seed1.ombre-currency.org",
+		 "seed2.ombre-currency.org",
+		 "seed3.ombre-currency.org",
+		 "testnet-seed.ombre-currency.com",
+		 "testnet-seed.ombre-currency.org"};
 
 	bool islimitup = false;
 	bool islimitdown = false;

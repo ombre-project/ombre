@@ -29,8 +29,8 @@
 #include "levin_base.h"
 #include "serializeble_struct_helper.h"
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net"
 
 namespace epee
 {

@@ -1,10 +1,10 @@
-// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2018, Ombre Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -43,8 +43,8 @@
 #include <miniupnp/miniupnpc/upnpcommands.h>
 #include <miniupnp/miniupnpc/upnperrors.h>
 
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "net.p2p"
+//#undef OMBRE_DEFAULT_LOG_CATEGORY
+//#define OMBRE_DEFAULT_LOG_CATEGORY "net.p2p"
 
 #define NET_MAKE_IP(b1, b2, b3, b4) ((LPARAM)(((DWORD)(b1) << 24) + ((DWORD)(b2) << 16) + ((DWORD)(b3) << 8) + ((DWORD)(b4))))
 
@@ -1394,7 +1394,7 @@ int node_server<t_payload_net_handler>::handle_get_stat_info(int command, typena
 	}
 	rsp.connections_count = m_net_server.get_config_object().get_connections_count();
 	rsp.incoming_connections_count = rsp.connections_count - get_outgoing_connections_count();
-	rsp.version = RYO_VERSION_FULL;
+	rsp.version = OMBRE_VERSION_FULL;
 	rsp.os_version = tools::get_os_version_string();
 	m_payload_handler.get_stat_info(rsp.payload_info);
 	return 1;

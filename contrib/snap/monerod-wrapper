@@ -2,7 +2,7 @@
 
 if [ ! -d "$SNAP_USER_DATA/etc" ]; then
   mkdir $SNAP_USER_DATA/etc/
-  cp -R $SNAP/etc/ryod.conf $SNAP_USER_DATA/etc/ryod.conf
+  cp -R $SNAP/etc/ombred.conf $SNAP_USER_DATA/etc/ombred.conf
 fi
 
-exec "$SNAP/bin/ryod" "$@"
+exec "$SNAP/bin/ombred" "$@"

@@ -30,8 +30,8 @@
 #include "portable_storage_template_helper.h"
 #include <boost/utility/value_init.hpp>
 
-#undef RYO_DEFAULT_LOG_CATEGORY
-#define RYO_DEFAULT_LOG_CATEGORY "net"
+#undef OMBRE_DEFAULT_LOG_CATEGORY
+#define OMBRE_DEFAULT_LOG_CATEGORY "net"
 
 namespace epee
 {
