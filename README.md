@@ -1,25 +1,72 @@
 # Ombre
+Copyright (c) 2019, The Ombre Project
+
+Copyright (c) 2018, Ryo Currency Project
+
+Copyright (c) 2017, Sumokoin.org
+
+Copyright (c) 2014-2017, The Monero Project
+
+Copyright (c) 2012-2013, The Cryptonote developers
+## Development Resources
+
+- Web: [www.ombre.network](http://www.ombre.network)
+- GitHub: [https://github.com/ombre-project/ombre](https://github.com/ombre-project/ombre)
 
 ## Introduction
 
-Ombre is a fork from Monero, one of the most respectable cryptocurrency well-known for **security, privacy, untraceability** and **active development**. Starting as an educational project, we found that it would be great to create a new coin with high level of privacy by (1) moving forward right away to **Ring Confidential Transactions (RingCT)**, (2) setting **minimum transaction _mixin_ to 12** that would greatly reduce chance of being attacked, traced or identified by (blockchain) statistical analysis.
+Ombre is a cryptonote currency and an indirect for of the well-known Monero currency. Inherited from Monero are strong security, privacy and untraceability features that form a solid basis for further development. Our mission is to enhance the cryptonote protocol to provide a **lightweight**, **secure**, **well maintained** and **actively developed** (no-nonsense) coin.
 
-Ombre, therefore, is a new Monero without its legacy, a _truely fungible_ cryptocurrency among just a few ones in the market.
+Some main differences compared to other cryptonote coins are:
+
+ - We use a 60 second block window which reduce transaction times
+ - We enforce a minimum transaction mixin of 10 to fight blockchain analysis which could compromise privacy
+ - We actively cooperate with other cryptonote coins and do not treat them as competition.
+
+
+## Development funding
+
+We do not have a premine. Instead we have a project development reward that causes coins to unlock with every block that is found. The algorithm (see below) will start with unlocking 6% of the block reward but gradually reduces to 0% in the next 10 years.  In total a maximum of 2% of the total coin supply will be unlocked for development.
+
+```
+f(x) = 0.06 * (1 - sqrt(x)) where x = current_supply / max_supply S.T. current_supply <= max_supply
+```
+
+The development fee will be used to pay for development, exchanges and marketing.
 
 ## Coin Supply & Emission
 
-- **Total supply**: **88,888,888** coins in first 20 years, then **263,000** coins each year for inflation. 
-About 10% (~8.8 million) was premined to reserve for future development, i.e. **80 million coins available** for community mining.
-- **Coin symbol**: **SUMO**
+- **Total supply**: **1,000,000,000** coins in first 20 years which is followed by a tail emission each year for inflation.
+- **Coin symbol**: **OMB**
 - **Coin Units**:
-  + 1 Ombreshi &nbsp;= 0.000000001 **SUMO** (10<sup>-9</sup> - _the smallest coin unit_)
-  + 1 Ombrekun = 0.000001 **SUMO** (10<sup>-6</sup>)
-  + 1 Ombresan = 0.001 **SUMO** (10<sup>-3</sup>)
+  + 1 Nano-Ombre &nbsp;= 0.000000001 **OMB** (10<sup>-9</sup> - _the smallest coin unit_)
+  + 1 Micro-Ombre = 0.000001 **OMB** (10<sup>-6</sup>)
+  + 1 Milli-Ombre = 0.001 **OMB** (10<sup>-3</sup>)
 - **Hash algorithm**: CryptoNight (Proof-Of-Work)
-- **Emission scheme**: Ombre's block reward changes _every 6-months_ as the following "Camel" distribution* (inspired by _real-world mining production_ like of crude oil, coal etc. that is often slow at first, 
-accelerated in the next few years before declined and depleted). However, the emission path of Ombre is generally not far apart from what of Bitcoin (view charts below).
+- **Emission scheme**: Ombre's block reward changes _every 6-months_ as the following "Camel" distribution* (inspired by _real-world mining production_ like of crude oil, coal etc. that is often slow at first,
+accelerated in the next few years before declined and depleted). This great emission scheme was first introduced in Sumokoin.
 
-\* The emulated algorithm of Ombre block-reward emission can be found in Python and C++ scripts at [scripts](scripts) directory.
+## Roadmap 2019
+
+### Q2: Android wallet
+We will release an Android wallet which will use remote wallet nodes to scan the blockchain for transactions.
+
+One problem with existing Android wallets for cryptonote coins is that they use close to 1GB of data (Sumokoin) to scan the blockchain. we will solve this by allowing the Android wallet to send the wallet's viewkey to the remote wallet node. With this approach the transaction scanning can be done server side and this will significantly increase the performance of the wallet.
+
+All wallet connections will be SSL encrypted and official wallet nodes will be provided.
+
+### Q2. Blockchain protocol optimisations
+The blockchain network communication is not optimized and, for example, doesn't even use compression on large data exchanges. We will add compression and will look into modernizing the RPC protocols.
+
+### Q3. Security audit
+We plan on doing a full security audit of the codebase and will setup fuzzing for all exposed network logic. Additionally security enhancements are planned for the ombred daemon, the GUI wallet and the communication channel between both.
+
+### Q3. Web wallet (under consideration)
+For this roadmap item we would like to have community feedback first: we think a web wallet would be very convenient for our users but we'll be on the lookout for feedback before starting the implementation.
+
+### Q3. Global pool balancer ((under consideration)
+We will implement a lightweight and yet protocol aware loadbalancer to spread the mining load on our network across pools evenly. We will create an incentive for pool owners and miners to join the loadbalancer. A healthy spread of the mining across multiple pools is highly beneficial for the stability of the coin.
+
 
 ## About this Project
 
@@ -29,602 +76,8 @@ As with many development projects, the repository on Github is considered to be 
 
 **Anyone is welcome to contribute to Ombre's codebase!** If you have a fix or code change, feel free to submit is as a pull request directly to the "master" branch. In cases where the change is relatively small or does not affect other parts of the codebase it may be merged in immediately by any one of the collaborators. On the other hand, if the change is particularly large or complex, it is expected that it will be discussed at length either well in advance of the pull request being submitted, or even directly on the pull request.
 
-
-## Development Resources
-
-- Web: [www.ombre.io](https://www.ombre.io/)
-- Mail: [contact@ombre.io](mailto:contact@ombre.io)
-
-Please note that code is developed on the [dev branch](https://github.com/ombre-project/ombre/tree/dev), if you want to check out the latest updates, before they are merged on main branch, please refer there. Master branch will always point to a version that we consider stable, so you can download the code by simply typing `git clone https://github.com/ombre-project/ombre.git`
-
-## Compiling Ombre from Source
-
-### Dependencies
-
-The following table summarizes the tools and libraries required to build.  A
-few of the libraries are also included in this repository (marked as
-"Vendored"). By default, the build uses the library installed on the system,
-and ignores the vendored sources. However, if no library is found installed on
-the system, then the vendored source will be built and used. The vendored
-sources are also used for statically-linked builds because distribution
-packages often include only shared library binaries (`.so`) but not static
-library archives (`.a`).
-
-| Dep          | Min. version  | Vendored | Debian/Ubuntu pkg  | Arch pkg     | Fedora            | Optional | Purpose        |
-| ------------ | ------------- | -------- | ------------------ | ------------ | ----------------- | -------- | -------------- |
-| GCC          | 4.7.3         | NO       | `build-essential`  | `base-devel` | `gcc`             | NO       |                |
-| CMake        | 3.5           | NO       | `cmake`            | `cmake`      | `cmake`           | NO       |                |
-| pkg-config   | any           | NO       | `pkg-config`       | `base-devel` | `pkgconf`         | NO       |                |
-| Boost        | 1.58          | NO       | `libboost-all-dev` | `boost`      | `boost-devel`     | NO       | C++ libraries  |
-| OpenSSL      | basically any | NO       | `libssl-dev`       | `openssl`    | `openssl-devel`   | NO       | sha256 sum     |
-| libzmq       | 3.0.0         | NO       | `libzmq3-dev`      | `zeromq`     | `cppzmq-devel`    | NO       | ZeroMQ library |
-| OpenPGM      | ?             | NO       | `libpgm-dev`       | `libpgm`     | `openpgm-devel`   | NO       | For ZeroMQ     |
-| libnorm[2]   | ?             | NO       | `libnorm-dev`      |              |               `   | YES      | For ZeroMQ     |
-| libunbound   | 1.4.16        | YES      | `libunbound-dev`   | `unbound`    | `unbound-devel`   | NO       | DNS resolver   |
-| libsodium    | ?             | NO       | `libsodium-dev`    | `libsodium`  | `libsodium-devel` | NO       | cryptography   |
-| libunwind    | any           | NO       | `libunwind8-dev`   | `libunwind`  | `libunwind-devel` | YES      | Stack traces   |
-| liblzma      | any           | NO       | `liblzma-dev`      | `xz`         | `xz-devel`        | YES      | For libunwind  |
-| libreadline  | 6.3.0         | NO       | `libreadline6-dev` | `readline`   | `readline-devel`  | YES      | Input editing  |
-| ldns         | 1.6.17        | NO       | `libldns-dev`      | `ldns`       | `ldns-devel`      | YES      | SSL toolkit    |
-| expat        | 1.1           | NO       | `libexpat1-dev`    | `expat`      | `expat-devel`     | YES      | XML parsing    |
-| GTest        | 1.5           | YES      | `libgtest-dev`[1]  | `gtest`      | `gtest-devel`     | YES      | Test suite     |
-| Doxygen      | any           | NO       | `doxygen`          | `doxygen`    | `doxygen`         | YES      | Documentation  |
-| Graphviz     | any           | NO       | `graphviz`         | `graphviz`   | `graphviz`        | YES      | Documentation  |
-
-[^] On Debian/Ubuntu `libgtest-dev` only includes sources and headers. You must
-build the library binary manually. This can be done with the following command ```sudo apt-get install libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libg* /usr/lib/ ```
-[2] libnorm-dev is needed if your zmq library was built with libnorm, and not needed otherwise
-
-Install all dependencies at once on Debian/Ubuntu:
-
-``` sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev doxygen graphviz libpgm-dev```
-
-Install all dependencies at once on macOS with the provided Brewfile:
-``` brew update && brew bundle --file=contrib/brew/Brewfile ```
-
-FreeBSD one liner for required to build dependencies
-```pkg install git gmake cmake pkgconf boost-libs cppzmq libsodium```
-
-### Cloning the repository
-
-Clone recursively to pull-in needed submodule(s):
-
-`$ git clone --recursive https://github.com/ombre-project/ombre`
-
-If you already have a repo cloned, initialize and update:
-
-`$ cd ombre && git submodule init && git submodule update`
-
-### Build instructions
-
-Ombre uses the CMake build system and a top-level [Makefile](Makefile) that
-invokes cmake commands as needed.
-
-#### On Linux and OS X
-
-* Install the dependencies (see the list above)
-
-    \- On Ubuntu, essential dependencies can be installed with the following command:
-
-    	sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev doxygen graphviz libpgm-dev
-    
-* Change to the root of the source code directory and build:
-
-        cd ombre
-        make
-
-    *Optional*: If your machine has several cores and enough memory, enable
-    parallel build by running `make -j<number of threads>` instead of `make`. For
-    this to be worthwhile, the machine should have one core and about 2GB of RAM
-    available per thread.
-
-    *Note*: If cmake can not find zmq.hpp file on macOS, installing `zmq.hpp` from
-    https://github.com/zeromq/cppzmq to `/usr/local/include` should fix that error.
-
-    *Note*: The instructions above will compile the most stable release of the
-    Ombre software. If you would like to use and test the most recent software,
-    use ```git checkout master```. The master branch may contain updates that are
-    both unstable and incompatible with release software, though testing is always
-    encouraged.
-
-* The resulting executables can be found in `build/release/bin`
-
-* Add `PATH="$PATH:$HOME/ombre/build/release/bin"` to `.profile`
-
-* Run Ombre with `ombred --detach`
-
-* **Optional**: build and run the test suite to verify the binaries:
-
-    ```bash
-    make release-test
-    ```
-
-    *NOTE*: `core_tests` test may take a few hours to complete.
-
-* **Optional**: to build binaries suitable for debugging:
-
-    ```bash
-    make debug
-    ```
-
-* **Optional**: to build statically-linked binaries:
-
-    ```bash
-    make release-static
-    ```
-
-Dependencies need to be built with -fPIC. Static libraries usually aren't, so you may have to build them yourself with -fPIC. Refer to their documentation for how to build them.
-
-* **Optional**: build documentation in `doc/html` (omit `HAVE_DOT=YES` if `graphviz` is not installed):
-
-    ```bash
-    HAVE_DOT=YES doxygen Doxyfile
-    ```
-
-#### On the Raspberry Pi
-
-Tested on a Raspberry Pi Zero with a clean install of minimal Raspbian Stretch (2017-09-07 or later) from https://www.raspberrypi.org/downloads/raspbian/. If you are using Raspian Jessie, [please see note in the following section](#note-for-raspbian-jessie-users).
-
-* `apt-get update && apt-get upgrade` to install all of the latest software
-
-* Install the dependencies for Ombre from the 'Debian' column in the table above.
-
-* Increase the system swap size:
-
-    ```bash
-    sudo /etc/init.d/dphys-swapfile stop  
-    sudo nano /etc/dphys-swapfile  
-    CONF_SWAPSIZE=2048
-    sudo /etc/init.d/dphys-swapfile start
-    ```
-
-* If using an external hard disk without an external power supply, ensure it gets enough power to avoid hardware issues when syncing, by adding the line "max_usb_current=1" to /boot/config.txt
-
-* Clone ombre and checkout most recent release version:
-```
-        git clone https://github.com/ombre-project/ombre.git
-	cd ombre
-	git checkout tags/v0.5.1.0
-```
-* Build:
-
-    ```bash
-    make release
-    ```
-
-* Wait 4-6 hours
-
-* The resulting executables can be found in `build/release/bin`
-
-* Add `PATH="$PATH:$HOME/ombre/build/release/bin"` to `.profile`
-
-* Run Ombre with `ombred --detach`
-
-* You may wish to reduce the size of the swap file after the build has finished, and delete the boost directory from your home directory
-
-#### *Note for Raspbian Jessie users:*
-
-If you are using the older Raspbian Jessie image, compiling Ombre is a bit more complicated. The version of Boost available in the Debian Jessie repositories is too old to use with Ombre, and thus you must compile a newer version yourself. The following explains the extra steps, and has been tested on a Raspberry Pi 2 with a clean install of minimal Raspbian Jessie.
-
-* As before, `apt-get update && apt-get upgrade` to install all of the latest software, and increase the system swap size
-
-    ```bash
-    sudo /etc/init.d/dphys-swapfile stop
-    sudo nano /etc/dphys-swapfile
-    CONF_SWAPSIZE=2048
-    sudo /etc/init.d/dphys-swapfile start
-    ```
-
-* Then, install the dependencies for Ombre except `libunwind` and `libboost-all-dev`
-
-* Install the latest version of boost (this may first require invoking `apt-get remove --purge libboost*` to remove a previous version if you're not using a clean install):
-
-    ```bash
-    cd
-    wget https://sourceforge.net/projects/boost/files/boost/1.64.0/boost_1_64_0.tar.bz2
-    tar xvfo boost_1_64_0.tar.bz2
-    cd boost_1_64_0
-    ./bootstrap.sh
-    sudo ./b2
-    ```
-
-* Wait ~8 hours
-
-    ```bash    
-    sudo ./bjam cxxflags=-fPIC cflags=-fPIC -a install
-    ```
-
-* Wait ~4 hours
-
-* From here, follow the [general Raspberry Pi instructions](#on-the-raspberry-pi) from the "Clone ombre and checkout most recent release version" step.
-
-#### On Windows:
-
-Binaries for Windows are built on Windows using the MinGW toolchain within
-[MSYS2 environment](https://www.msys2.org). The MSYS2 environment emulates a
-POSIX system. The toolchain runs within the environment and *cross-compiles*
-binaries that can run outside of the environment as a regular Windows
-application.
-
-**Preparing the build environment**
-
-* Download and install the [MSYS2 installer](https://www.msys2.org), either the 64-bit or the 32-bit package, depending on your system.
-* Open the MSYS shell via the `MSYS2 Shell` shortcut
-* Update packages using pacman:  
-
-    ```bash
-    pacman -Syu
-    ```
-
-* Exit the MSYS shell using Alt+F4  
-* Edit the properties for the `MSYS2 Shell` shortcut changing "msys2_shell.bat" to "msys2_shell.cmd -mingw64" for 64-bit builds or "msys2_shell.cmd -mingw32" for 32-bit builds
-* Restart MSYS shell via modified shortcut and update packages again using pacman:  
-
-    ```bash
-    pacman -Syu
-    ```
-
-
-* Install dependencies:
-
-    To build for 64-bit Windows:
-
-    ```bash
-    pacman -S mingw-w64-x86_64-toolchain make mingw-w64-x86_64-cmake mingw-w64-x86_64-boost mingw-w64-x86_64-openssl mingw-w64-x86_64-zeromq mingw-w64-x86_64-libsodium mingw-w64-x86_64-hidapi
-    ```
-
-    To build for 32-bit Windows:
-
-    ```bash
-    pacman -S mingw-w64-i686-toolchain make mingw-w64-i686-cmake mingw-w64-i686-boost mingw-w64-i686-openssl mingw-w64-i686-zeromq mingw-w64-i686-libsodium mingw-w64-i686-hidapi
-    ```
-
-* Open the MingW shell via `MinGW-w64-Win64 Shell` shortcut on 64-bit Windows
-  or `MinGW-w64-Win64 Shell` shortcut on 32-bit Windows. Note that if you are
-  running 64-bit Windows, you will have both 64-bit and 32-bit MinGW shells.
-
-**Cloning**
-
-* To git clone, run:
-
-    ```bash
-    git clone --recursive https://github.com/ombre-project/ombre.git
-    ```
-
-**Building**
-
-* Change to the cloned directory, run:
-
-    ```bash
-    cd ombre
-    ```
-
-* If you are on a 64-bit system, run:
-
-    ```bash
-    make release-static-win64
-    ```
-
-* If you are on a 32-bit system, run:
-
-    ```bash
-    make release-static-win32
-    ```
-
-* The resulting executables can be found in `build/release/bin`
-
-* **Optional**: to build Windows binaries suitable for debugging on a 64-bit system, run:
-
-    ```bash
-    make debug-static-win64
-    ```
-
-* **Optional**: to build Windows binaries suitable for debugging on a 32-bit system, run:
-
-    ```bash
-    make debug-static-win32
-    ```
-
-* The resulting executables can be found in `build/debug/bin`
-
-### On FreeBSD:
-
-The project can be built from scratch by following instructions for Linux above(but use `gmake` instead of `make`). If you are running Ombre in a jail you need to add the flag: `allow.sysvipc=1` to your jail configuration, otherwise lmdb will throw the error message: `Failed to open lmdb environment: Function not implemented`.
-
-We expect to add Ombre into the ports tree in the near future, which will aid in managing installations using ports or packages.
-
-### On OpenBSD:
-
-#### OpenBSD < 6.2
-
-This has been tested on OpenBSD 5.8.
-
-You will need to add a few packages to your system. `pkg_add db cmake gcc gcc-libs g++ gtest`.
-
-The doxygen and graphviz packages are optional and require the xbase set.
-
-The Boost package has a bug that will prevent librpc.a from building correctly. In order to fix this, you will have to Build boost yourself from scratch. Follow the directions here (under "Building Boost"):
-https://github.com/bitcoin/bitcoin/blob/master/doc/build-openbsd.md
-
-You will have to add the serialization, date_time, and regex modules to Boost when building as they are needed by Ombre.
-
-To build: `env CC=egcc CXX=eg++ CPP=ecpp DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/path/to/the/boost/you/built make release-static-64`
-
-#### OpenBSD 6.2 and 6.3
-
-You will need to add a few packages to your system. `pkg_add cmake zeromq libiconv`.
-
-The doxygen and graphviz packages are optional and require the xbase set.
-
-
-Build the Boost library using clang. This guide is derived from: https://github.com/bitcoin/bitcoin/blob/master/doc/build-openbsd.md
-
-We assume you are compiling with a non-root user and you have `doas` enabled.
-
-Note: do not use the boost package provided by OpenBSD, as we are installing boost to `/usr/local`.
-
-```bash
-# Create boost building directory
-mkdir ~/boost
-cd ~/boost
-
-# Fetch boost source
-ftp -o boost_1_64_0.tar.bz2 https://netcologne.dl.sourceforge.net/project/boost/boost/1.64.0/boost_1_64_0.tar.bz2
-
-# MUST output: (SHA256) boost_1_64_0.tar.bz2: OK
-echo "7bcc5caace97baa948931d712ea5f37038dbb1c5d89b43ad4def4ed7cb683332 boost_1_64_0.tar.bz2" | sha256 -c
-tar xfj boost_1_64_0.tar.bz2
-
-# Fetch and apply boost patches, required for OpenBSD
-ftp -o boost_test_impl_execution_monitor_ipp.patch https://raw.githubusercontent.com/openbsd/ports/bee9e6df517077a7269ff0dfd57995f5c6a10379/devel/boost/patches/patch-boost_test_impl_execution_monitor_ipp
-ftp -o boost_config_platform_bsd_hpp.patch https://raw.githubusercontent.com/openbsd/ports/90658284fb786f5a60dd9d6e8d14500c167bdaa0/devel/boost/patches/patch-boost_config_platform_bsd_hpp
-
-# MUST output: (SHA256) boost_config_platform_bsd_hpp.patch: OK
-echo "1f5e59d1154f16ee1e0cc169395f30d5e7d22a5bd9f86358f738b0ccaea5e51d boost_config_platform_bsd_hpp.patch" | sha256 -c
-# MUST output: (SHA256) boost_test_impl_execution_monitor_ipp.patch: OK
-echo "30cec182a1437d40c3e0bd9a866ab5ddc1400a56185b7e671bb3782634ed0206 boost_test_impl_execution_monitor_ipp.patch" | sha256 -c
-
-cd boost_1_64_0
-patch -p0 < ../boost_test_impl_execution_monitor_ipp.patch
-patch -p0 < ../boost_config_platform_bsd_hpp.patch
-
-# Start building boost
-echo 'using clang : : c++ : <cxxflags>"-fvisibility=hidden -fPIC" <linkflags>"" <archiver>"ar" <striper>"strip"  <ranlib>"ranlib" <rc>"" : ;' > user-config.jam
-./bootstrap.sh --without-icu --with-libraries=chrono,filesystem,program_options,system,thread,test,date_time,regex,serialization,locale --with-toolset=clang
-./b2 toolset=clang cxxflags="-stdlib=libc++" linkflags="-stdlib=libc++" -sICONV_PATH=/usr/local
-doas ./b2 -d0 runtime-link=shared threadapi=pthread threading=multi link=static variant=release --layout=tagged --build-type=complete --user-config=user-config.jam -sNO_BZIP2=1 -sICONV_PATH=/usr/local --prefix=/usr/local install
-```
-
-Build the cppzmq bindings.
-
-We assume you are compiling with a non-root user and you have `doas` enabled.
-
-```bash
-# Create cppzmq building directory
-mkdir ~/cppzmq
-cd ~/cppzmq
-
-# Fetch cppzmq source
-ftp -o cppzmq-4.2.3.tar.gz https://github.com/zeromq/cppzmq/archive/v4.2.3.tar.gz
-
-# MUST output: (SHA256) cppzmq-4.2.3.tar.gz: OK
-echo "3e6b57bf49115f4ae893b1ff7848ead7267013087dc7be1ab27636a97144d373 cppzmq-4.2.3.tar.gz" | sha256 -c
-tar xfz cppzmq-4.2.3.tar.gz
-
-# Start building cppzmq
-cd cppzmq-4.2.3
-mkdir build
-cd build
-cmake ..
-doas make install
-```
-
-Build Ombre:
-```bash
-env DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/usr/local make release-static
-```
-
-#### OpenBSD >= 6.4
-
-You will need to add a few packages to your system. `pkg_add cmake gmake zeromq cppzmq libiconv boost`.
-
-The doxygen and graphviz packages are optional and require the xbase set.
-
-Build ombre: `env DEVELOPER_LOCAL_TOOLS=1 BOOST_ROOT=/usr/local gmake release-static`
-
-Note: you may encounter the following error, when compiling the latest version of Ombre as a normal user:
-
-```
-LLVM ERROR: out of memory
-c++: error: unable to execute command: Abort trap (core dumped)
-```
-
-Then you need to increase the data ulimit size to 2GB and try again: `ulimit -d 2000000`
-
-### On Solaris:
-
-The default Solaris linker can't be used, you have to install GNU ld, then run cmake manually with the path to your copy of GNU ld:
-
-```bash
-mkdir -p build/release
-cd build/release
-cmake -DCMAKE_LINKER=/path/to/ld -D CMAKE_BUILD_TYPE=Release ../..
-cd ../..
-```
-
-Then you can run make as usual.
-
-## Running ombred
-
-The build places the binary in `bin/` sub-directory within the build directory
-from which cmake was invoked (repository root by default). To run in
-foreground:
-
-```bash
-./bin/ombred
-```
-
-To list all available options, run `./bin/ombred --help`.  Options can be
-specified either on the command line or in a configuration file passed by the
-`--config-file` argument.  To specify an option in the configuration file, add
-a line with the syntax `argumentname=value`, where `argumentname` is the name
-of the argument without the leading dashes, for example `log-level=1`.
-
-To run in background:
-
-```bash
-    ./bin/ombred --log-file ombred.log --detach
-```
-
-To run as a systemd service, copy
-[ombred.service](utils/systemd/ombred.service) to `/etc/systemd/system/` and
-[ombred.conf](utils/conf/ombred.conf) to `/etc/`. The [example
-service](utils/systemd/ombred.service) assumes that the user `ombre` exists
-and its home is the data directory specified in the [example
-config](utils/conf/ombred.conf).
-
-If you're on Mac, you may need to add the `--max-concurrency 1` option to
-ombre-wallet-cli, and possibly ombred, if you get crashes refreshing.
-
-## Using Tor
-
-> There is a new, still experimental, [integration with Tor](ANONYMITY_NETWORKS.md). The
-> feature allows connecting over IPv4 and Tor simulatenously - IPv4 is used for
-> relaying blocks and relaying transactions received by peers whereas Tor is
-> used solely for relaying transactions received over local RPC. This provides
-> privacy and better protection against surrounding node (sybil) attacks.
-
-While Ombre isn't made to integrate with Tor, it can be used wrapped with torsocks, by
-setting the following configuration parameters and environment variables:
-
-* `--p2p-bind-ip 127.0.0.1` on the command line or `p2p-bind-ip=127.0.0.1` in
-  ombred.conf to disable listening for connections on external interfaces.
-* `--no-igd` on the command line or `no-igd=1` in ombred.conf to disable IGD
-  (UPnP port forwarding negotiation), which is pointless with Tor.
-* `DNS_PUBLIC=tcp` or `DNS_PUBLIC=tcp://x.x.x.x` where x.x.x.x is the IP of the
-  desired DNS server, for DNS requests to go over TCP, so that they are routed
-  through Tor. When IP is not specified, ombred uses the default list of
-  servers defined in [src/common/dns_utils.cpp](src/common/dns_utils.cpp).
-* `TORSOCKS_ALLOW_INBOUND=1` to tell torsocks to allow ombred to bind to interfaces
-   to accept connections from the wallet. On some Linux systems, torsocks
-   allows binding to localhost by default, so setting this variable is only
-   necessary to allow binding to local LAN/VPN interfaces to allow wallets to
-   connect from remote hosts. On other systems, it may be needed for local wallets
-   as well.
-* Do NOT pass `--detach` when running through torsocks with systemd, (see
-  [utils/systemd/ombred.service](utils/systemd/ombred.service) for details).
-* If you use the wallet with a Tor daemon via the loopback IP (eg, 127.0.0.1:9050),
-  then use `--untrusted-daemon` unless it is your own hidden service.
-
-Example command line to start ombred through Tor:
-
-    DNS_PUBLIC=tcp torsocks ombred --p2p-bind-ip 127.0.0.1 --no-igd
-
-### Using Tor on Tails
-
-TAILS ships with a very restrictive set of firewall rules. Therefore, you need
-to add a rule to allow this connection too, in addition to telling torsocks to
-allow inbound connections. Full example:
-
-```bash
-    sudo iptables -I OUTPUT 2 -p tcp -d 127.0.0.1 -m tcp --dport 19733 -j ACCEPT
-    DNS_PUBLIC=tcp torsocks ./ombred --p2p-bind-ip 127.0.0.1 --no-igd --rpc-bind-ip 127.0.0.1 \
-        --data-dir /home/amnesia/Persistent/your/directory/to/the/blockchain
-```
-
-# Debugging
-
-This section contains general instructions for debugging failed installs or problems encountered with Ombre. First ensure you are running the latest version built from the Github repo.
-
-### Obtaining stack traces and core dumps on Unix systems
-
-We generally use the tool `gdb` (GNU debugger) to provide stack trace functionality, and `ulimit` to provide core dumps in builds which crash or segfault.
-
-* To use `gdb` in order to obtain a stack trace for a build that has stalled:
-
-Run the build.
-
-Once it stalls, enter the following command:
-
-```bash
-gdb /path/to/ombred `pidof ombred` 
-```
-
-Type `thread apply all bt` within gdb in order to obtain the stack trace
-
-* If however the core dumps or segfaults:
-
-Enter `ulimit -c unlimited` on the command line to enable unlimited filesizes for core dumps
-
-Enter `echo core | sudo tee /proc/sys/kernel/core_pattern` to stop cores from being hijacked by other tools
-
-Run the build.
-
-When it terminates with an output along the lines of "Segmentation fault (core dumped)", there should be a core dump file in the same directory as ombred. It may be named just `core`, or `core.xxxx` with numbers appended.
-
-You can now analyse this core dump with `gdb` as follows:
-
-```bash
-gdb /path/to/ombred /path/to/dumpfile
-```
-
-Print the stack trace with `bt`
-
-#### To run ombre within gdb:
-
-Type `gdb /path/to/ombred`
-
-Pass command-line options with `--args` followed by the relevant arguments
-
-Type `run` to run ombred
-
-### Analysing memory corruption
-
-There are two tools available:
-
-#### ASAN
-
-Configure Ombre with the -D SANITIZE=ON cmake flag, eg:
-
-```bash
-cd build/debug && cmake -D SANITIZE=ON -D CMAKE_BUILD_TYPE=Debug ../..
-```
-
-You can then run the Ombre tools normally. Performance will typically halve.
-
-#### valgrind
-
-Install valgrind and run as `valgrind /path/to/ombred`. It will be very slow.
-
-### LMDB
-
-Instructions for debugging suspected blockchain corruption as per @HYC
-
-There is an `mdb_stat` command in the LMDB source that can print statistics about the database but it's not routinely built. This can be built with the following command:
-
-```bash
-cd ~/ombre/external/db_drivers/liblmdb && make
-```
-
-The output of `mdb_stat -ea <path to blockchain dir>` will indicate inconsistencies in the blocks, block_heights and block_info table.
-
-The output of `mdb_dump -s blocks <path to blockchain dir>` and `mdb_dump -s block_info <path to blockchain dir>` is useful for indicating whether blocks and block_info contain the same keys.
-
-These records are dumped as hex data, where the first line is the key and the second line is the data.
-
 ## License
 
 Please view [LICENSE](LICENSE)
 
 [![License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-
-## Copyright
-
-Copyright (c) 2018-2019, Ombre Project
-
-Copyright (c) 2017-2019, Ombre Project
-
-Copyright (c) 2014-2017, The Monero Project
-
-Portions Copyright (c) 2012-2013, The Cryptonote developers
-
