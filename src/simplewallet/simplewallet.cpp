@@ -1,10 +1,11 @@
+// Copyright (c) 2018, Ombre Cryptocurrency Project
 // Copyright (c) 2018, Ryo Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -20,7 +21,7 @@
 
 /*!
  * \file simplewallet.cpp
- * 
+ *
  * \brief Source file that defines simple_wallet class.
  */
 #include "simplewallet.h"
@@ -72,9 +73,6 @@ using namespace cryptonote;
 using boost::lexical_cast;
 namespace po = boost::program_options;
 typedef cryptonote::simple_wallet sw;
-
-//#undef RYO_DEFAULT_LOG_CATEGORY
-//#define RYO_DEFAULT_LOG_CATEGORY "wallet.simplewallet"
 
 #define EXTENDED_LOGS_FILE "wallet_details.log"
 
@@ -151,7 +149,7 @@ std::string input_line(const std::string &prompt)
 
 	SetConsoleMode(hConIn, oldMode);
 	CloseHandle(hConIn);
- 
+
 	int size_needed = WideCharToMultiByte(CP_UTF8, 0, buffer, -1, NULL, 0, NULL, NULL);
 	std::string buf(size_needed, '\0');
 	WideCharToMultiByte(CP_UTF8, 0, buffer, -1, &buf[0], size_needed, NULL, NULL);
@@ -722,7 +720,7 @@ bool simple_wallet::print_fee_info(const std::vector<std::string> &args /* = std
 
 	using namespace cryptonote;
 	constexpr uint64_t typical_size_kb = 15;
-	message_writer() << (boost::format(tr("Current fee is %s %s per kB and %s %s per ring member.")) % 
+	message_writer() << (boost::format(tr("Current fee is %s %s per kB and %s %s per ring member.")) %
 		print_money(common_config::FEE_PER_KB) % get_unit(get_default_decimal_point()) %
 		print_money(common_config::FEE_PER_RING_MEMBER) % get_unit(get_default_decimal_point()));
 
@@ -1577,7 +1575,7 @@ bool simple_wallet::save_known_rings(const std::vector<std::string> &args)
 
 bool simple_wallet::version(const std::vector<std::string> &args)
 {
-	message_writer() << "Ryo '" << RYO_RELEASE_NAME << "' (" << RYO_VERSION_FULL << ")";
+	message_writer() << "Ombre '" << RYO_RELEASE_NAME << "' (" << RYO_VERSION_FULL << ")";
 	return true;
 }
 
@@ -3191,9 +3189,9 @@ bool simple_wallet::try_connect_to_daemon(bool silent, uint32_t *version)
 
 /*!
  * \brief Gets the word seed language from the user.
- * 
+ *
  * User is asked to choose from a list of supported languages.
- * 
+ *
  * \return The chosen language.
  */
 std::string simple_wallet::get_mnemonic_language(bool ignore_cmd_arg)
@@ -3209,7 +3207,7 @@ std::string simple_wallet::get_mnemonic_language(bool ignore_cmd_arg)
 
 		//Don't return smelly user input here
 		if(!ret.empty())
-			return ret; 
+			return ret;
 
 		fail_msg_writer() << boost::format(tr("Language '%s' is not in the language list. Please specify the language manually.\n")) % m_mnemonic_language.c_str();
 	}
@@ -3308,7 +3306,7 @@ bool simple_wallet::new_wallet_from_seed(const boost::program_options::variables
 		return restore_legacy_wallet(vm, language, seed_25);
 }
 
-std::pair<std::unique_ptr<tools::wallet2>, tools::password_container> simple_wallet::make_new_wrapped(const boost::program_options::variables_map &vm, 
+std::pair<std::unique_ptr<tools::wallet2>, tools::password_container> simple_wallet::make_new_wrapped(const boost::program_options::variables_map &vm,
 																			const std::function<boost::optional<tools::password_container>(const char *, bool)> &password_prompter)
 {
 	try
@@ -4431,7 +4429,7 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
 		fail_msg_writer() << tr("wrong number of arguments");
 		return true;
 	}
-	
+
 	crypto::uniform_payment_id payment_id;
 	bool expect_even = (transfer_type == TransferLocked);
 	if((expect_even ? 0 : 1) == local_args.size() % 2)
@@ -4533,11 +4531,11 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
 				return true;
 			}
 			unlock_block = bc_height + locked_blocks;
-			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, unlock_block, priority, payment_id.zero == 0 ? &payment_id : nullptr, 
+			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, unlock_block, priority, payment_id.zero == 0 ? &payment_id : nullptr,
 														 m_current_subaddress_account, subaddr_indices, m_trusted_daemon);
 			break;
 		case TransferNew:
-			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, 0, priority, payment_id.zero == 0 ? &payment_id : nullptr, 
+			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, 0, priority, payment_id.zero == 0 ? &payment_id : nullptr,
 														 m_current_subaddress_account, subaddr_indices, m_trusted_daemon);
 			break;
 		default:
@@ -4848,7 +4846,7 @@ bool simple_wallet::sweep_main(uint64_t below, const std::vector<std::string> &a
 	try
 	{
 		// figure out what tx will be necessary
-		auto ptx_vector = m_wallet->create_transactions_all(below, info.address, info.is_subaddress, fake_outs_count, 0, 
+		auto ptx_vector = m_wallet->create_transactions_all(below, info.address, info.is_subaddress, fake_outs_count, 0,
 					priority, pid.zero == 0 ? &pid : nullptr, m_current_subaddress_account, subaddr_indices, m_trusted_daemon);
 
 		if(ptx_vector.empty())
@@ -5041,7 +5039,7 @@ bool simple_wallet::sweep_single(const std::vector<std::string> &args_)
 	try
 	{
 		// figure out what tx will be necessary
-		auto ptx_vector = m_wallet->create_transactions_single(ki, info.address, info.is_subaddress, fake_outs_count, 0, 
+		auto ptx_vector = m_wallet->create_transactions_single(ki, info.address, info.is_subaddress, fake_outs_count, 0,
 					priority, pid.zero == 0 ? &pid : nullptr, m_trusted_daemon);
 
 		if(ptx_vector.empty())
@@ -7179,7 +7177,7 @@ bool simple_wallet::import_outputs(const std::vector<std::string> &args)
 
 	size_t magiclen = strlen(OUTPUT_EXPORT_FILE_MAGIC);
 	bool is_legacy = false;
-	// first check if this outputs are ryo
+	// first check if this outputs are Ombre
 	if(data.size() < magiclen || memcmp(data.data(), OUTPUT_EXPORT_FILE_MAGIC, magiclen))
 	{
 		magiclen = strlen(OUTPUT_EXPORT_FILE_MAGIC_LEGACY);

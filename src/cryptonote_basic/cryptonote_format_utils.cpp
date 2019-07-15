@@ -951,7 +951,6 @@ bool get_block_longhash(network_type nettype, const block &b, cn_pow_hash_v2 &ct
 	}
 	else
 	{
-		std::cout << "v1 hash" << std::endl;
 		cn_pow_hash_v1 ctx_v1 = cn_pow_hash_v1::make_borrowed(ctx);
 		ctx_v1.hash(bd.data(), bd.size(), res.data);
 	}

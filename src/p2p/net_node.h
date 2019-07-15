@@ -130,14 +130,16 @@ class node_server : public epee::levin::levin_commands_handler<p2p_connection_co
 
   private:
 	const std::vector<std::string> m_seed_nodes_list =
-		{"seed1.ryo-currency.com",
-		 "seed2.ryo-currency.com",
-		 "seed3.ryo-currency.com",
-		 "seed1.ryo-currency.org",
-		 "seed2.ryo-currency.org",
-		 "seed3.ryo-currency.org",
-		 "testnet-seed.ryo-currency.com",
-		 "testnet-seed.ryo-currency.org"};
+		{"seed1.ombre.ir",
+		 "seed2.ombre.ir",
+		 "seed3.ombre.ir",
+		 "seed4.ombre.ir",
+		 "seed1.ombre.network",
+		 "seed2.ombre.network",
+		 "seed3.ombre.network",
+		 "seed4.ombre.network",
+		 "testnet-seed.ombre.ir",
+		 "testnet-seed.ombre.newtork"};
 
 	bool islimitup = false;
 	bool islimitdown = false;

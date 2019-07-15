@@ -1,3 +1,4 @@
+// Copyright (c) 2018, Ombre Cryptocurrency Project
 // Copyright (c) 2018, Ryo Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
@@ -40,7 +41,7 @@ DISABLE_VS_WARNINGS(4244)
 /*! \struct binary_archive_base
  *
  * \brief base for the binary archive type
- * 
+ *
  * \detailed It isn't used outside of this file, which its only
  * purpse is to define the functions used for the binary_archive. Its
  * a header, basically. I think it was declared simply to save typing...
