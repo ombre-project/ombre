@@ -19,7 +19,7 @@
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
-/*! \file serialization.h
+/*! \file serialization.h 
  *  \brief Simple DSL AAPI based on
  *
  * \detailed is_blob_type and  has_free_serializer are
@@ -40,7 +40,7 @@
 #include <unordered_set>
 #include <vector>
 
-/*! \struct is_blob_type
+/*! \struct is_blob_type 
  *
  * \brief a descriptor for dispatching serialize
  */
@@ -84,7 +84,7 @@ struct is_basic_type<std::string>
 /*! \struct serializer
  *
  * \brief ... wouldn't a class be better?
- *
+ * 
  * \detailed The logic behind serializing data. Places the archive
  * data into the supplied parameter. This dispatches based on the
  * supplied \a T template parameter's traits of is_blob_type or it is
@@ -190,7 +190,7 @@ inline bool do_serialize(Archive &ar, bool &v)
 	}
 
 /*! \macro BEGIN_SERIALIZE
- *
+ * 
  * \brief Begins the environment of the DSL
  * \detailed for describing how to
  * serialize an of an archive type
@@ -249,7 +249,7 @@ inline bool do_serialize(Archive &ar, bool &v)
 
 /*! \macro FIELD_N(t,f)
  *
- * \brief serializes a field \a f tagged \a t
+ * \brief serializes a field \a f tagged \a t  
  */
 #define FIELD_N(t, f)                   \
 	do                                  \

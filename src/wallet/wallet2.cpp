@@ -1,10 +1,11 @@
+// Copyright (c) 2018, Ombre Cryptocurrency Project
 // Copyright (c) 2018, Ryo Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -117,7 +118,7 @@ namespace
 std::string get_default_ringdb_path()
 {
 	boost::filesystem::path dir = tools::get_default_data_dir();
-	// remove .ryo, replace with .shared-ringdb
+	// remove .ombre, replace with .shared-ringdb
 	dir = dir.remove_filename();
 	dir /= ".shared-ringdb";
 	return dir.string();
@@ -4688,7 +4689,7 @@ bool wallet2::load_unsigned_tx(const std::string &unsigned_filename, unsigned_tx
 	}
 	size_t magiclen = strlen(UNSIGNED_TX_PREFIX) - 1;
 	bool is_legacy = false;
-	// search first for ryo
+	// search first for ombre
 	if(strncmp(s.c_str(), UNSIGNED_TX_PREFIX, magiclen))
 	{
 		magiclen = strlen(UNSIGNED_TX_PREFIX_LEGACY) - 1;
@@ -4892,7 +4893,7 @@ bool wallet2::load_tx(const std::string &signed_filename, std::vector<tools::wal
 
 	size_t magiclen = strlen(SIGNED_TX_PREFIX) - 1;
 	bool is_legacy = false;
-	//parse first ryo
+	//parse first ombre
 	if(strncmp(s.c_str(), SIGNED_TX_PREFIX, magiclen))
 	{
 		magiclen = strlen(SIGNED_TX_PREFIX_LEGACY) - 1;
@@ -9590,7 +9591,7 @@ std::vector<std::pair<uint64_t, uint64_t>> wallet2::estimate_backlog(const std::
 		uint64_t nblocks_min = priority_size_min / full_reward_zone;
 		uint64_t nblocks_max = priority_size_max / full_reward_zone;
 		MDEBUG("estimate_backlog: priority_size " << priority_size_min << " - " << priority_size_max << " for "
-												  << our_fee_byte_min << " - " << our_fee_byte_max << " nanoRyo byte fee, "
+												  << our_fee_byte_min << " - " << our_fee_byte_max << " nanoOmbre byte fee, "
 												  << nblocks_min << " - " << nblocks_max << " blocks at block size " << full_reward_zone);
 		blocks.push_back(std::make_pair(nblocks_min, nblocks_max));
 	}

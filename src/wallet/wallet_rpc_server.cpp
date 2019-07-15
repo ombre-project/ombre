@@ -1,10 +1,11 @@
+// Copyright (c) 2018, Ombre Cryptocurrency Project
 // Copyright (c) 2018, Ryo Currency Project
 // Portions copyright (c) 2014-2018, The Monero Project
 //
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -2971,8 +2972,8 @@ int main(int argc, char **argv)
 	int vm_error_code = 1;
 	const auto vm = wallet_args::main(
 		argc, argv,
-		"ryo-wallet-rpc [--wallet-file=<file>|--generate-from-json=<file>|--wallet-dir=<directory>] [--rpc-bind-port=<port>]",
-		tools::wallet_rpc_server::tr("This is the RPC ryo wallet. It needs to connect to a ryo daemon to work correctly."),
+		"ombre-wallet-rpc [--wallet-file=<file>|--generate-from-json=<file>|--wallet-dir=<directory>] [--rpc-bind-port=<port>]",
+		tools::wallet_rpc_server::tr("This is the RPC ombre wallet. It needs to connect to a ombre daemon to work correctly."),
 		desc_params,
 		po::positional_options_description(),
 		[](const std::string &s, bool emphasis) { epee::set_console_color(emphasis ? epee::console_color_white : epee::console_color_default, true); std::cout << s << std::endl; if (emphasis) epee::reset_console_color(); },

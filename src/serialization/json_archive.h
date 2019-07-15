@@ -94,7 +94,7 @@ struct json_archive_base
 };
 
 /*! \struct json_archive
- *
+ * 
  * \brief a archive using the JSON standard
  *
  * \detailed only supports being written to

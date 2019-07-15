@@ -5,7 +5,7 @@
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
-// Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+// Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
 // EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -41,7 +41,7 @@ DISABLE_VS_WARNINGS(4244)
 /*! \struct binary_archive_base
  *
  * \brief base for the binary archive type
- *
+ * 
  * \detailed It isn't used outside of this file, which its only
  * purpse is to define the functions used for the binary_archive. Its
  * a header, basically. I think it was declared simply to save typing...

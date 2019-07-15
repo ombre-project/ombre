@@ -37,7 +37,7 @@
 #include <boost/variant/variant.hpp>
 
 /*! \struct variant_serialization_triats
- *
+ * 
  * \brief used internally to contain a variant's traits/possible types
  *
  * \detailed see the macro VARIANT_TAG in serialization.h:140

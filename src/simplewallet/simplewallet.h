@@ -21,7 +21,7 @@
 
 /*!
  * \file simplewallet.h
- *
+ * 
  * \brief Header file that declares simple_wallet class.
  */
 #pragma once
@@ -39,6 +39,9 @@
 #include "cryptonote_basic/account.h"
 #include "cryptonote_basic/cryptonote_basic_impl.h"
 #include "wallet/wallet2.h"
+
+//#undef RYO_DEFAULT_LOG_CATEGORY
+//#define RYO_DEFAULT_LOG_CATEGORY "wallet.simplewallet"
 
 /*!
  * \namespace cryptonote
@@ -79,9 +82,9 @@ class simple_wallet : public tools::i_wallet2_callback
 	//! \return Prompts user for password and verifies against local file. Logs on error and returns `none`
 	boost::optional<tools::password_container> get_and_verify_password() const;
 
-	std::pair<std::unique_ptr<tools::wallet2>, tools::password_container> make_new_wrapped(const boost::program_options::variables_map &vm,
+	std::pair<std::unique_ptr<tools::wallet2>, tools::password_container> make_new_wrapped(const boost::program_options::variables_map &vm, 
 																			const std::function<boost::optional<tools::password_container>(const char *, bool)> &password_prompter);
-
+	
 	bool new_wallet_from_seed(const boost::program_options::variables_map &vm, std::string seed);
 	bool new_wallet(const boost::program_options::variables_map &vm, const std::string& seed_lang, const crypto::secret_key_16 *seed = nullptr, uint8_t seed_extra = cryptonote::ACC_OPT_LONG_ADDRESS);
 	bool restore_legacy_wallet(const boost::program_options::variables_map &vm, const std::string& seed_lang, const crypto::secret_key &seed_legacy);
@@ -235,9 +238,9 @@ class simple_wallet : public tools::i_wallet2_callback
 
 	/*!
      * \brief Gets the word seed language from the user.
-     *
+     * 
      * User is asked to choose from a list of supported languages.
-     *
+     * 
      * \return The chosen language.
      */
 	std::string get_mnemonic_language(bool ignore_cmd_arg);

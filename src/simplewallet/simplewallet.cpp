@@ -21,7 +21,7 @@
 
 /*!
  * \file simplewallet.cpp
- *
+ * 
  * \brief Source file that defines simple_wallet class.
  */
 #include "simplewallet.h"
@@ -74,6 +74,9 @@ using boost::lexical_cast;
 namespace po = boost::program_options;
 typedef cryptonote::simple_wallet sw;
 
+//#undef RYO_DEFAULT_LOG_CATEGORY
+//#define RYO_DEFAULT_LOG_CATEGORY "wallet.simplewallet"
+
 #define EXTENDED_LOGS_FILE "wallet_details.log"
 
 #define OUTPUT_EXPORT_FILE_MAGIC_LEGACY "Sumokoin output export\002"
@@ -119,7 +122,7 @@ const command_line::arg_descriptor<bool> arg_restore_multisig_wallet = {"restore
 const command_line::arg_descriptor<bool> arg_trusted_daemon = {"trusted-daemon", sw::tr("Enable commands which rely on a trusted daemon"), false};
 const command_line::arg_descriptor<bool> arg_allow_mismatched_daemon_version = {"allow-mismatched-daemon-version", sw::tr("Allow communicating with a daemon that uses a different RPC version"), false};
 const command_line::arg_descriptor<uint64_t> arg_restore_height = {"restore-height", sw::tr("Restore from specific blockchain height"), 0};
-const command_line::arg_descriptor<bool> arg_do_not_relay = {"do-not-relay", sw::tr("The newly created transaction will not be relayed to the ryo network"), false};
+const command_line::arg_descriptor<bool> arg_do_not_relay = {"do-not-relay", sw::tr("The newly created transaction will not be relayed to the ombre network"), false};
 const command_line::arg_descriptor<bool> arg_create_address_file = {"create-address-file", sw::tr("Create an address file for new wallets"), false};
 const command_line::arg_descriptor<std::string> arg_subaddress_lookahead = {"subaddress-lookahead", tools::wallet2::tr("Set subaddress lookahead sizes to <major>:<minor>"), ""};
 const command_line::arg_descriptor<bool> arg_use_english_language_names = {"use-english-language-names", sw::tr("Display English language names"), false};
@@ -149,7 +152,7 @@ std::string input_line(const std::string &prompt)
 
 	SetConsoleMode(hConIn, oldMode);
 	CloseHandle(hConIn);
-
+ 
 	int size_needed = WideCharToMultiByte(CP_UTF8, 0, buffer, -1, NULL, 0, NULL, NULL);
 	std::string buf(size_needed, '\0');
 	WideCharToMultiByte(CP_UTF8, 0, buffer, -1, &buf[0], size_needed, NULL, NULL);
@@ -720,7 +723,7 @@ bool simple_wallet::print_fee_info(const std::vector<std::string> &args /* = std
 
 	using namespace cryptonote;
 	constexpr uint64_t typical_size_kb = 15;
-	message_writer() << (boost::format(tr("Current fee is %s %s per kB and %s %s per ring member.")) %
+	message_writer() << (boost::format(tr("Current fee is %s %s per kB and %s %s per ring member.")) % 
 		print_money(common_config::FEE_PER_KB) % get_unit(get_default_decimal_point()) %
 		print_money(common_config::FEE_PER_RING_MEMBER) % get_unit(get_default_decimal_point()));
 
@@ -2053,7 +2056,7 @@ simple_wallet::simple_wallet()
 	m_cmd_binder.set_handler("donate",
 							 boost::bind(&simple_wallet::donate, this, _1),
 							 tr("donate [index=<N1>[,<N2>,...]] [<priority>] [<ring_size>] <amount> [<payment_id>]"),
-							 tr("Donate <amount> to the Ryo development team"));
+							 tr("Donate <amount> to the Ombre development team"));
 	m_cmd_binder.set_handler("sign_transfer",
 							 boost::bind(&simple_wallet::sign_transfer, this, _1),
 							 tr("sign_transfer [export]"),
@@ -2147,9 +2150,9 @@ simple_wallet::simple_wallet()
 								"auto-low-priority <1|0>\n "
 								"  Whether to automatically use the low priority fee level when it's safe to do so.\n "
 								"segregate-pre-fork-outputs <1|0>\n "
-								"  Set this if you intend to spend outputs on both Ryo AND a key reusing fork.\n "
+								"  Set this if you intend to spend outputs on both Ombre AND a key reusing fork.\n "
 								"key-reuse-mitigation2 <1|0>\n "
-								"  Set this if you are not sure whether you will spend on a key reusing Ryo fork later.\n"
+								"  Set this if you are not sure whether you will spend on a key reusing Ombre fork later.\n"
 								"subaddress-lookahead <major>:<minor>\n "
 								"  Set the lookahead sizes for the subaddress hash table.\n "
 								"segregation-height <n>\n "
@@ -3189,9 +3192,9 @@ bool simple_wallet::try_connect_to_daemon(bool silent, uint32_t *version)
 
 /*!
  * \brief Gets the word seed language from the user.
- *
+ * 
  * User is asked to choose from a list of supported languages.
- *
+ * 
  * \return The chosen language.
  */
 std::string simple_wallet::get_mnemonic_language(bool ignore_cmd_arg)
@@ -3207,7 +3210,7 @@ std::string simple_wallet::get_mnemonic_language(bool ignore_cmd_arg)
 
 		//Don't return smelly user input here
 		if(!ret.empty())
-			return ret;
+			return ret; 
 
 		fail_msg_writer() << boost::format(tr("Language '%s' is not in the language list. Please specify the language manually.\n")) % m_mnemonic_language.c_str();
 	}
@@ -3306,7 +3309,7 @@ bool simple_wallet::new_wallet_from_seed(const boost::program_options::variables
 		return restore_legacy_wallet(vm, language, seed_25);
 }
 
-std::pair<std::unique_ptr<tools::wallet2>, tools::password_container> simple_wallet::make_new_wrapped(const boost::program_options::variables_map &vm,
+std::pair<std::unique_ptr<tools::wallet2>, tools::password_container> simple_wallet::make_new_wrapped(const boost::program_options::variables_map &vm, 
 																			const std::function<boost::optional<tools::password_container>(const char *, bool)> &password_prompter)
 {
 	try
@@ -4429,7 +4432,7 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
 		fail_msg_writer() << tr("wrong number of arguments");
 		return true;
 	}
-
+	
 	crypto::uniform_payment_id payment_id;
 	bool expect_even = (transfer_type == TransferLocked);
 	if((expect_even ? 0 : 1) == local_args.size() % 2)
@@ -4444,7 +4447,7 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
 		}
 
 		if(m_wallet->confirm_missing_payment_id())
-			message_writer() << tr("You included a PID. Normally this would be a privacy problem, however Ryo Uniform PID's fixed this.");
+			message_writer() << tr("You included a PID. Normally this would be a privacy problem, however Ombre Uniform PID's fixed this.");
 	}
 
 	uint64_t locked_blocks = 0;
@@ -4531,11 +4534,11 @@ bool simple_wallet::transfer_main(int transfer_type, const std::vector<std::stri
 				return true;
 			}
 			unlock_block = bc_height + locked_blocks;
-			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, unlock_block, priority, payment_id.zero == 0 ? &payment_id : nullptr,
+			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, unlock_block, priority, payment_id.zero == 0 ? &payment_id : nullptr, 
 														 m_current_subaddress_account, subaddr_indices, m_trusted_daemon);
 			break;
 		case TransferNew:
-			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, 0, priority, payment_id.zero == 0 ? &payment_id : nullptr,
+			ptx_vector = m_wallet->create_transactions_2(dsts, fake_outs_count, 0, priority, payment_id.zero == 0 ? &payment_id : nullptr, 
 														 m_current_subaddress_account, subaddr_indices, m_trusted_daemon);
 			break;
 		default:
@@ -4846,7 +4849,7 @@ bool simple_wallet::sweep_main(uint64_t below, const std::vector<std::string> &a
 	try
 	{
 		// figure out what tx will be necessary
-		auto ptx_vector = m_wallet->create_transactions_all(below, info.address, info.is_subaddress, fake_outs_count, 0,
+		auto ptx_vector = m_wallet->create_transactions_all(below, info.address, info.is_subaddress, fake_outs_count, 0, 
 					priority, pid.zero == 0 ? &pid : nullptr, m_current_subaddress_account, subaddr_indices, m_trusted_daemon);
 
 		if(ptx_vector.empty())
@@ -5039,7 +5042,7 @@ bool simple_wallet::sweep_single(const std::vector<std::string> &args_)
 	try
 	{
 		// figure out what tx will be necessary
-		auto ptx_vector = m_wallet->create_transactions_single(ki, info.address, info.is_subaddress, fake_outs_count, 0,
+		auto ptx_vector = m_wallet->create_transactions_single(ki, info.address, info.is_subaddress, fake_outs_count, 0, 
 					priority, pid.zero == 0 ? &pid : nullptr, m_trusted_daemon);
 
 		if(ptx_vector.empty())
@@ -5172,7 +5175,7 @@ bool simple_wallet::donate(const std::vector<std::string> &args_)
 	local_args.push_back(amount_str);
 	if(!payment_id_str.empty())
 		local_args.push_back(payment_id_str);
-	message_writer() << tr("Donating ") << amount_str << " to The Ryo Currency Project (" << common_config::RYO_DONATION_ADDR << ").";
+	message_writer() << tr("Donating ") << amount_str << " to The Ombre Currency Project (" << common_config::RYO_DONATION_ADDR << ").";
 	transfer_new(local_args);
 	return true;
 }
@@ -7177,7 +7180,7 @@ bool simple_wallet::import_outputs(const std::vector<std::string> &args)
 
 	size_t magiclen = strlen(OUTPUT_EXPORT_FILE_MAGIC);
 	bool is_legacy = false;
-	// first check if this outputs are Ombre
+	// first check if this outputs are ryo
 	if(data.size() < magiclen || memcmp(data.data(), OUTPUT_EXPORT_FILE_MAGIC, magiclen))
 	{
 		magiclen = strlen(OUTPUT_EXPORT_FILE_MAGIC_LEGACY);
@@ -7477,7 +7480,7 @@ int main(int argc, char *argv[])
 	const auto vm = wallet_args::main(
 		argc, argv,
 		"ryo-wallet-cli [--wallet-file=<file>|--generate-new-wallet=<file>] [<COMMAND>]",
-		sw::tr("This is the command line ryo wallet. It needs to connect to a ryo daemon to work correctly."),
+		sw::tr("This is the command line ombre wallet. It needs to connect to a ombre daemon to work correctly."),
 		desc_params,
 		positional_options,
 		[](const std::string &s, bool emphasis) { tools::scoped_message_writer(emphasis ? epee::console_color_white : epee::console_color_default, true) << s; },

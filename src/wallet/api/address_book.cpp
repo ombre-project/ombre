@@ -4,7 +4,10 @@
 // Portions of this file are available under BSD-3 license. Please see ORIGINAL-LICENSE for details
 // All rights reserved.
 //
+<<<<<<< HEAD
+=======
 // Ryo changes to this code are in public domain. Please note, other licences may apply to the file.
+>>>>>>> 5dc1cf1040d598a0bbfbebac4a96ce52802821a9
 // Ombre changes to this code are in public domain. Please note, other licences may apply to the file.
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
