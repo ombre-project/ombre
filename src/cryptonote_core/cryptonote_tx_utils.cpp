@@ -32,6 +32,7 @@ using namespace epee;
 #include "cryptonote_tx_utils.h"
 #include "multisig/multisig.h"
 #include "ringct/rctSigs.h"
+#include "cryptonote_basic/hardfork.cpp"
 
 using namespace crypto;
 
@@ -123,7 +124,9 @@ bool construct_miner_tx(cryptonote::network_type nettype, bool devfee_v3, size_t
 	out = { dev_fund_amount, txout_to_key(out_eph_public_key) };
 	tx.vout.push_back(out);
 
+
 	tx.version = 2;
+
 
 	//lock
 	tx.unlock_time = height + CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW;

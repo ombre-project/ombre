@@ -84,7 +84,8 @@ static const struct
   { 1, 1, 0, 1482806500 },
   { 2, 21300, 0, 1497657600 },
   { 3, 72000, 0, 1524577218 }, // Roughly the 20th of April.
-  { 4, 208499, 0, 1531762611 } // Roughly the 23rd of July.
+  { 4, 208499, 0, 1531762611 }, // Roughly the 23rd of July.
+  { 5, 797770, 0, 1569024000 } // September 20 7PM ... Richard
 };
 
 static const uint64_t mainnet_hard_fork_version_1_till = (uint64_t)-1;
@@ -96,11 +97,7 @@ static const struct
 	uint8_t threshold;
 	time_t time;
 } testnet_hard_forks[] = {
-  { 1, 1, 0, 1482806500 },
-  { 2, 6, 0, 1497181713 },
-  { 3, 7, 0, 1522597016 },
-  { 4, 8, 0, 1522597017 },
-  { 5, 10, 0, 1522597018 }
+
 };
 static const uint64_t testnet_hard_fork_version_1_till = (uint64_t)-1;
 
@@ -111,9 +108,7 @@ static const struct
 	uint8_t threshold;
 	time_t time;
 } stagenet_hard_forks[] = {
-	{1, 1, 0, 1482806500},
-	{2, 5150, 0, 1497181713},
-	{3, 103580, 0, 1522540800} // April 01, 2018
+
 };
 
 //------------------------------------------------------------------
@@ -1200,7 +1195,7 @@ bool Blockchain::validate_miner_transaction_v2(const block &b, uint64_t height, 
 		return false;
 	}
 
-	uint64_t dev_money_needed = check_hard_fork_feature(FORK_DEV_FUND_V2) ? get_dev_fund_amount_v1(base_reward, already_generated_coins) : get_dev_fund_amount_v0(base_reward, already_generated_coins);
+	uint64_t dev_money_needed = CRYPTONOTE_PROJECT_BLOCK_REWARD;
 
 	if(dev_money < dev_money_needed)
 	{
@@ -3080,7 +3075,7 @@ bool Blockchain::check_fee(const transaction &tx, size_t blob_size, uint64_t fee
 
 	//WHO THOUGHT THAT FLOATS IN CONSENSUS CODE ARE A GOOD IDEA?????
 	float kB = (blob_size - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE) * 1.0f / 1024;
-	needed_fee = ((uint64_t)(kB * fee_per_kb)) / 100 * 100;
+	needed_fee = ((uint64_t)(kB * fee_per_kb)) / 200 * 100;
 
 	if(fee < needed_fee)
 	{

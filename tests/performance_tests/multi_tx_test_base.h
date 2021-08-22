@@ -54,11 +54,7 @@ class multi_tx_test_base
 		for(size_t i = 0; i < ring_size; ++i)
 		{
 			m_miners[i].generate_new(0);
-      bool dev_fee_v3 = false;
-      if( height>796430)  /// This number should be changed based on what hieght the fork will be happened. yoosofan
-        dev_fee_v3=true;
-			if(!construct_miner_tx(MAINNET, dev_fee_v3, 0, 0, 0, 2, 0, m_miners[i].get_keys().m_account_address, m_miner_txs[i]))
-				return false;
+
 
 			txout_to_key tx_out = boost::get<txout_to_key>(m_miner_txs[i].vout[0].target);
 			output_entries.push_back(std::make_pair(i, rct::ctkey({rct::pk2rct(tx_out.key), rct::zeroCommit(m_miner_txs[i].vout[0].amount)})));

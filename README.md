@@ -122,6 +122,9 @@ library archives (`.a`).
 [^] On Debian/Ubuntu `libgtest-dev` only includes sources and headers. You must
 build the library binary manually. This can be done with the following command ```sudo apt-get install libgtest-dev && cd /usr/src/gtest && sudo cmake . && sudo make && sudo mv libg* /usr/lib/ ```
 
+Debian / Ubuntu one liner for all dependencies  
+``` sudo apt update && sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev libunbound-dev libsodium-dev libunwind8-dev liblzma-dev libreadline6-dev libldns-dev libexpat1-dev doxygen graphviz libpgm-dev```
+
 ### Cloning the repository
 
 Clone recursively to pull-in needed submodule(s):
@@ -143,7 +146,6 @@ invokes cmake commands as needed.
 * Change to the root of the source code directory, change to the most recent release branch, and build:
 
         cd ombre
-        git checkout tags/0.2.0
         make
 
     *Optional*: If your machine has several cores and enough memory, enable

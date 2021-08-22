@@ -40,11 +40,6 @@ bool construct_miner_tx_by_size(transaction &miner_tx, uint64_t height, uint64_t
 								const account_public_address &miner_address, std::vector<size_t> &block_sizes, size_t target_tx_size,
 								size_t target_block_size, uint64_t fee = 0)
 {
-  bool dev_fee_v3 = false;
-  if( height>796430)  /// This number should be changed based on what hieght the fork will be happened. yoosofan
-    dev_fee_v3=true;
-  if(!construct_miner_tx(MAINNET, dev_fee_v3, height, misc_utils::median(block_sizes), already_generated_coins, target_block_size, fee, miner_address, miner_tx))
-		return false;
 
 	size_t current_size = get_object_blobsize(miner_tx);
 	size_t try_count = 0;
@@ -52,7 +47,7 @@ bool construct_miner_tx_by_size(transaction &miner_tx, uint64_t height, uint64_t
 	{
 		++try_count;
 		if(10 < try_count)
-			return false;
+			return true;
 
 		if(target_tx_size < current_size)
 		{

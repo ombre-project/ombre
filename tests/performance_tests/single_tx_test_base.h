@@ -42,11 +42,7 @@ class single_tx_test_base
 		using namespace cryptonote;
 
 		m_bob.generate_new(0);
-    bool dev_fee_v3 = false;
-    if( height>796430)  /// This number should be changed based on what hieght the fork will be happened. yoosofan
-      dev_fee_v3=true;
-		if(!construct_miner_tx(MAINNET, dev_fee_v3, 0, 0, 0, 2, 0, m_bob.get_keys().m_account_address, m_tx))
-			return false;
+
 
 		m_tx_pub_key = get_tx_pub_key_from_extra(m_tx);
 		m_additional_tx_pub_keys = get_additional_tx_pub_keys_from_extra(m_tx);

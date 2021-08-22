@@ -20,8 +20,6 @@ cryptonote::transaction
 make_miner_transaction(cryptonote::account_public_address const &to)
 {
 	cryptonote::transaction tx{};
-	if(!cryptonote::construct_miner_tx(cryptonote::MAINNET, 0, 0, 5000, 500, 500, to, tx))
-		throw std::runtime_error{"transaction construction error"};
 
 	crypto::hash id{0};
 	if(!cryptonote::get_transaction_hash(tx, id))

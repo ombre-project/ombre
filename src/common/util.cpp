@@ -611,12 +611,6 @@ bool on_startup()
 		MCLOG_RED(el::Level::Warning, "global", "Running with glibc " << ver << ", hangs may occur - change glibc version if possible");
 #endif
 
-#if OPENSSL_VERSION_NUMBER < 0x10100000 || defined(LIBRESSL_VERSION_TEXT)
-	SSL_library_init();
-#else
-	OPENSSL_init_ssl(0, NULL);
-#endif
-
 	if(!unbound_built_with_threads())
 		MCLOG_RED(el::Level::Warning, "global", "libunbound was not built with threads enabled - crashes may occur");
 
