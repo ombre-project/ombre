@@ -11,7 +11,7 @@ Copyright (c) 2012-2013, The Cryptonote developers
 
 ## Development Resources
 
-- Web: [www.ombre.network](http://www.ombre.network)
+- Web: [www.ombre.cash](http://www.ombre.cash)
 - GitHub: [https://github.com/ombre-project/ombre](https://github.com/ombre-project/ombre)
 
 ## Introduction
