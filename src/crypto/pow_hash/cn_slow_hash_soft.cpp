@@ -101,6 +101,15 @@ struct aesdata
 	uint64_t v64x0;
 	uint64_t v64x1;
 
+    inline aesdata() noexcept : v64x0(0), v64x1(0) {} // Initialize members to default values
+
+	// Copy constructor
+	inline aesdata(const aesdata& other) noexcept
+	{
+	    v64x0 = other.v64x0;
+	    v64x1 = other.v64x1;
+	}
+
 	inline void load(const cn_sptr mem)
 	{
 		v64x0 = mem.as_uqword(0);

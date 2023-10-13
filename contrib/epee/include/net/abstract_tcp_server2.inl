@@ -45,6 +45,9 @@
 #include <boost/utility/value_init.hpp>
 #include <boost/uuid/random_generator.hpp>
 
+#include <boost/bind/placeholders.hpp>
+
+
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
@@ -57,6 +60,13 @@
 #define DEFAULT_TIMEOUT_MS_LOCAL boost::posix_time::milliseconds(120000) // 2 minutes
 #define DEFAULT_TIMEOUT_MS_REMOTE boost::posix_time::milliseconds(10000) // 10 seconds
 #define TIMEOUT_EXTRA_MS_PER_BYTE 0.2
+
+#if BOOST_VERSION >= 107000
+#define GET_IO_SERVICE(s) ((boost::asio::io_context&)(s).get_executor().context())
+#else
+#define GET_IO_SERVICE(s) ((s).get_io_service())
+#endif
+
 
 PRAGMA_WARNING_PUSH
 namespace epee
@@ -204,7 +214,7 @@ bool connection<t_protocol_handler>::request_callback()
 template <class t_protocol_handler>
 boost::asio::io_service &connection<t_protocol_handler>::get_io_service()
 {
-	return socket_.get_io_service();
+	return GET_IO_SERVICE(socket_);
 }
 //---------------------------------------------------------------------------------
 template <class t_protocol_handler>
@@ -367,7 +377,7 @@ bool connection<t_protocol_handler>::call_run_once_service_io()
 	if(!m_is_multithreaded)
 	{
 		//single thread model, we can wait in blocked call
-		size_t cnt = socket_.get_io_service().run_one();
+		size_t cnt = GET_IO_SERVICE(socket_).run_one();
 		if(!cnt) //service is going to quit
 			return false;
 	}
@@ -378,7 +388,7 @@ bool connection<t_protocol_handler>::call_run_once_service_io()
 		//if no handlers were called
 		//TODO: Maybe we need to have have critical section + event + callback to upper protocol to
 		//ask it inside(!) critical region if we still able to go in event wait...
-		size_t cnt = socket_.get_io_service().poll_one();
+		size_t cnt = GET_IO_SERVICE(socket_).poll_one();
 		if(!cnt)
 			misc_utils::sleep_no_w(0);
 	}
@@ -559,7 +569,7 @@ bool connection<t_protocol_handler>::do_send_chunk(const void *ptr, size_t cb)
 		reset_timer(get_default_time(), false);
 		boost::asio::async_write(socket_, boost::asio::buffer(m_send_que.front().data(), size_now),
 								 //strand_.wrap(
-								 boost::bind(&connection<t_protocol_handler>::handle_write, self, _1, _2)
+								 boost::bind(&connection<t_protocol_handler>::handle_write, self, boost::placeholders::_1, boost::placeholders::_2)
 								 //)
 								 );
 		//_dbg3("(chunk): " << size_now);
@@ -702,7 +712,7 @@ void connection<t_protocol_handler>::handle_write(const boost::system::error_cod
 		CHECK_AND_ASSERT_MES(size_now == m_send_que.front().size(), void(), "Unexpected queue size");
 		boost::asio::async_write(socket_, boost::asio::buffer(m_send_que.front().data(), size_now),
 								 // strand_.wrap(
-								 boost::bind(&connection<t_protocol_handler>::handle_write, connection<t_protocol_handler>::shared_from_this(), _1, _2)
+								 boost::bind(&connection<t_protocol_handler>::handle_write, connection<t_protocol_handler>::shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
 								 // )
 								 );
 		//_dbg3("(normal)" << size_now);
@@ -1077,7 +1087,7 @@ bool boosted_tcp_server<t_protocol_handler>::connect(const std::string &adr, con
 		shared_context->connect_mut.unlock();
 	};
 
-	sock_.async_connect(remote_endpoint, boost::bind<void>(connect_callback, _1, local_shared_context));
+	sock_.async_connect(remote_endpoint, boost::bind<void>(connect_callback, boost::placeholders::_1, local_shared_context));
 	while(local_shared_context->ec == boost::asio::error::would_block)
 	{
 		bool r = local_shared_context->cond.timed_wait(lock, boost::get_system_time() + boost::posix_time::milliseconds(conn_timeout));
