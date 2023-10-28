@@ -94,12 +94,12 @@ int main(int argc, char *argv[])
 	SL(tools::wallet2::unsigned_tx_set);
 	SL(tools::wallet2::signed_tx_set);
 
-	SL(Ryo::WalletImpl);
-	SL(Ryo::AddressBookRow);
-	SL(Ryo::TransactionInfoImpl);
-	SL(Ryo::TransactionHistoryImpl);
-	SL(Ryo::PendingTransactionImpl);
-	SL(Ryo::UnsignedTransactionImpl);
+	//SL(Ryo::WalletImpl);
+	//SL(Ryo::AddressBookRow);
+	//SL(Ryo::TransactionInfoImpl);
+	//SL(Ryo::TransactionHistoryImpl);
+	//SL(Ryo::PendingTransactionImpl);
+	//SL(Ryo::UnsignedTransactionImpl);
 
 	return 0;
 }
