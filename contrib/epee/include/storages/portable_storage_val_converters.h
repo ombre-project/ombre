@@ -66,7 +66,7 @@ void convert_uint_to_any_int(const from_type &from, to_type &to)
 	PUSH_WARNINGS
 	DISABLE_VS_WARNINGS(4018)
 	DISABLE_CLANG_WARNING(tautological-constant-out-of-range-compare)
-	CHECK_AND_ASSERT_THROW_MES(from <= std::numeric_limits<to_type>::max(), "uint value overhead: try to set value " << from << " to type " << typeid(to_type).name() << " with max possible value = " << std::numeric_limits<to_type>::max());
+	CHECK_AND_ASSERT_THROW_MES(static_cast<unsigned long long>(from) <= static_cast<unsigned long long>(std::numeric_limits<to_type>::max()), "uint value overhead: try to set value " << from << " to type " << typeid(to_type).name() << " with max possible value = " << std::numeric_limits<to_type>::max());
 	to = static_cast<to_type>(from);
 	POP_WARNINGS
 }

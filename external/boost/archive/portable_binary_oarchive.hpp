@@ -227,8 +227,11 @@ BOOST_SERIALIZATION_REGISTER_ARCHIVE(portable_binary_oarchive)
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-//#include <boost/detail/endian.hpp>
+#if BOOST_VERSION >= 107200
 #include <boost/predef/other/endian.h>
+#else
+#include <boost/detail/endian.hpp>
+#endif
 #include <ostream>
 
 namespace boost
@@ -281,10 +284,7 @@ portable_binary_oarchive::save_impl(
 		
 #endif
 	if (need_reverse)
-	{
 		std::reverse(cptr, cptr + size -1);
-	}
-
 	this->primitive_base_t::save_binary(cptr, size);
 }
 

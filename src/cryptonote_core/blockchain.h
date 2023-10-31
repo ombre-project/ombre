@@ -40,6 +40,7 @@
 #if BOOST_VERSION / 100000 == 1 && BOOST_VERSION / 100 % 1000 == 74
 #include <boost/serialization/library_version_type.hpp>
 #endif
+#include <boost/serialization/list.hpp>
 
 #include "blockchain_db/blockchain_db.h"
 #include "checkpoints/checkpoints.h"
@@ -669,6 +670,7 @@ class Blockchain
      */
 	template <class t_ids_container, class t_tx_container, class t_missed_container>
 	bool get_transactions_blobs(const t_ids_container &txs_ids, t_tx_container &txs, t_missed_container &missed_txs) const;
+     bool get_transaction_blobs_const (const std::vector<crypto::hash> &txs_ids, std::list<cryptonote::blobdata> &txs, std::list<crypto::hash> &missed_txs) const;
 	template <class t_ids_container, class t_tx_container, class t_missed_container>
 	bool get_transactions(const t_ids_container &txs_ids, t_tx_container &txs, t_missed_container &missed_txs) const;
 

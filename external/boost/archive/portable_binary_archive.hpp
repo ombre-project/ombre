@@ -22,8 +22,11 @@
 #endif
 
 #include <boost/archive/basic_archive.hpp>
-//#include <boost/detail/endian.hpp>
+#if BOOST_VERSION >= 107200
 #include <boost/predef/other/endian.h>
+#else
+#include <boost/detail/endian.hpp>
+#endif
 
 #include <boost/archive/impl/archive_serializer_map.ipp>
 
@@ -42,7 +45,6 @@ enum portable_binary_archive_flags
 //#error archive flags conflict
 //#endif
 
-
 // inline void
 // reverse_bytes(signed char size, char *address)
 // {
@@ -57,8 +59,6 @@ enum portable_binary_archive_flags
 // 		*first = x;
 // 	}
 // }
-
-
 }
 }
 

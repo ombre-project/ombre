@@ -18,6 +18,7 @@
 //
 // Parts of this file are originally copyright (c) 2012-2013 The Cryptonote developers
 
+#include "blockchain.h"
 #include <boost/algorithm/string.hpp>
 
 #include "include_base_utils.h"
@@ -285,7 +286,9 @@ bool core::get_blocks(uint64_t start_offset, size_t count, std::list<block> &blo
 //-----------------------------------------------------------------------------------------------
 bool core::get_transactions(const std::vector<crypto::hash> &txs_ids, std::list<cryptonote::blobdata> &txs, std::list<crypto::hash> &missed_txs) const
 {
-	return m_blockchain_storage.get_transactions_blobs(txs_ids, txs, missed_txs);
+	return m_blockchain_storage.get_transaction_blobs_const(txs_ids, txs, missed_txs);
+	// for a compiler (linker) error we define new function get_transaction_blobs_const() without template, so I commented below line
+	// return m_blockchain_storage.get_transactions_blobs(txs_ids, txs, missed_txs);
 }
 //-----------------------------------------------------------------------------------------------
 bool core::get_txpool_backlog(std::vector<tx_backlog_entry> &backlog) const
@@ -1061,7 +1064,9 @@ bool core::handle_block_found(block &b)
 		arg.current_blockchain_height = m_blockchain_storage.get_current_blockchain_height();
 		std::list<crypto::hash> missed_txs;
 		std::list<cryptonote::blobdata> txs;
-		m_blockchain_storage.get_transactions_blobs(b.tx_hashes, txs, missed_txs);
+		// for a compiler (linker) error we define new function get_transaction_blobs_const() without template, so I commented below line
+		m_blockchain_storage.get_transaction_blobs_const(b.tx_hashes, txs, missed_txs);
+		//m_blockchain_storage.get_transactions_blobs(b.tx_hashes, txs, missed_txs);
 		if(missed_txs.size() && m_blockchain_storage.get_block_id_by_height(get_block_height(b)) != get_block_hash(b))
 		{
 			LOG_PRINT_L1("Block found but, seems that reorganize just happened after that, do not relay this block");
