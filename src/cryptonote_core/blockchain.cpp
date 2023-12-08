@@ -2212,6 +2212,13 @@ bool Blockchain::get_transactions_blobs(const t_ids_container &txs_ids, t_tx_con
 	}
 	return true;
 }
+
+// add this function to avoid ERROR in ubuntu 22.04
+bool Blockchain::get_transaction_blobs_const (const std::vector<crypto::hash> &txs_ids, std::list<cryptonote::blobdata> &txs, std::list<crypto::hash> &missed_txs) const
+{
+	return get_transactions_blobs(txs_ids, txs, missed_txs);
+}
+
 //------------------------------------------------------------------
 template <class t_ids_container, class t_tx_container, class t_missed_container>
 bool Blockchain::get_transactions(const t_ids_container &txs_ids, t_tx_container &txs, t_missed_container &missed_txs) const

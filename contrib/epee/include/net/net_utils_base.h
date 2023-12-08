@@ -296,19 +296,19 @@ struct connection_context_base
 	}
 	
 	// Copy constructor
-    	connection_context_base(const connection_context_base &other)
-        : m_connection_id(other.m_connection_id),
-          m_remote_address(other.m_remote_address),
-          m_is_income(other.m_is_income),
-          m_started(other.m_started),
-          m_last_recv(other.m_last_recv),
-          m_last_send(other.m_last_send),
-          m_recv_cnt(other.m_recv_cnt),
-          m_send_cnt(other.m_send_cnt),
-          m_current_speed_down(other.m_current_speed_down),
-          m_current_speed_up(other.m_current_speed_up)
-	    {
-	    }
+	connection_context_base(const connection_context_base &other)
+	: m_connection_id(other.m_connection_id),
+		m_remote_address(other.m_remote_address),
+		m_is_income(other.m_is_income),
+		m_started(other.m_started),
+		m_last_recv(other.m_last_recv),
+		m_last_send(other.m_last_send),
+		m_recv_cnt(other.m_recv_cnt),
+		m_send_cnt(other.m_send_cnt),
+		m_current_speed_down(other.m_current_speed_down),
+		m_current_speed_up(other.m_current_speed_up)
+	{
+	}
 
 	connection_context_base &operator=(const connection_context_base &a)
 	{
