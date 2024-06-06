@@ -45,9 +45,6 @@
 #include <boost/utility/value_init.hpp>
 #include <boost/uuid/random_generator.hpp>
 
-#include <boost/bind/placeholders.hpp>
-
-
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
@@ -67,6 +64,9 @@
 #define GET_IO_SERVICE(s) ((s).get_io_service())
 #endif
 
+#if BOOST_VERSION >= 106501
+using namespace boost::placeholders;
+#endif
 
 PRAGMA_WARNING_PUSH
 namespace epee
@@ -569,7 +569,7 @@ bool connection<t_protocol_handler>::do_send_chunk(const void *ptr, size_t cb)
 		reset_timer(get_default_time(), false);
 		boost::asio::async_write(socket_, boost::asio::buffer(m_send_que.front().data(), size_now),
 								 //strand_.wrap(
-								 boost::bind(&connection<t_protocol_handler>::handle_write, self, boost::placeholders::_1, boost::placeholders::_2)
+								 boost::bind(&connection<t_protocol_handler>::handle_write, self, _1, _2)
 								 //)
 								 );
 		//_dbg3("(chunk): " << size_now);
@@ -712,7 +712,7 @@ void connection<t_protocol_handler>::handle_write(const boost::system::error_cod
 		CHECK_AND_ASSERT_MES(size_now == m_send_que.front().size(), void(), "Unexpected queue size");
 		boost::asio::async_write(socket_, boost::asio::buffer(m_send_que.front().data(), size_now),
 								 // strand_.wrap(
-								 boost::bind(&connection<t_protocol_handler>::handle_write, connection<t_protocol_handler>::shared_from_this(), boost::placeholders::_1, boost::placeholders::_2)
+								 boost::bind(&connection<t_protocol_handler>::handle_write, connection<t_protocol_handler>::shared_from_this(), _1, _2)
 								 // )
 								 );
 		//_dbg3("(normal)" << size_now);
@@ -1087,7 +1087,7 @@ bool boosted_tcp_server<t_protocol_handler>::connect(const std::string &adr, con
 		shared_context->connect_mut.unlock();
 	};
 
-	sock_.async_connect(remote_endpoint, boost::bind<void>(connect_callback, boost::placeholders::_1, local_shared_context));
+	sock_.async_connect(remote_endpoint, boost::bind<void>(connect_callback, _1, local_shared_context));
 	while(local_shared_context->ec == boost::asio::error::would_block)
 	{
 		bool r = local_shared_context->cond.timed_wait(lock, boost::get_system_time() + boost::posix_time::milliseconds(conn_timeout));

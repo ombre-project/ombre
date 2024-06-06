@@ -234,8 +234,11 @@ BOOST_SERIALIZATION_REGISTER_ARCHIVE(portable_binary_iarchive)
 #include <string>
 
 #include <boost/archive/archive_exception.hpp>
-//#include <boost/detail/endian.hpp>
+#if BOOST_VERSION >= 107200
 #include <boost/predef/other/endian.h>
+#else
+#include <boost/detail/endian.hpp>
+#endif
 #include <boost/serialization/throw_exception.hpp>
 
 namespace boost
@@ -277,10 +280,7 @@ portable_binary_iarchive::load_impl(boost::intmax_t &l, char maxsize)
 		need_reverse = true;
 #endif
 	if (need_reverse)
-	{
 		std::reverse(cptr, cptr + size -1);
-	}
-
 
 	if(negative)
 		l = -l;

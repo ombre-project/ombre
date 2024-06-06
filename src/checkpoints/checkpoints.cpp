@@ -29,6 +29,9 @@ using namespace epee;
 #include "serialization/keyvalue_serialization.h"
 #include "storages/portable_storage_template_helper.h" // epee json include
 #include "string_tools.h"
+#if BOOST_VERSION >= 106501
+using namespace boost::placeholders;
+#endif
 
 //#undef RYO_DEFAULT_LOG_CATEGORY
 //#define RYO_DEFAULT_LOG_CATEGORY "checkpoints"
@@ -129,8 +132,8 @@ uint64_t checkpoints::get_max_height() const
 {
 	std::map<uint64_t, crypto::hash>::const_iterator highest =
 		std::max_element(m_points.begin(), m_points.end(),
-						 (boost::bind(&std::map<uint64_t, crypto::hash>::value_type::first, boost::placeholders::_1) <
-						  boost::bind(&std::map<uint64_t, crypto::hash>::value_type::first, boost::placeholders::_2)));
+						 (boost::bind(&std::map<uint64_t, crypto::hash>::value_type::first, _1) <
+						  boost::bind(&std::map<uint64_t, crypto::hash>::value_type::first, _2)));
 	return highest->first;
 }
 //---------------------------------------------------------------------------
