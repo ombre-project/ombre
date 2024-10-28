@@ -31,6 +31,9 @@
 #include "misc_log_ex.h"
 #include <boost/foreach.hpp>
 #include <boost/utility/value_init.hpp>
+#include <boost/mpl/contains.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/variant.hpp>
 
 namespace epee
 {

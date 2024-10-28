@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <unordered_set>
+#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "blockchain.h"
@@ -35,6 +37,8 @@
 #include "misc_language.h"
 #include "tx_pool.h"
 #include "warnings.h"
+
+#include "syncobj.h" // not sure 100%
 
 //#undef RYO_DEFAULT_LOG_CATEGORY
 //#define RYO_DEFAULT_LOG_CATEGORY "txpool"

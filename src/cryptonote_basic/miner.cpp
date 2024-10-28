@@ -25,6 +25,7 @@
 #include "file_io_utils.h"
 #include "include_base_utils.h"
 #include "misc_language.h"
+#include "misc_os_dependent.h"
 #include "storages/portable_storage_template_helper.h"
 #include "string_coding.h"
 #include "string_tools.h"

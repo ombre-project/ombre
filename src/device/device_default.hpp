@@ -19,6 +19,11 @@
 
 #pragma once
 
+#include <boost/mpl/contains.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/variant.hpp>
+#include <map>
+#include <memory>
 #include "device.hpp"
 
 namespace hw

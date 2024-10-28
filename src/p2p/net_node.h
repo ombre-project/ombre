@@ -25,6 +25,7 @@
 #include <boost/serialization/version.hpp>
 #include <boost/thread.hpp>
 #include <boost/uuid/uuid.hpp>
+#include <boost/unordered_map.hpp>
 
 #include "common/command_line.h"
 #include "cryptonote_config.h"

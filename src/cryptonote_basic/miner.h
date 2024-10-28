@@ -36,6 +36,8 @@
 #include <unistd.h>
 #endif
 
+#include "syncobj.h"
+
 namespace cryptonote
 {
 
