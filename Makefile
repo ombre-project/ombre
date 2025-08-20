@@ -35,6 +35,10 @@ cmake-debug:
 debug: cmake-debug
 	cd build/debug && $(MAKE)
 
+debug-win64:
+	mkdir -p build/debug
+	cd build/debug && cmake -G "MSYS Makefiles" -D CMAKE_BUILD_TYPE=Debug ../.. && $(MAKE)
+
 # Temporarily disable some tests:
 #  * libwallet_api_tests fail (Issue #895)
 debug-test:
@@ -127,4 +131,4 @@ clean:
 tags:
 	ctags -R --sort=1 --c++-kinds=+p --fields=+iaS --extra=+q --language-force=C++ src contrib tests/gtest
 
-.PHONY: all cmake-debug debug debug-test debug-all cmake-release release release-test release-all clean tags
+.PHONY: all cmake-debug debug debug-win64 debug-test debug-all cmake-release release release-test release-all clean tags

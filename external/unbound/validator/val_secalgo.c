@@ -41,6 +41,7 @@
  * and do the library calls (for the crypto library in use).
  */
 #include "config.h"
+#define HAVE_EVP_MD_CTX_NEW
 /* packed_rrset on top to define enum types (forced by c99 standard) */
 #include "util/data/packed_rrset.h"
 #include "validator/val_secalgo.h"

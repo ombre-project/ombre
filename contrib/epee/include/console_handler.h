@@ -183,9 +183,9 @@ class async_stdin_reader
 			int retval = ::WaitForSingleObject(::GetStdHandle(STD_INPUT_HANDLE), 100);
 			switch(retval)
 			{
-			case WAIT_FAILED:
+			case static_cast<int>(WAIT_FAILED):
 				return false;
-			case WAIT_OBJECT_0:
+			case static_cast<int>(WAIT_OBJECT_0):
 				return true;
 			default:
 				break;

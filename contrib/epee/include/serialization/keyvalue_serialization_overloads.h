@@ -31,6 +31,7 @@
 #include <deque>
 #include <list>
 #include <set>
+#include <cstdint>
 #include <vector>
 #include "misc_log_ex.h"
 

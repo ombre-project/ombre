@@ -120,11 +120,16 @@ target_link_libraries(blockchain_import
     version
     ccnconfig
     epee
+	common
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(blockchain_import PRIVATE crypto Crypt32)
+endif()
 
 if(ARCH_WIDTH)
   target_compile_definitions(blockchain_import
@@ -148,11 +153,16 @@ target_link_libraries(blockchain_export
     version
     ccnconfig
     epee
+	common
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(blockchain_export PRIVATE crypto Crypt32)
+endif()
 
 set_property(TARGET blockchain_export
 	PROPERTY
@@ -172,12 +182,17 @@ target_link_libraries(blockchain_blackball
     version
     ccnconfig
     epee
+	common
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${Boost_LOCALE_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(blockchain_blackball PRIVATE crypto Crypt32)
+endif()
 
 set_property(TARGET blockchain_blackball
 	PROPERTY
@@ -197,11 +212,16 @@ target_link_libraries(blockchain_usage
     version
     ccnconfig
     epee
+	common
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_THREAD_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(blockchain_usage PRIVATE crypto Crypt32)
+endif()
 
 set_property(TARGET blockchain_usage
 	PROPERTY
