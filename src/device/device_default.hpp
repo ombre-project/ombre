@@ -20,6 +20,7 @@
 #pragma once
 
 #include "device.hpp"
+#include <map>
 
 namespace hw
 {

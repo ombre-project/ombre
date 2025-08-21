@@ -65,6 +65,11 @@ target_link_libraries(gen_multisig
     ${EXTRA_LIBRARIES})
 add_dependencies(gen_multisig
   version)
+
+if(WIN32)
+    target_link_libraries(gen_multisig PRIVATE crypto Crypt32)
+endif()
+
 set_property(TARGET gen_multisig
   PROPERTY
     OUTPUT_NAME "ombre-gen-trusted-multisig")

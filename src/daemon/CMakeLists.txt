@@ -42,6 +42,10 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+if(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+endif()
+
 set(blocksdat "")
 if(PER_BLOCK_CHECKPOINT)
   if(APPLE)
@@ -121,6 +125,11 @@ target_link_libraries(daemon
     ${ZMQ_LIB}
     ${GNU_READLINE_LIBRARY}
     ${EXTRA_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(daemon PRIVATE crypto Crypt32)
+endif()
+
 set_property(TARGET daemon
   PROPERTY
     OUTPUT_NAME "ombred")

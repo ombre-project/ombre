@@ -58,7 +58,12 @@ target_link_libraries(cn_deserialize
     ringct
     p2p
     epee
+	common
     ${CMAKE_THREAD_LIBS_INIT})
+	
+if(WIN32)
+    target_link_libraries(cn_deserialize PRIVATE crypto Crypt32)
+endif()
 
 set_property(TARGET cn_deserialize
 	PROPERTY
@@ -79,7 +84,12 @@ target_link_libraries(object_sizes
     blockchain_db
     p2p
     epee
+	common
     ${CMAKE_THREAD_LIBS_INIT})
+
+if(WIN32)
+    target_link_libraries(object_sizes PRIVATE crypto Crypt32)
+endif()
 
 set_property(TARGET object_sizes
 	PROPERTY

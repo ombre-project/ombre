@@ -19,6 +19,7 @@
 #pragma once
 
 #include "misc_log_ex.h"
+#include <cstdint>
 #include <memory>
 #include <stdio.h>
 #include <string>

@@ -57,11 +57,11 @@ class writer
 
 	/*! print data */
 	template <typename T>
-	writer &operator<<(const T &value)
-	{
-		print(value);
-		return *this;
-	}
+	writer &operator<<(const T &value);
+	//{
+	//	print(value);
+	//	return *this;
+	//}
 
 	/*! print char arrays */
 	writer &operator<<(const char *value);

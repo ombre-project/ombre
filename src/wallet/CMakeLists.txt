@@ -44,6 +44,10 @@
 
 # include (${PROJECT_SOURCE_DIR}/cmake/libutils.cmake)
 
+if(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+endif()
+
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set(wallet_sources
@@ -116,6 +120,11 @@ target_link_libraries(wallet_rpc_server
     ${Boost_THREAD_LIBRARY}
     ${CMAKE_THREAD_LIBS_INIT}
     ${EXTRA_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(wallet_rpc_server PRIVATE crypto Crypt32)
+endif()
+
 set_property(TARGET wallet_rpc_server
   PROPERTY
     OUTPUT_NAME "ombre-wallet-rpc")

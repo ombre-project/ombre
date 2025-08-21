@@ -42,6 +42,10 @@
 # STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
 # THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+if(WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,-mbig-obj")
+endif()
+
 set(simplewallet_sources
   simplewallet.cpp)
 
@@ -76,6 +80,11 @@ target_link_libraries(simplewallet
     ${CMAKE_THREAD_LIBS_INIT}
     ${GNU_READLINE_LIBRARY}
     ${EXTRA_LIBRARIES})
+
+if(WIN32)
+    target_link_libraries(simplewallet PRIVATE crypto Crypt32)
+endif()
+
 set_property(TARGET simplewallet
   PROPERTY
     OUTPUT_NAME "ombre-wallet-cli")
