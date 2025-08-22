@@ -43,6 +43,80 @@ The development fee will be used to pay for development, exchanges and marketing
 - **Emission scheme**: Ombre's block reward changes _every 6-months_ as the following "Camel" distribution* (inspired by _real-world mining production_ like of crude oil, coal etc. that is often slow at first,
 accelerated in the next few years before declined and depleted). This great emission scheme was first introduced in Sumokoin.
 
+
+## Compiling ombre from source
+
+### Windows
+**Operating System:** Windows 10 64-bit
+**Environment:** MSYS2 / mingw64
+
+These packages were explicitly installed on MSYS2:
+- `base-devel`
+- `mingw-w64-x86_64-icu`
+- `mingw-w64-x86_64-toolchain`
+- `mingw-w64-x86_64-cmake`
+- `mingw-w64-x86_64-zeromq`
+- `mingw-w64-x86_64-cppzmq`
+- `mingw-w64-x86_64-doxygen`
+- `mingw-w64-x86_64-graphviz`
+
+_Some packages, such as `libsodium`, were installed implicitly as dependencies of the above packages._
+
+**Boost installation:**
+The default Boost packages in MSYS2 do not include static libraries, so Boost static libraries were built from source following these steps:
+
+```
+wget https://github.com/boostorg/boost/releases/download/boost-1.84.0/boost-1.84.0.tar.gz
+tar -xvf boost-1.84.0.tar.gz
+cd boost-1.84.0
+./bootstrap.sh
+./b2 variant=release link=static runtime-link=static threading=multi install -j$(nproc)
+./b2 headers
+```
+
+This process installs the `lib` and `include` folders by default under `C:/usr/local`. The installation path can be customized during `b2` execution, but ultimately the `lib` and `include` directories must be placed in `[MSYS2 install folder]/mingw64/`.
+
+_Note: MSYS2 can theoretically be installed in a custom directory, but it is strongly recommended to use the default path, because the project may not find some libraries and files outside of it._
+
+**Building the project:**
+After completing the steps above, the project can be compiled using:
+```
+make debug-win64
+```
+or
+```
+make release-static-win64
+```
+_Note: debug output directory can get as big as 2.06GB, so building the release version is recommended._
+
+---
+
+### Ubuntu
+**Operating System:** Ubuntu (Desktop/Server) 24.04.1 LTS
+
+**Required packages:**
+The packages below are required for successful build:
+```
+sudo apt update
+sudo apt install build-essential cmake pkg-config libboost-all-dev libssl-dev libzmq3-dev
+```
+You might also need:
+```
+sudo apt install cppzmq-dev libreadline-dev
+```
+In testing, cppzmq-dev was required on a fresh Ubuntu Server 24 installation, and libreadline-dev was required on Desktop. These may or may not be needed depending on your environment, but it is recommended to install both to avoid issues.
+
+_Some packages listed in README.md were installed implicitly as dependencies of the above._
+
+**Building the project:**
+After installing the required dependencies, the project can be built as usual with:
+```
+make debug
+```
+_Note: release build is also built with `make release-static`, however that will need manually building static boost libraries because they do not come by default on Ubuntu_
+
+---
+
 ## Roadmap 2019
 
 ### Q3: Android wallet
@@ -85,7 +159,7 @@ Along with each release you can find our [precompiled binaries](https://github.c
 To verify that the downloaded binaries are created by one of our developer please verify the checksums.
 The authenticity of the checksums can by verified with the [PGP-key's](docs/pgp_keys.md).
 
-## Compiling ombre from source
+## Compiling ombre from source for older Ubuntu versions
 
 ### Dependencies
 
